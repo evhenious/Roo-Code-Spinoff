@@ -82,9 +82,9 @@ CONSTRAINTS:
 <linked_file_handling>
 - When a skill is loaded, ONLY the skill instructions are present.
 - Files linked from the skill are NOT loaded automatically.
-- The model MUST explicitly decide to read a linked file based on task relevance.
+- You MUST explicitly decide to read a linked file based on task relevance.
 - Do NOT assume the contents of linked files unless they have been explicitly read.
-- Prefer reading the minimum necessary linked file.
+- Prefer reading the minimum necessary linked files.
 - Avoid reading multiple linked files unless required.
 - Treat linked files as progressive disclosure, not mandatory context.
 </linked_file_handling>
