@@ -15,14 +15,8 @@ export abstract class BaseTelemetryClient implements TelemetryClient {
 		protected readonly debug = false,
 	) {}
 
-	protected isEventCapturable(eventName: TelemetryEventName): boolean {
-		if (!this.subscription) {
-			return true
-		}
-
-		return this.subscription.type === "include"
-			? this.subscription.events.includes(eventName)
-			: !this.subscription.events.includes(eventName)
+	protected isEventCapturable(_eventName: TelemetryEventName): boolean {
+		return false
 	}
 
 	/**
@@ -30,7 +24,7 @@ export abstract class BaseTelemetryClient implements TelemetryClient {
 	 * Override in subclasses to filter specific properties
 	 */
 	protected isPropertyCapturable(_propertyName: string): boolean {
-		return true
+		return false
 	}
 
 	protected async getEventProperties(event: TelemetryEvent): Promise<TelemetryEvent["properties"]> {
@@ -68,7 +62,7 @@ export abstract class BaseTelemetryClient implements TelemetryClient {
 	public abstract updateTelemetryState(didUserOptIn: boolean): void
 
 	public isTelemetryEnabled(): boolean {
-		return this.telemetryEnabled
+		return false
 	}
 
 	public abstract shutdown(): Promise<void>
