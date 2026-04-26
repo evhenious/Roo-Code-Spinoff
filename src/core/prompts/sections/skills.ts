@@ -67,8 +67,8 @@ Step 2: Branching Decision
 </if_skill_applies>
 
 <if_no_skill_applies>
-- Proceed with a normal response.
 - Do NOT load any SKILL.md files.
+- Proceed with your response based on data and information you currently have.
 </if_no_skill_applies>
 
 CONSTRAINTS:
