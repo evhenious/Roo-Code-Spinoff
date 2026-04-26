@@ -502,12 +502,12 @@ describe("addCustomInstructions", () => {
 			"global instructions",
 			"/fake/path",
 			"test-mode",
-			{ language: "es" },
+			{ language: "en" },
 		)
 
 		expect(result).toContain("Language Preference:")
-		expect(result).toContain("Español") // Check for language name
-		expect(result).toContain("(es)") // Check for language code in parentheses
+		expect(result).toContain("English") // Check for language name
+		expect(result).toContain("(en)") // Check for language code in parentheses
 		expect(result).toContain("Global Instructions:\nglobal instructions")
 		expect(result).toContain("Mode-specific Instructions:\nmode instructions")
 		expect(result).toContain("Rules from .roorules-test-mode:\nmode specific rules")
@@ -956,6 +956,25 @@ describe("addCustomInstructions", () => {
 		expect(result).toContain("Global Instructions:\nglobal instructions")
 	})
 
+	it("should handle English language code properly", async () => {
+		// Simulate no .roo/rules-test-mode directory
+		statMock.mockRejectedValueOnce({ code: "ENOENT" })
+
+		readFileMock.mockRejectedValue({ code: "ENOENT" })
+
+		const result = await addCustomInstructions(
+			"mode instructions",
+			"global instructions",
+			"/fake/path",
+			"test-mode",
+			{ language: "en" },
+		)
+
+		expect(result).toContain("Language Preference:")
+		expect(result).toContain('"English" (en) language')
+		expect(result).toContain("Global Instructions:\nglobal instructions")
+	})
+
 	it("should throw on unexpected errors", async () => {
 		// Simulate no .roo/rules-test-mode directory
 		statMock.mockRejectedValueOnce({ code: "ENOENT" })
@@ -1048,7 +1067,7 @@ describe("addCustomInstructions", () => {
 			"global instructions",
 			"/fake/path",
 			"test-mode",
-			{ language: "es" },
+			{ language: "en" },
 		)
 
 		// Paths in output should be relative

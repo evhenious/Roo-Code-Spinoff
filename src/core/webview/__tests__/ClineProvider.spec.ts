@@ -769,12 +769,12 @@ describe("ClineProvider", () => {
 		expect(state).toHaveProperty("writeDelayMs")
 	})
 
-	test("language is set to VSCode language", async () => {
-		// Mock VSCode language as Spanish
+	test("language defaults to English when VSCode language is unsupported", async () => {
+		// Mock VSCode language as unsupported locale
 		;(vscode.env as any).language = "pt-BR"
 
 		const state = await provider.getState()
-		expect(state.language).toBe("pt-BR")
+		expect(state.language).toBe("en")
 	})
 
 	test("writeDelayMs defaults to 1000ms", async () => {

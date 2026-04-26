@@ -54,7 +54,7 @@ export type CommandId = (typeof commandIds)[number]
  * Language
  */
 
-export const languages = ["de", "en", "pl"] as const
+export const languages = ["en"] as const
 
 export const languagesSchema = z.enum(languages)
 

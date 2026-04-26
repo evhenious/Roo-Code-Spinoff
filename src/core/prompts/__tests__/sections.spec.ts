@@ -5,17 +5,17 @@ import { McpHub } from "../../../services/mcp/McpHub"
 import * as shellUtils from "../../../utils/shell"
 
 describe("addCustomInstructions", () => {
-	it("adds vscode language to custom instructions", async () => {
+	it("adds English language to custom instructions when explicitly set", async () => {
 		const result = await addCustomInstructions(
 			"mode instructions",
 			"global instructions",
 			"/test/path",
 			"test-mode",
-			{ language: "fr" },
+			{ language: "en" },
 		)
 
 		expect(result).toContain("Language Preference:")
-		expect(result).toContain('You should always speak and think in the "Français" (fr) language')
+		expect(result).toContain('You should always speak and think in the "English" (en) language')
 	})
 
 	it("works without vscode language", async () => {
