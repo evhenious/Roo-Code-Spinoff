@@ -14,6 +14,5 @@ You have access to a set of tools that are executed upon the user's approval. Us
 5. **No Silent Assumptions:** Do not assume the outcome of any tool use. Each step must be informed by the previous step's result.
 
 By carefully considering the user's response after tool executions, you can react accordingly and make informed decisions about how to proceed with the task. This iterative process helps ensure the overall success and accuracy of your work.
-
 `
 }
