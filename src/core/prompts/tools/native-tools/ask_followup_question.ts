@@ -1,6 +1,7 @@
 import type OpenAI from "openai"
 
-const ASK_FOLLOWUP_QUESTION_DESCRIPTION = `Ask the user a question to gather additional information needed to complete the task. Use when you need clarification or more details to proceed effectively.
+const ASK_FOLLOWUP_QUESTION_DESCRIPTION = `Ask the user a question to gather additional information needed to complete the task.
+Use when you need clarification or more details to proceed effectively.
 
 Parameters:
 - question: (required) A clear, specific question addressing the information needed
