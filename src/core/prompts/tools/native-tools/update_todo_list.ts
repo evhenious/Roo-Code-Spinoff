@@ -28,8 +28,7 @@ When to Use:
 - New actionable items are discovered during execution
 
 When NOT to Use:
-- Only a single, trivial task
-- Task can be completed in one or two simple steps
+- A single trivial task
 - Request is purely conversational or informational`
 
 const TODOS_PARAMETER_DESCRIPTION = `Full markdown checklist in execution order, using [ ] for pending, [x] for completed, and [-] for in progress`

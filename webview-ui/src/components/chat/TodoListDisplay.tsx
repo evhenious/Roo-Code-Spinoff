@@ -20,6 +20,7 @@ export function TodoListDisplay({ todos }: { todos: any[] }) {
 	const [isCollapsed, setIsCollapsed] = useState(true)
 	const ulRef = useRef<HTMLUListElement>(null)
 	const itemRefs = useRef<(HTMLLIElement | null)[]>([])
+
 	const scrollIndex = useMemo(() => {
 		const inProgressIdx = todos.findIndex((todo: any) => todo.status === "in_progress")
 		if (inProgressIdx !== -1) return inProgressIdx
@@ -30,12 +31,15 @@ export function TodoListDisplay({ todos }: { todos: any[] }) {
 	const mostImportantTodo = useMemo(() => {
 		const inProgress = todos.find((todo: any) => todo.status === "in_progress")
 		if (inProgress) return inProgress
+
 		return todos.find((todo: any) => todo.status !== "completed")
 	}, [todos])
+
 	useEffect(() => {
 		if (isCollapsed) return
 		if (!ulRef.current) return
 		if (scrollIndex === -1) return
+
 		const target = itemRefs.current[scrollIndex]
 		if (target && ulRef.current) {
 			const ul = ulRef.current
@@ -46,6 +50,7 @@ export function TodoListDisplay({ todos }: { todos: any[] }) {
 			ul.scrollTop = scrollTo
 		}
 	}, [todos, isCollapsed, scrollIndex])
+
 	if (!Array.isArray(todos) || todos.length === 0) return null
 
 	const totalCount = todos.length
