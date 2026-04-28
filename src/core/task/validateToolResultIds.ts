@@ -1,6 +1,5 @@
 import { Anthropic } from "@anthropic-ai/sdk"
 import { TelemetryService } from "@roo-code/telemetry"
-import { findLastIndex } from "../../shared/array"
 
 /**
  * Custom error class for tool result ID mismatches.
@@ -57,7 +56,7 @@ export function validateAndFixToolResultIds(
 	}
 
 	// Find the previous assistant message from conversation history
-	const prevAssistantIdx = findLastIndex(apiConversationHistory, (msg) => msg.role === "assistant")
+	const prevAssistantIdx = apiConversationHistory.findLastIndex((msg) => msg.role === "assistant")
 	if (prevAssistantIdx === -1) {
 		return userMessage
 	}

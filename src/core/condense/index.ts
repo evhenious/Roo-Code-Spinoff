@@ -7,7 +7,6 @@ import { t } from "../../i18n"
 import { ApiHandler, ApiHandlerCreateMessageMetadata } from "../../api"
 import { ApiMessage } from "../task-persistence/apiMessages"
 import { maybeRemoveImageBlocks } from "../../api/transform/image-cleaning"
-import { findLast } from "../../shared/array"
 import { supportPrompt } from "../../shared/support-prompt"
 import { RooIgnoreController } from "../ignore/RooIgnoreController"
 import { generateFoldedFileContext } from "./foldedFileContext"
@@ -545,7 +544,7 @@ export function getMessagesSinceLastSummary(messages: ApiMessage[]): ApiMessage[
  */
 export function getEffectiveApiHistory(messages: ApiMessage[]): ApiMessage[] {
 	// Find the most recent summary message
-	const lastSummary = findLast(messages, (msg) => msg.isSummary === true)
+	const lastSummary = messages.findLast((msg) => msg.isSummary === true)
 
 	if (lastSummary) {
 		// Fresh start model: return only messages from the summary onwards

@@ -63,7 +63,6 @@ import { ApiStream, GroundingSource } from "../../api/transform/stream"
 import { maybeRemoveImageBlocks } from "../../api/transform/image-cleaning"
 
 // shared
-import { findLastIndex } from "../../shared/array"
 import { combineApiRequests } from "../../shared/combineApiRequests"
 import { combineCommandSequences } from "../../shared/combineCommandSequences"
 import { t } from "../../i18n"
@@ -1515,9 +1514,8 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 
 		// Mark the last follow-up question as answered
 		if (askResponse === "messageResponse" || askResponse === "yesButtonClicked") {
-			// Find the last unanswered follow-up message using findLastIndex
-			const lastFollowUpIndex = findLastIndex(
-				this.clineMessages,
+			// Find the last unanswered follow-up message
+			const lastFollowUpIndex = this.clineMessages.findLastIndex(
 				(msg) => msg.type === "ask" && msg.ask === "followup" && !msg.isAnswered,
 			)
 
@@ -1533,8 +1531,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 
 		// Mark the last tool-approval ask as answered when user approves (or auto-approval)
 		if (askResponse === "yesButtonClicked") {
-			const lastToolAskIndex = findLastIndex(
-				this.clineMessages,
+			const lastToolAskIndex = this.clineMessages.findLastIndex(
 				(msg) => msg.type === "ask" && msg.ask === "tool" && !msg.isAnswered,
 			)
 			if (lastToolAskIndex !== -1) {
@@ -2003,8 +2000,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 			const modifiedClineMessages = await this.getSavedClineMessages()
 
 			// Remove any resume messages that may have been added before.
-			const lastRelevantMessageIndex = findLastIndex(
-				modifiedClineMessages,
+			const lastRelevantMessageIndex = modifiedClineMessages.findLastIndex(
 				(m) => !(m.ask === "resume_task" || m.ask === "resume_completed_task"),
 			)
 
@@ -2026,8 +2022,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 			// last `api_req_started` has a cost value, if it doesn't and no
 			// cancellation reason to present, then we remove it since it indicates
 			// an api request without any partial content streamed.
-			const lastApiReqStartedIndex = findLastIndex(
-				modifiedClineMessages,
+			const lastApiReqStartedIndex = modifiedClineMessages.findLastIndex(
 				(m) => m.type === "say" && m.say === "api_req_started",
 			)
 
@@ -2664,7 +2659,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 			// webview while waiting to actually start the API request (to load
 			// potential details for example), we need to update the text of that
 			// message.
-			const lastApiReqIndex = findLastIndex(this.clineMessages, (m) => m.say === "api_req_started")
+			const lastApiReqIndex = this.clineMessages.findLastIndex((m) => m.say === "api_req_started")
 
 			this.clineMessages[lastApiReqIndex].text = JSON.stringify({
 				apiProtocol,
@@ -3389,8 +3384,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 				// We can't use say() here because the reasoning message may not be the last message
 				// (other messages like text blocks or tool uses may have been added after it during streaming)
 				if (reasoningMessage) {
-					const lastReasoningIndex = findLastIndex(
-						this.clineMessages,
+					const lastReasoningIndex = this.clineMessages.findLastIndex(
 						(m) => m.type === "say" && m.say === "reasoning",
 					)
 
@@ -4234,6 +4228,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 				throw new Error("Provider reference lost during tool building")
 			}
 
+			//!! tool definitions are injected here
 			const toolsResult = await buildNativeToolsArrayWithRestrictions({
 				provider,
 				cwd: this.cwd,

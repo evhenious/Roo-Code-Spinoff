@@ -13,7 +13,6 @@ import { batchConsecutive } from "@src/utils/batchConsecutive"
 import type { ClineAsk, ClineSayTool, ClineMessage, ExtensionMessage, AudioType } from "@roo-code/types"
 import { isRetiredProvider } from "@roo-code/types"
 
-import { findLast } from "@roo/array"
 import { SuggestionItem } from "@roo-code/types"
 import { combineApiRequests } from "@roo/combineApiRequests"
 import { combineCommandSequences } from "@roo/combineCommandSequences"
@@ -534,8 +533,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 		if (isLastMessagePartial) {
 			return true
 		} else {
-			const lastApiReqStarted = findLast(
-				modifiedMessages,
+			const lastApiReqStarted = modifiedMessages.findLast(
 				(message: ClineMessage) => message.say === "api_req_started",
 			)
 
