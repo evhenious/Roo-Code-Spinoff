@@ -3402,7 +3402,6 @@ export const webviewMessageHandler = async (
 			// "indexingStatusUpdate" |
 			// "indexCleared" |
 			// "marketplaceInstallResult" |
-			// "shareTaskSuccess" |
 			// "playSound" |
 			// "draggedImages" |
 			// "setApiConfigPassword" |
