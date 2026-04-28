@@ -3,9 +3,7 @@ import * as path from "path"
 import * as os from "os"
 import { z } from "zod"
 
-import { CloudService, getClerkBaseUrl, PRODUCTION_CLERK_BASE_URL } from "@roo-code/cloud"
-
-import { t } from "../../i18n"
+import { getClerkBaseUrl, PRODUCTION_CLERK_BASE_URL } from "@roo-code/cloud"
 
 // MDM Configuration Schema
 const mdmConfigSchema = z.object({
@@ -61,55 +59,6 @@ export class MdmService {
 	 */
 	public isCompliant(): ComplianceResult {
 		// If no MDM policy, always compliant
-		if (!this.requiresCloudAuth()) {
-			return { compliant: true }
-		}
-
-		// Check if cloud service is available and has active or attempting session
-		if (!CloudService.hasInstance() || !CloudService.instance.hasOrIsAcquiringActiveSession()) {
-			return {
-				compliant: false,
-				reason: t("mdm.errors.cloud_auth_required"),
-			}
-		}
-
-		// Check organization match if specified
-		const requiredOrgId = this.getRequiredOrganizationId()
-		if (requiredOrgId) {
-			try {
-				// First try to get from active session
-				let currentOrgId = CloudService.instance.getOrganizationId()
-
-				// If no active session, check stored credentials
-				if (!currentOrgId) {
-					const storedOrgId = CloudService.instance.getStoredOrganizationId()
-
-					// null means personal account, which is not compliant for org requirements
-					if (storedOrgId === null || storedOrgId !== requiredOrgId) {
-						return {
-							compliant: false,
-							reason: t("mdm.errors.organization_mismatch"),
-						}
-					}
-
-					currentOrgId = storedOrgId
-				}
-
-				if (currentOrgId !== requiredOrgId) {
-					return {
-						compliant: false,
-						reason: t("mdm.errors.organization_mismatch"),
-					}
-				}
-			} catch (error) {
-				this.log("[MDM] Error checking organization ID:", error)
-				return {
-					compliant: false,
-					reason: t("mdm.errors.verification_failed"),
-				}
-			}
-		}
-
 		return { compliant: true }
 	}
 

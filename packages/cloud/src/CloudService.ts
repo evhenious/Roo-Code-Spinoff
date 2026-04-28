@@ -31,6 +31,7 @@ type AuthStateChangedPayload = CloudServiceEvents["auth-state-changed"][0]
 type AuthUserInfoPayload = CloudServiceEvents["user-info"][0]
 type SettingsPayload = CloudServiceEvents["settings-updated"][0]
 
+// DEPRECATION state. Need to cut it off
 export class CloudService extends EventEmitter<CloudServiceEvents> implements Disposable {
 	private static _instance: CloudService | null = null
 
