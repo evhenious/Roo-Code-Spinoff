@@ -253,8 +253,6 @@ const mockPostMessage = (state: Partial<ExtensionState>) => {
 
 const defaultProps: ChatViewProps = {
 	isHidden: false,
-	showAnnouncement: false,
-	hideAnnouncement: () => {},
 }
 
 const queryClient = new QueryClient()

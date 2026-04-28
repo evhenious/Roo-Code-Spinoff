@@ -504,7 +504,6 @@ describe("ClineProvider", () => {
 			version: "1.0.0",
 			clineMessages: [],
 			taskHistory: [],
-			shouldShowAnnouncement: false,
 			apiConfiguration: {
 				apiProvider: "openrouter",
 			},

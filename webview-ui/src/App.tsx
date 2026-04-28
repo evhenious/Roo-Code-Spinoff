@@ -51,21 +51,12 @@ const tabsByMessageAction: Partial<Record<NonNullable<ExtensionMessage["action"]
 }
 
 const App = () => {
-	const {
-		didHydrateState,
-		showWelcome,
-		shouldShowAnnouncement,
-		telemetrySetting,
-		telemetryKey,
-		machineId,
-		renderContext,
-		mdmCompliant,
-	} = useExtensionState()
+	const { didHydrateState, showWelcome, telemetrySetting, telemetryKey, machineId, renderContext, mdmCompliant } =
+		useExtensionState()
 
 	// Create a persistent state manager
 	const marketplaceStateManager = useMemo(() => new MarketplaceViewStateManager(), [])
 
-	const [showAnnouncement, setShowAnnouncement] = useState(false)
 	const [tab, setTab] = useState<Tab>("chat")
 
 	const [deleteMessageDialogState, setDeleteMessageDialogState] = useState<DeleteMessageDialogState>({
@@ -165,13 +156,6 @@ const App = () => {
 	useEvent("message", onMessage)
 
 	useEffect(() => {
-		if (shouldShowAnnouncement && tab === "chat") {
-			setShowAnnouncement(true)
-			vscode.postMessage({ type: "didShowAnnouncement" })
-		}
-	}, [shouldShowAnnouncement, tab])
-
-	useEffect(() => {
 		if (didHydrateState) {
 			telemetryClient.updateTelemetryState(telemetrySetting, telemetryKey, machineId)
 		}
@@ -231,12 +215,7 @@ const App = () => {
 					targetTab={currentMarketplaceTab as "mcp" | "mode" | undefined}
 				/>
 			)}
-			<ChatView
-				ref={chatViewRef}
-				isHidden={tab !== "chat"}
-				showAnnouncement={showAnnouncement}
-				hideAnnouncement={() => setShowAnnouncement(false)}
-			/>
+			<ChatView ref={chatViewRef} isHidden={tab !== "chat"} />
 			{deleteMessageDialogState.hasCheckpoint ? (
 				<MemoizedCheckpointRestoreDialog
 					open={deleteMessageDialogState.isOpen}

@@ -314,7 +314,6 @@ export type ExtensionState = Pick<
 	currentTaskTodos?: TodoItem[] // Initial todos for the current task
 	apiConfiguration: ProviderSettings
 	uriScheme?: string
-	shouldShowAnnouncement: boolean
 
 	taskHistory: HistoryItem[]
 
@@ -366,7 +365,6 @@ export type ExtensionState = Pick<
 	hasOpenedModeSelector: boolean
 	openRouterImageApiKey?: string
 	messageQueue?: QueuedMessage[]
-	lastShownAnnouncementId?: string
 	apiModelId?: string
 	mcpServers?: McpServer[]
 	mdmCompliant?: boolean
@@ -425,7 +423,6 @@ export interface WebviewMessage {
 		| "askResponse"
 		| "terminalOperation"
 		| "clearTask"
-		| "didShowAnnouncement"
 		| "selectImages"
 		| "exportCurrentTask"
 		| "shareCurrentTask"

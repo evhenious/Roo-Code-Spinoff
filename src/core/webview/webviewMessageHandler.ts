@@ -750,10 +750,6 @@ export const webviewMessageHandler = async (
 			await provider.clearTask()
 			await provider.postStateToWebview()
 			break
-		case "didShowAnnouncement":
-			await updateGlobalState("lastShownAnnouncementId", provider.latestAnnouncementId)
-			await provider.postStateToWebview()
-			break
 		case "selectImages":
 			const images = await selectImages()
 			await provider.postMessageToWebview({

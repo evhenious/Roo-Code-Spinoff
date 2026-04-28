@@ -8,9 +8,7 @@ import { useExtensionState } from "@src/context/ExtensionStateContext"
 import { vscode } from "@src/utils/vscode"
 import { telemetryClient } from "@src/utils/TelemetryClient"
 import { ToggleSwitch } from "@/components/ui/toggle-switch"
-import { renderCloudBenefitsContent } from "./CloudUpsellDialog"
 import { ArrowRight, Info, Lock, TriangleAlert } from "lucide-react"
-import { cn } from "@/lib/utils"
 import { Tab, TabContent } from "../common/Tab"
 import { Button } from "@/components/ui/button"
 import { OrganizationSwitcher } from "./OrganizationSwitcher"
@@ -226,8 +224,6 @@ export const CloudView = ({ userInfo, isAuthenticated, cloudApiUrl, organization
 				) : (
 					<>
 						<div className="flex flex-col items-start gap-4 px-4 max-w-lg">
-							<div className={cn(authInProgress && "opacity-50")}>{renderCloudBenefitsContent(t)}</div>
-
 							{!authInProgress && (
 								<Button variant="primary" onClick={handleConnectClick}>
 									{t("cloud:connect")}
