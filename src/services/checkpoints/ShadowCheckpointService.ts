@@ -16,6 +16,27 @@ import { t } from "../../i18n"
 import { CheckpointDiff, CheckpointResult, CheckpointEventMap } from "./types"
 import { getExcludePatterns } from "./excludes"
 
+const COMMIT_TIMEOUT_MS = 15000 // 15 seconds
+const STAGE_TIMEOUT_MS = 30000 // 30 seconds
+const CLEAN_TIMEOUT_MS = 30000 // 30 seconds
+const RESET_TIMEOUT_MS = 30000 // 30 seconds
+
+/**
+ * Wraps a promise with a timeout. If the promise doesn't resolve within the specified
+ * time, it rejects with a timeout error.
+ *
+ * @param promise - The promise to wrap with a timeout
+ * @param ms - Timeout duration in milliseconds
+ * @param operationName - Name of the operation for error messaging
+ * @returns A promise that resolves with the original result or rejects on timeout/error
+ */
+function withTimeout<T>(promise: Promise<T>, ms: number, operationName: string): Promise<T> {
+	const timeout = new Promise<never>((_, reject) =>
+		setTimeout(() => reject(new Error(`${operationName} timed out after ${ms}ms`)), ms),
+	)
+	return Promise.race([promise, timeout])
+}
+
 /**
  * Creates a SimpleGit instance with sanitized environment variables to prevent
  * interference from inherited git environment variables like GIT_DIR and GIT_WORK_TREE.
@@ -219,11 +240,17 @@ export abstract class ShadowCheckpointService extends EventEmitter {
 
 	private async stageAll(git: SimpleGit) {
 		try {
-			await git.add([".", "--ignore-errors"])
+			await withTimeout(git.add([".", "--ignore-errors"]), STAGE_TIMEOUT_MS, "git add")
 		} catch (error) {
-			this.log(
-				`[${this.constructor.name}#stageAll] failed to add files to git: ${error instanceof Error ? error.message : String(error)}`,
-			)
+			const errorMessage = error instanceof Error ? error.message : String(error)
+
+			if (errorMessage.includes("timed out")) {
+				this.log(
+					`[${this.constructor.name}#stageAll] git add timed out after ${STAGE_TIMEOUT_MS}ms - this may indicate file locks or a large number of files. Continuing anyway.`,
+				)
+			} else {
+				this.log(`[${this.constructor.name}#stageAll] failed to add files to git: ${errorMessage}`)
+			}
 		}
 	}
 
@@ -307,10 +334,13 @@ export abstract class ShadowCheckpointService extends EventEmitter {
 
 			const startTime = Date.now()
 			await this.stageAll(this.git)
+
 			const commitArgs = options?.allowEmpty ? { "--allow-empty": null } : undefined
-			const result = await this.git.commit(message, commitArgs)
+			const result = await withTimeout(this.git.commit(message, commitArgs), COMMIT_TIMEOUT_MS, "git commit")
+
 			const fromHash = this._checkpoints[this._checkpoints.length - 1] ?? this.baseHash!
 			const toHash = result.commit || fromHash
+
 			this._checkpoints.push(toHash)
 			const duration = Date.now() - startTime
 
@@ -350,8 +380,9 @@ export abstract class ShadowCheckpointService extends EventEmitter {
 			}
 
 			const start = Date.now()
-			await this.git.clean("f", ["-d", "-f"])
-			await this.git.reset(["--hard", commitHash])
+
+			await withTimeout(this.git.clean("f", ["-d", "-f"]), CLEAN_TIMEOUT_MS, "git clean")
+			await withTimeout(this.git.reset(["--hard", commitHash]), RESET_TIMEOUT_MS, "git reset")
 
 			// Remove all checkpoints after the specified commitHash.
 			const checkpointIndex = this._checkpoints.indexOf(commitHash)
