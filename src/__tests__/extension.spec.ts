@@ -125,12 +125,6 @@ vi.mock("../services/code-index/manager", () => ({
 	},
 }))
 
-vi.mock("../services/mdm/MdmService", () => ({
-	MdmService: {
-		createInstance: vi.fn().mockResolvedValue(null),
-	},
-}))
-
 vi.mock("../utils/migrateSettings", () => ({
 	migrateSettings: vi.fn().mockResolvedValue(undefined),
 }))
