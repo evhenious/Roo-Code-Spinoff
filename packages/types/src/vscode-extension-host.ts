@@ -364,7 +364,6 @@ export type ExtensionState = Pick<
 	messageQueue?: QueuedMessage[]
 	apiModelId?: string
 	mcpServers?: McpServer[]
-	mdmCompliant?: boolean
 	taskSyncEnabled: boolean
 	openAiCodexIsAuthenticated?: boolean
 	debug?: boolean
@@ -533,7 +532,6 @@ export interface WebviewMessage {
 		| "deleteCommand"
 		| "createCommand"
 		| "insertTextIntoTextarea"
-		| "showMdmAuthRequiredNotification"
 		| "imageGenerationSettings"
 		| "queueMessage"
 		| "removeQueuedMessage"
