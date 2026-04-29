@@ -1,4 +1,4 @@
-import { ProviderSettings, ClineMessage, TelemetryEventName } from "@roo-code/types"
+import { ProviderSettings, ClineMessage } from "@roo-code/types"
 import { supportPrompt } from "../../shared/support-prompt"
 import { singleCompletionHandler } from "../../utils/single-completion-handler"
 import { ProviderSettingsManager } from "../config/ProviderSettingsManager"
@@ -122,14 +122,5 @@ export class MessageEnhancer {
 			console.error("Failed to extract task history:", error)
 			return ""
 		}
-	}
-
-	/**
-	 * Captures telemetry for prompt enhancement
-	 * @param taskId Optional task ID for telemetry tracking
-	 * @param includeTaskHistory Whether task history was included in the enhancement
-	 */
-	static captureTelemetry(taskId?: string, includeTaskHistory?: boolean): void {
-		// do nothing
 	}
 }

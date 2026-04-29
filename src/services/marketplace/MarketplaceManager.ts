@@ -118,19 +118,6 @@ export class MarketplaceManager {
 			const result = await this.installer.installItem(item, { target, parameters })
 			vscode.window.showInformationMessage(t("marketplace:installation.installSuccess", { itemName: item.name }))
 
-			// Capture telemetry for successful installation
-			const telemetryProperties: Record<string, any> = {}
-			if (parameters && Object.keys(parameters).length > 0) {
-				telemetryProperties.hasParameters = true
-				// For MCP items with multiple installation methods, track which one was used
-				if (item.type === "mcp" && parameters._selectedIndex !== undefined && Array.isArray(item.content)) {
-					const selectedMethod = item.content[parameters._selectedIndex]
-					if (selectedMethod && selectedMethod.name) {
-						telemetryProperties.installationMethodName = selectedMethod.name
-					}
-				}
-			}
-
 			// Open the config file that was modified, optionally at the specific line
 			const document = await vscode.workspace.openTextDocument(result.filePath)
 			const options: vscode.TextDocumentShowOptions = {}

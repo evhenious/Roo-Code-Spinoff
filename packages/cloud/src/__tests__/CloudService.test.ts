@@ -9,7 +9,6 @@ import { CloudService } from "../CloudService.js"
 import { WebAuthService } from "../WebAuthService.js"
 import { CloudSettingsService } from "../CloudSettingsService.js"
 import { CloudShareService } from "../CloudShareService.js"
-import { CloudTelemetryClient as TelemetryClient } from "../TelemetryClient.js"
 
 vi.mock("vscode", () => ({
 	ExtensionContext: vi.fn(),
@@ -30,8 +29,6 @@ vi.mock("../WebAuthService")
 vi.mock("../CloudSettingsService")
 
 vi.mock("../CloudShareService")
-
-vi.mock("../TelemetryClient")
 
 describe("CloudService", () => {
 	let mockContext: vscode.ExtensionContext
@@ -68,10 +65,6 @@ describe("CloudService", () => {
 	let mockShareService: {
 		shareTask: ReturnType<typeof vi.fn>
 		canShareTask: ReturnType<typeof vi.fn>
-	}
-
-	let mockTelemetryClient: {
-		backfillMessages: ReturnType<typeof vi.fn>
 	}
 
 	beforeEach(() => {
@@ -142,17 +135,11 @@ describe("CloudService", () => {
 			canShareTask: vi.fn().mockResolvedValue(true),
 		}
 
-		mockTelemetryClient = {
-			backfillMessages: vi.fn().mockResolvedValue(undefined),
-		}
-
 		vi.mocked(WebAuthService).mockImplementation(() => mockAuthService as unknown as WebAuthService)
 
 		vi.mocked(CloudSettingsService).mockImplementation(() => mockSettingsService as unknown as CloudSettingsService)
 
 		vi.mocked(CloudShareService).mockImplementation(() => mockShareService as unknown as CloudShareService)
-
-		vi.mocked(TelemetryClient).mockImplementation(() => mockTelemetryClient as unknown as TelemetryClient)
 	})
 
 	afterEach(() => {
@@ -530,7 +517,6 @@ describe("CloudService", () => {
 
 			expect(mockShareService.shareTask).toHaveBeenCalledTimes(1)
 			expect(mockShareService.shareTask).toHaveBeenCalledWith(taskId, visibility)
-			expect(mockTelemetryClient.backfillMessages).not.toHaveBeenCalled()
 			expect(result).toEqual(expectedResult)
 		})
 
@@ -561,8 +547,6 @@ describe("CloudService", () => {
 			expect(mockShareService.shareTask).toHaveBeenCalledTimes(2)
 			expect(mockShareService.shareTask).toHaveBeenNthCalledWith(1, taskId, visibility)
 			expect(mockShareService.shareTask).toHaveBeenNthCalledWith(2, taskId, visibility)
-			expect(mockTelemetryClient.backfillMessages).toHaveBeenCalledTimes(1)
-			expect(mockTelemetryClient.backfillMessages).toHaveBeenCalledWith(clineMessages, taskId)
 			expect(result).toEqual(expectedResult)
 		})
 
@@ -576,7 +560,6 @@ describe("CloudService", () => {
 			await expect(cloudService.shareTask(taskId, visibility)).rejects.toThrow(TaskNotFoundError)
 
 			expect(mockShareService.shareTask).toHaveBeenCalledTimes(1)
-			expect(mockTelemetryClient.backfillMessages).not.toHaveBeenCalled()
 		})
 
 		it("should not retry when non-TaskNotFoundError occurs", async () => {
@@ -597,7 +580,6 @@ describe("CloudService", () => {
 			await expect(cloudService.shareTask(taskId, visibility, clineMessages)).rejects.toThrow(genericError)
 
 			expect(mockShareService.shareTask).toHaveBeenCalledTimes(1)
-			expect(mockTelemetryClient.backfillMessages).not.toHaveBeenCalled()
 		})
 
 		it("should work with default parameters", async () => {
