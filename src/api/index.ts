@@ -22,7 +22,6 @@ import {
 	MistralHandler,
 	VsCodeLmHandler,
 	RequestyHandler,
-	UnboundHandler,
 	FakeAIHandler,
 	XAIHandler,
 	LiteLLMHandler,
@@ -153,8 +152,6 @@ export function buildApiHandler(configuration: ProviderSettings): ApiHandler {
 			return new MistralHandler(options)
 		case "requesty":
 			return new RequestyHandler(options)
-		case "unbound":
-			return new UnboundHandler(options)
 		case "fake-ai":
 			return new FakeAIHandler(options)
 		case "xai":

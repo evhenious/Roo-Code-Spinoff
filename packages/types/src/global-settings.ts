@@ -261,7 +261,6 @@ export const SECRET_STATE_KEYS = [
 	"mistralApiKey",
 	"minimaxApiKey",
 	"requestyApiKey",
-	"unboundApiKey",
 	"xaiApiKey",
 	"litellmApiKey",
 	"codeIndexOpenAiKey",

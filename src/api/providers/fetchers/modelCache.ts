@@ -18,7 +18,6 @@ import { fileExistsAtPath } from "../../../utils/fs"
 import { getOpenRouterModels } from "./openrouter"
 import { getVercelAiGatewayModels } from "./vercel-ai-gateway"
 import { getRequestyModels } from "./requesty"
-import { getUnboundModels } from "./unbound"
 import { getLiteLLMModels } from "./litellm"
 import { GetModelsOptions } from "../../../shared/api"
 import { getOllamaModels } from "./ollama"
@@ -68,9 +67,6 @@ async function fetchModelsFromProvider(options: GetModelsOptions): Promise<Model
 		case "requesty":
 			// Requesty models endpoint requires an API key for per-user custom policies.
 			models = await getRequestyModels(options.baseUrl, options.apiKey)
-			break
-		case "unbound":
-			models = await getUnboundModels(options.apiKey)
 			break
 		case "litellm":
 			// Type safety ensures apiKey and baseUrl are always provided for LiteLLM.
