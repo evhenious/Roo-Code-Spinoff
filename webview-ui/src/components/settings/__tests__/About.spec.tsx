@@ -26,10 +26,7 @@ vi.mock("@roo/package", () => ({
 }))
 
 describe("About", () => {
-	const defaultProps = {
-		telemetrySetting: "enabled" as const,
-		setTelemetrySetting: vi.fn(),
-	}
+	const defaultProps = {}
 
 	beforeEach(() => {
 		vi.clearAllMocks()

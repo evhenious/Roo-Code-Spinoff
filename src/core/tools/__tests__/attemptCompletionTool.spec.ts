@@ -14,13 +14,6 @@ vi.mock("../../prompts/responses", () => ({
 const { mockCaptureTaskCompleted } = vi.hoisted(() => ({
 	mockCaptureTaskCompleted: vi.fn(),
 }))
-vi.mock("@roo-code/telemetry", () => ({
-	TelemetryService: {
-		instance: {
-			captureTaskCompleted: mockCaptureTaskCompleted,
-		},
-	},
-}))
 
 // Mock vscode module
 vi.mock("vscode", () => ({

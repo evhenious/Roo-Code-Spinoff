@@ -10,7 +10,6 @@ import {
 	type ReasoningEffortExtended,
 	ApiProviderError,
 } from "@roo-code/types"
-import { TelemetryService } from "@roo-code/telemetry"
 
 import { shouldUseReasoningBudget, shouldUseReasoningEffort, type ApiHandlerOptions } from "../../shared/api"
 
@@ -104,7 +103,6 @@ export class PoeHandler extends BaseProvider implements SingleCompletionHandler 
 			})
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : String(error)
-			TelemetryService.instance.captureException(new ApiProviderError(errorMessage, "poe", id, "createMessage"))
 			throw new Error(`Poe completion error: ${errorMessage}`)
 		}
 
@@ -129,7 +127,6 @@ export class PoeHandler extends BaseProvider implements SingleCompletionHandler 
 			}
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : String(error)
-			TelemetryService.instance.captureException(new ApiProviderError(errorMessage, "poe", id, "createMessage"))
 			throw new Error(`Poe streaming error: ${errorMessage}`)
 		}
 	}
@@ -144,7 +141,6 @@ export class PoeHandler extends BaseProvider implements SingleCompletionHandler 
 			return text
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : String(error)
-			TelemetryService.instance.captureException(new ApiProviderError(errorMessage, "poe", id, "completePrompt"))
 			throw new Error(`Poe completion error: ${errorMessage}`)
 		}
 	}

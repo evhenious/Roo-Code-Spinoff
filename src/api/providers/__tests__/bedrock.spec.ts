@@ -1,13 +1,4 @@
-// Mock TelemetryService before other imports
 const mockCaptureException = vi.fn()
-
-vi.mock("@roo-code/telemetry", () => ({
-	TelemetryService: {
-		instance: {
-			captureException: (...args: unknown[]) => mockCaptureException(...args),
-		},
-	},
-}))
 
 // Mock AWS SDK credential providers
 vi.mock("@aws-sdk/credential-providers", () => {

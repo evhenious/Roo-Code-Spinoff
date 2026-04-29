@@ -44,18 +44,6 @@
 		"about": "About Roo Code"
 	},
 	"about": {
-		"bugReport": {
-			"label": "Found a bug?",
-			"link": "Report on GitHub"
-		},
-		"featureRequest": {
-			"label": "Have an idea?",
-			"link": "Share it with us"
-		},
-		"securityIssue": {
-			"label": "Discovered a vulnerability?",
-			"link": "Follow our disclosure process"
-		},
 		"community": "Want tips or to just hang out with other Roo Code users? Join <redditLink>reddit.com/r/RooCode</redditLink> or <discordLink>discord.gg/roocode</discordLink>",
 		"contactAndCommunity": "Contact & Community",
 		"manageSettings": "Manage Settings",
