@@ -41,7 +41,6 @@ import { vscode } from "@src/utils/vscode"
 import { cn } from "@src/lib/utils"
 import { useAppTranslation } from "@src/i18n/TranslationContext"
 import { useExtensionState } from "@src/context/ExtensionStateContext"
-import { ExtensionStateContextType } from "@/context/stateContextDef"
 
 import {
 	AlertDialog,
@@ -82,6 +81,7 @@ import McpView from "../mcp/McpView"
 import { WorktreesView } from "../worktrees/WorktreesView"
 import { SettingsSearch } from "./SettingsSearch"
 import { useSearchIndexRegistry, SearchIndexProvider } from "./useSettingsSearch"
+import { IExtensionStore } from "@/store/defaultState"
 
 export const settingsTabsContainer = "flex flex-1 overflow-hidden [&.narrow_.tab-label]:hidden"
 export const settingsTabList =
@@ -223,7 +223,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 		}
 	}, [settingsImportedAt, extensionState])
 
-	const setCachedStateField: SetCachedStateField<keyof ExtensionStateContextType> = useCallback((field, value) => {
+	const setCachedStateField: SetCachedStateField<keyof IExtensionStore> = useCallback((field, value) => {
 		setCachedState((prevState) => {
 			if (prevState[field] === value) {
 				return prevState

@@ -6,12 +6,12 @@ import { SetCachedStateField } from "./types"
 import { SectionHeader } from "./SectionHeader"
 import { Section } from "./Section"
 import { SearchableSetting } from "./SearchableSetting"
-import { ExtensionStateContextType } from "@/context/stateContextDef"
+import { IExtensionStore } from "@/store/defaultState"
 
 interface UISettingsProps extends HTMLAttributes<HTMLDivElement> {
 	reasoningBlockCollapsed: boolean
 	enterBehavior: "send" | "newline"
-	setCachedStateField: SetCachedStateField<keyof ExtensionStateContextType>
+	setCachedStateField: SetCachedStateField<keyof IExtensionStore>
 }
 
 export const UISettings = ({

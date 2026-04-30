@@ -106,16 +106,12 @@ describe("ExtensionStateContext", () => {
 		expect(JSON.parse(screen.getByTestId("allowed-commands").textContent!)).toEqual(["npm install", "git status"])
 	})
 
-	it("throws error when used outside provider", () => {
-		// Suppress console.error for this test since we expect an error
-		const consoleSpy = vi.spyOn(console, "error")
-		consoleSpy.mockImplementation(() => {})
+	// Note: Zustand doesn't require a provider, so useExtensionState works without ExtensionStateContextProvider
+	it("works without provider (Zustand global store)", () => {
+		render(<TestComponent />)
 
-		expect(() => {
-			render(<TestComponent />)
-		}).toThrow("useExtensionState must be used within an ExtensionStateContextProvider")
-
-		consoleSpy.mockRestore()
+		// Should not throw and should return default state
+		expect(screen.getByTestId("allowed-commands")).toBeDefined()
 	})
 
 	it("updates apiConfiguration through setApiConfiguration", () => {

@@ -21,7 +21,7 @@ import { experimentDefault } from "@roo/experiments"
 import { defaultModeSlug, defaultPrompts, Mode } from "@roo/modes"
 import { CustomSupportPrompts } from "@roo/support-prompt"
 
-export interface ExtensionStateContextType extends ExtensionState {
+export interface IExtensionStore extends ExtensionState {
 	historyPreviewCollapsed?: boolean // Add the new state property
 	didHydrateState: boolean
 	showWelcome: boolean
@@ -33,7 +33,6 @@ export interface ExtensionStateContextType extends ExtensionState {
 	openedTabs: Array<{ label: string; isActive: boolean; path?: string }>
 	commands: Command[]
 	organizationAllowList: OrganizationAllowList
-	organizationSettingsVersion: number
 	cloudIsAuthenticated: boolean
 	cloudOrganizations?: CloudOrganizationMembership[]
 	sharingEnabled: boolean
@@ -182,7 +181,6 @@ export const defaultEmptyExtensionState: ExtensionState = {
 	sharingEnabled: false,
 	publicSharingEnabled: false,
 	organizationAllowList: ORGANIZATION_ALLOW_ALL,
-	organizationSettingsVersion: -1,
 	autoCondenseContext: true,
 	autoCondenseContextPercent: 100,
 	profileThresholds: {},

@@ -2052,7 +2052,6 @@ export class ClineProvider
 			sharingEnabled,
 			publicSharingEnabled,
 			organizationAllowList,
-			organizationSettingsVersion,
 			customCondensingPrompt,
 			codebaseIndexConfig,
 			codebaseIndexModels,
@@ -2153,7 +2152,6 @@ export class ClineProvider
 			sharingEnabled: sharingEnabled ?? false,
 			publicSharingEnabled: publicSharingEnabled ?? false,
 			organizationAllowList,
-			organizationSettingsVersion,
 			customCondensingPrompt,
 			codebaseIndexModels: codebaseIndexModels ?? EMBEDDING_MODEL_PROFILES,
 			codebaseIndexConfig: {
@@ -2229,7 +2227,6 @@ export class ClineProvider
 		let cloudIsAuthenticated: boolean = false
 		let sharingEnabled: boolean = false
 		let publicSharingEnabled: boolean = false
-		let organizationSettingsVersion: number = -1
 		let taskSyncEnabled: boolean = false
 
 		// Return the same structure as before.
@@ -2301,7 +2298,6 @@ export class ClineProvider
 			sharingEnabled,
 			publicSharingEnabled,
 			organizationAllowList,
-			organizationSettingsVersion,
 			customCondensingPrompt: stateValues.customCondensingPrompt,
 			codebaseIndexModels: stateValues.codebaseIndexModels ?? EMBEDDING_MODEL_PROFILES,
 			codebaseIndexConfig: {

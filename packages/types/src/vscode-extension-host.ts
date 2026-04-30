@@ -348,7 +348,6 @@ export type ExtensionState = Pick<
 	sharingEnabled: boolean
 	publicSharingEnabled: boolean
 	organizationAllowList: OrganizationAllowList
-	organizationSettingsVersion?: number
 
 	autoCondenseContext: boolean
 	autoCondenseContextPercent: number
