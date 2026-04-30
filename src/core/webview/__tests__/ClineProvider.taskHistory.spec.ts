@@ -1,8 +1,7 @@
 // pnpm --filter roo-cline test core/webview/__tests__/ClineProvider.taskHistory.spec.ts
 
 import * as vscode from "vscode"
-import type { HistoryItem, ExtensionMessage } from "@roo-code/types"
-import { TelemetryService } from "@roo-code/telemetry"
+import type { HistoryItem } from "@roo-code/types"
 
 import { ContextProxy } from "../../config/ContextProxy"
 import { ClineProvider } from "../ClineProvider"
@@ -220,9 +219,6 @@ vi.mock("@roo-code/cloud", () => ({
 				isAuthenticated: vi.fn().mockReturnValue(false),
 				getAllowList: vi.fn().mockResolvedValue("*"),
 				getUserInfo: vi.fn().mockReturnValue(null),
-				canShareTask: vi.fn().mockResolvedValue(false),
-				canSharePublicly: vi.fn().mockResolvedValue(false),
-				getOrganizationSettings: vi.fn().mockReturnValue(null),
 				getOrganizationMemberships: vi.fn().mockResolvedValue([]),
 				getUserSettings: vi.fn().mockReturnValue(null),
 				isTaskSyncEnabled: vi.fn().mockReturnValue(false),
@@ -246,10 +242,6 @@ describe("ClineProvider Task History Synchronization", () => {
 
 	beforeEach(async () => {
 		vi.clearAllMocks()
-
-		if (!TelemetryService.hasInstance()) {
-			TelemetryService.createInstance([])
-		}
 
 		// Initialize task history state
 		taskHistoryState = []

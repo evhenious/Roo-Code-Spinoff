@@ -147,13 +147,6 @@ vi.mock("@src/components/welcome/RooHero", () => ({
 	},
 }))
 
-// Mock TelemetryBanner component
-vi.mock("../common/TelemetryBanner", () => ({
-	default: function MockTelemetryBanner() {
-		return null // Don't render anything to avoid interference
-	},
-}))
-
 // Mock i18n
 vi.mock("react-i18next", () => ({
 	useTranslation: () => ({
@@ -293,8 +286,6 @@ const mockPostMessage = (state: Partial<ExtensionState>) => {
 
 const defaultProps: ChatViewProps = {
 	isHidden: false,
-	showAnnouncement: false,
-	hideAnnouncement: () => {},
 }
 
 const queryClient = new QueryClient()
@@ -547,40 +538,6 @@ describe("ChatView - Version Indicator Tests", () => {
 
 		// Should display version indicator
 		expect(getByTestId("version-indicator")).toBeInTheDocument()
-	})
-
-	it("opens announcement modal when version indicator is clicked", async () => {
-		// Mock VersionIndicator to return a button with onClick
-		mockVersionIndicator.mockImplementation(({ onClick }: { onClick?: () => void }) =>
-			React.createElement("button", {
-				"data-testid": "version-indicator",
-				onClick,
-			}),
-		)
-
-		const { getByTestId, queryByTestId } = renderChatView({ showAnnouncement: false })
-
-		// Hydrate state
-		mockPostMessage({
-			version: "1.0.0",
-			clineMessages: [],
-		})
-
-		// Wait for component to render
-		await waitFor(() => {
-			expect(getByTestId("version-indicator")).toBeInTheDocument()
-		})
-
-		// Click version indicator
-		const versionIndicator = getByTestId("version-indicator")
-		act(() => {
-			versionIndicator.click()
-		})
-
-		// Wait for announcement modal to appear
-		await waitFor(() => {
-			expect(queryByTestId("announcement-modal")).toBeInTheDocument()
-		})
 	})
 
 	it("version indicator has correct styling classes", () => {

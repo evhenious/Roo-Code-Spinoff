@@ -2,10 +2,8 @@ import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo
 import { useDeepCompareEffect, useEvent } from "react-use"
 import { Virtuoso, type VirtuosoHandle } from "react-virtuoso"
 import removeMd from "remove-markdown"
-import { VSCodeLink } from "@vscode/webview-ui-toolkit/react"
 import useSound from "use-sound"
 import { LRUCache } from "lru-cache"
-import { Trans } from "react-i18next"
 
 import { useDebounceEffect } from "@src/utils/useDebounceEffect"
 import { appendImages } from "@src/utils/imageUtils"
@@ -15,7 +13,6 @@ import { batchConsecutive } from "@src/utils/batchConsecutive"
 import type { ClineAsk, ClineSayTool, ClineMessage, ExtensionMessage, AudioType } from "@roo-code/types"
 import { isRetiredProvider } from "@roo-code/types"
 
-import { findLast } from "@roo/array"
 import { SuggestionItem } from "@roo-code/types"
 import { combineApiRequests } from "@roo/combineApiRequests"
 import { combineCommandSequences } from "@roo/combineCommandSequences"
@@ -31,12 +28,9 @@ import { useSelectedModel } from "@src/components/ui/hooks/useSelectedModel"
 import RooHero from "@src/components/welcome/RooHero"
 import RooTips from "@src/components/welcome/RooTips"
 import { StandardTooltip, Button } from "@src/components/ui"
-import { CloudUpsellDialog } from "@src/components/cloud/CloudUpsellDialog"
 
-import TelemetryBanner from "../common/TelemetryBanner"
 import VersionIndicator from "../common/VersionIndicator"
 import HistoryPreview from "../history/HistoryPreview"
-import Announcement from "./Announcement"
 import ChatRow from "./ChatRow"
 import WarningRow from "./WarningRow"
 import { ChatTextArea } from "./ChatTextArea"
@@ -46,15 +40,10 @@ import { CheckpointWarning } from "./CheckpointWarning"
 import { QueuedMessages } from "./QueuedMessages"
 import { WorktreeSelector } from "./WorktreeSelector"
 import FileChangesPanel from "./FileChangesPanel"
-import DismissibleUpsell from "../common/DismissibleUpsell"
-import { useCloudUpsell } from "@src/hooks/useCloudUpsell"
 import { useScrollLifecycle } from "@src/hooks/useScrollLifecycle"
-import { Cloud } from "lucide-react"
 
 export interface ChatViewProps {
 	isHidden: boolean
-	showAnnouncement: boolean
-	hideAnnouncement: () => void
 }
 
 export interface ChatViewRef {
@@ -65,10 +54,7 @@ export const MAX_IMAGES_PER_MESSAGE = 20 // This is the Anthropic limit.
 
 const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0
 
-const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewProps> = (
-	{ isHidden, showAnnouncement, hideAnnouncement },
-	ref,
-) => {
+const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewProps> = ({ isHidden }, ref) => {
 	const [audioBaseUri] = useState(() => {
 		return (window as unknown as { AUDIO_BASE_URI?: string }).AUDIO_BASE_URI || ""
 	})
@@ -87,10 +73,8 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 		setMode,
 		alwaysAllowModeSwitch,
 		customModes,
-		telemetrySetting,
 		soundEnabled,
 		soundVolume,
-		cloudIsAuthenticated,
 		messageQueue = [],
 		showWorktreesInHomeScreen,
 	} = useExtensionState()
@@ -161,7 +145,6 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 		{ type: "WAIT_TIMEOUT" | "INIT_TIMEOUT"; timeout: number } | undefined
 	>(undefined)
 	const [isCondensing, setIsCondensing] = useState<boolean>(false)
-	const [showAnnouncementModal, setShowAnnouncementModal] = useState(false)
 	const everVisibleMessagesTsRef = useRef<LRUCache<number, boolean>>(
 		new LRUCache({
 			max: 100,
@@ -186,15 +169,6 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 	useEffect(() => {
 		clineAskRef.current = clineAsk
 	}, [clineAsk])
-
-	const {
-		isOpen: isUpsellOpen,
-		openUpsell,
-		closeUpsell,
-		handleConnect,
-	} = useCloudUpsell({
-		autoOpenOnAuth: false,
-	})
 
 	// Keep inputValueRef in sync with inputValue state
 	useEffect(() => {
@@ -285,7 +259,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 							setClineAsk("api_req_failed")
 							setEnableButtons(true)
 							setPrimaryButtonText(t("chat:retry.title"))
-							setSecondaryButtonText(t("chat:startNewTask.title"))
+							setSecondaryButtonText(undefined) // t("chat:startNewTask.title")
 							break
 						case "mistake_limit_reached":
 							playSound("progress_loop")
@@ -293,7 +267,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 							setClineAsk("mistake_limit_reached")
 							setEnableButtons(true)
 							setPrimaryButtonText(t("chat:proceedAnyways.title"))
-							setSecondaryButtonText(t("chat:startNewTask.title"))
+							setSecondaryButtonText(undefined) // t("chat:startNewTask.title")
 							break
 						case "followup":
 							setSendingDisabled(isPartial)
@@ -386,7 +360,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 							setSendingDisabled(isPartial)
 							setClineAsk("completion_result")
 							setEnableButtons(!isPartial)
-							setPrimaryButtonText(t("chat:startNewTask.title"))
+							setPrimaryButtonText(undefined) // t("chat:startNewTask.title")
 							setSecondaryButtonText(undefined)
 							break
 						case "resume_task":
@@ -403,7 +377,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 									(msg) => msg.ask === "completion_result" || msg.say === "completion_result",
 								)
 							if (isCompletedSubtask) {
-								setPrimaryButtonText(t("chat:startNewTask.title"))
+								setPrimaryButtonText(undefined) // t("chat:startNewTask.title")
 								setSecondaryButtonText(undefined)
 							} else {
 								setPrimaryButtonText(t("chat:resumeTask.title"))
@@ -415,7 +389,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 							setSendingDisabled(false)
 							setClineAsk("resume_completed_task")
 							setEnableButtons(true)
-							setPrimaryButtonText(t("chat:startNewTask.title"))
+							setPrimaryButtonText(undefined) // t("chat:startNewTask.title")
 							setSecondaryButtonText(undefined)
 							setDidClickCancel(false)
 							break
@@ -464,7 +438,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 				(msg) => msg.ask === "completion_result" || msg.say === "completion_result",
 			)
 			if (hasCompletionResult) {
-				setPrimaryButtonText(t("chat:startNewTask.title"))
+				setPrimaryButtonText(undefined) // t("chat:startNewTask.title")
 				setSecondaryButtonText(undefined)
 			}
 		}
@@ -542,8 +516,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 		if (isLastMessagePartial) {
 			return true
 		} else {
-			const lastApiReqStarted = findLast(
-				modifiedMessages,
+			const lastApiReqStarted = modifiedMessages.findLast(
 				(message: ClineMessage) => message.say === "api_req_started",
 			)
 
@@ -1570,19 +1543,6 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 		<div
 			data-testid="chat-view"
 			className={isHidden ? "hidden" : "fixed top-0 left-0 right-0 bottom-0 flex flex-col overflow-hidden"}>
-			{telemetrySetting === "unset" && <TelemetryBanner />}
-			{(showAnnouncement || showAnnouncementModal) && (
-				<Announcement
-					hideAnnouncement={() => {
-						if (showAnnouncementModal) {
-							setShowAnnouncementModal(false)
-						}
-						if (showAnnouncement) {
-							hideAnnouncement()
-						}
-					}}
-				/>
-			)}
 			{task ? (
 				<>
 					<TaskHeader
@@ -1629,7 +1589,9 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 				<div className="flex flex-col h-full justify-center p-6 min-h-0 overflow-y-auto gap-4 relative">
 					<div className="flex flex-col items-start gap-2 justify-center h-full min-[400px]:px-6">
 						<VersionIndicator
-							onClick={() => setShowAnnouncementModal(true)}
+							onClick={() => {
+								/* no-op */
+							}}
 							className="absolute top-2 right-3 z-10"
 						/>
 						<div className="flex flex-col gap-4 w-full">
@@ -1639,22 +1601,6 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 							{/* Everyone should see their task history if any */}
 							{taskHistory.length > 0 && <HistoryPreview />}
 						</div>
-						{/* Logged out users should see a one-time upsell, but not for brand new users */}
-						{!cloudIsAuthenticated && taskHistory.length >= 6 && (
-							<DismissibleUpsell
-								upsellId="taskList2"
-								icon={<Cloud className="size-5 shrink-0" />}
-								onClick={() => openUpsell()}
-								dismissOnClick={false}
-								className="bg-none mt-6 border-border rounded-xl p-3 !text-base">
-								<Trans
-									i18nKey="cloud:upsell.taskList"
-									components={{
-										learnMoreLink: <VSCodeLink href="#" />,
-									}}
-								/>
-							</DismissibleUpsell>
-						)}
 					</div>
 				</div>
 			)}
@@ -1706,7 +1652,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 								</>
 							) : (
 								<>
-									{primaryButtonText && (
+									{primaryButtonText && primaryButtonText !== "New task" && (
 										<StandardTooltip
 											content={
 												primaryButtonText === t("chat:retry.title")
@@ -1717,17 +1663,15 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 															? t("chat:approve.tooltip")
 															: primaryButtonText === t("chat:runCommand.title")
 																? t("chat:runCommand.tooltip")
-																: primaryButtonText === t("chat:startNewTask.title")
-																	? t("chat:startNewTask.tooltip")
-																	: primaryButtonText === t("chat:resumeTask.title")
-																		? t("chat:resumeTask.tooltip")
+																: primaryButtonText === t("chat:resumeTask.title")
+																	? t("chat:resumeTask.tooltip")
+																	: primaryButtonText ===
+																		  t("chat:proceedAnyways.title")
+																		? t("chat:proceedAnyways.tooltip")
 																		: primaryButtonText ===
-																			  t("chat:proceedAnyways.title")
-																			? t("chat:proceedAnyways.tooltip")
-																			: primaryButtonText ===
-																				  t("chat:proceedWhileRunning.title")
-																				? t("chat:proceedWhileRunning.tooltip")
-																				: undefined
+																			  t("chat:proceedWhileRunning.title")
+																			? t("chat:proceedWhileRunning.tooltip")
+																			: undefined
 											}>
 											<Button
 												variant="primary"
@@ -1738,27 +1682,14 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 											</Button>
 										</StandardTooltip>
 									)}
-									{secondaryButtonText && (
-										<StandardTooltip
-											content={
-												secondaryButtonText === t("chat:startNewTask.title")
-													? t("chat:startNewTask.tooltip")
-													: secondaryButtonText === t("chat:reject.title")
-														? t("chat:reject.tooltip")
-														: secondaryButtonText === t("chat:terminate.title")
-															? t("chat:terminate.tooltip")
-															: secondaryButtonText === t("chat:killCommand.title")
-																? t("chat:killCommand.tooltip")
-																: undefined
-											}>
-											<Button
-												variant="secondary"
-												disabled={!enableButtons}
-												className="flex-1 ml-[6px]"
-												onClick={() => handleSecondaryButtonClick(inputValue, selectedImages)}>
-												{secondaryButtonText}
-											</Button>
-										</StandardTooltip>
+									{secondaryButtonText && secondaryButtonText !== "New task" && (
+										<Button
+											variant="secondary"
+											disabled={!enableButtons}
+											className="flex-1 ml-[6px]"
+											onClick={() => handleSecondaryButtonClick(inputValue, selectedImages)}>
+											{secondaryButtonText}
+										</Button>
 									)}
 								</>
 							)}
@@ -1825,7 +1756,6 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 			)}
 
 			<div id="roo-portal" />
-			<CloudUpsellDialog open={isUpsellOpen} onOpenChange={closeUpsell} onConnect={handleConnect} />
 		</div>
 	)
 }

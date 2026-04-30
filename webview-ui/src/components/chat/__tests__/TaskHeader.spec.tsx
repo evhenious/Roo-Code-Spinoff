@@ -79,18 +79,6 @@ vi.mock("@src/components/cloud/CloudUpsellDialog", () => ({
 	CloudUpsellDialog: () => null,
 }))
 
-// Mock findLastIndex from @roo/array
-vi.mock("@roo/array", () => ({
-	findLastIndex: (array: any[], predicate: (item: any) => boolean) => {
-		for (let i = array.length - 1; i >= 0; i--) {
-			if (predicate(array[i])) {
-				return i
-			}
-		}
-		return -1
-	},
-}))
-
 // Create a variable to hold the mock model info for useSelectedModel
 let mockModelInfo: { contextWindow: number; maxTokens: number } | undefined = undefined
 

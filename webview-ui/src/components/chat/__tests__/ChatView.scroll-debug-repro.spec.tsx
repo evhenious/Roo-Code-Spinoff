@@ -85,7 +85,6 @@ vi.mock("@src/hooks/useCloudUpsell", () => ({
 	}),
 }))
 
-vi.mock("../common/TelemetryBanner", nullDefaultModule)
 vi.mock("../common/VersionIndicator", nullDefaultModule)
 vi.mock("../history/HistoryPreview", nullDefaultModule)
 vi.mock("@src/components/welcome/RooHero", nullDefaultModule)
@@ -210,8 +209,6 @@ vi.mock("react-virtuoso", () => {
 
 const props: ChatViewProps = {
 	isHidden: false,
-	showAnnouncement: false,
-	hideAnnouncement: () => {},
 }
 
 const sleep = (ms: number) => new Promise<void>((resolve) => window.setTimeout(resolve, ms))

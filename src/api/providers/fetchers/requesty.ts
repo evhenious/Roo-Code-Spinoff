@@ -19,7 +19,7 @@ export async function getRequestyModels(baseUrl?: string, apiKey?: string): Prom
 		const modelsUrl = new URL("v1/models", resolvedBaseUrl)
 
 		const response = await axios.get(modelsUrl.toString(), { headers })
-		const rawModels = response.data.data
+		const rawModels = response.data?.data ?? response.data ?? []
 
 		for (const rawModel of rawModels) {
 			const reasoningBudget =

@@ -10,21 +10,16 @@ import {
 	type Language,
 	type GlobalState,
 	type ClineMessage,
-	type TelemetrySetting,
-	type UserSettingsConfig,
 	type ModelRecord,
 	type Command as SlashCommand,
 	type WebviewMessage,
 	type EditQueuedMessagePayload,
-	TelemetryEventName,
 	RooCodeSettings,
 	ExperimentId,
 	checkoutDiffPayloadSchema,
 	checkoutRestorePayloadSchema,
 } from "@roo-code/types"
 import { customToolRegistry } from "@roo-code/core"
-import { CloudService } from "@roo-code/cloud"
-import { TelemetryService } from "@roo-code/telemetry"
 
 import { type ApiMessage } from "../task-persistence/apiMessages"
 import { saveTaskMessages } from "../task-persistence"
@@ -606,13 +601,6 @@ export const webviewMessageHandler = async (
 					),
 				)
 
-			// Enable telemetry by default (when unset) or when explicitly enabled
-			provider.getStateToPostToWebview().then((state) => {
-				const { telemetrySetting } = state
-				const isOptedIn = telemetrySetting !== "disabled"
-				TelemetryService.instance.updateTelemetryState(isOptedIn)
-			})
-
 			provider.isViewLaunched = true
 			break
 		case "newTask":
@@ -762,10 +750,6 @@ export const webviewMessageHandler = async (
 			await provider.clearTask()
 			await provider.postStateToWebview()
 			break
-		case "didShowAnnouncement":
-			await updateGlobalState("lastShownAnnouncementId", provider.latestAnnouncementId)
-			await provider.postStateToWebview()
-			break
 		case "selectImages":
 			const images = await selectImages()
 			await provider.postMessageToWebview({
@@ -779,51 +763,6 @@ export const webviewMessageHandler = async (
 			const currentTaskId = provider.getCurrentTask()?.taskId
 			if (currentTaskId) {
 				provider.exportTaskWithId(currentTaskId)
-			}
-			break
-		case "shareCurrentTask":
-			const shareTaskId = provider.getCurrentTask()?.taskId
-			const clineMessages = provider.getCurrentTask()?.clineMessages
-
-			if (!shareTaskId) {
-				vscode.window.showErrorMessage(t("common:errors.share_no_active_task"))
-				break
-			}
-
-			try {
-				const visibility = message.visibility || "organization"
-				const result = await CloudService.instance.shareTask(shareTaskId, visibility, clineMessages)
-
-				if (result.success && result.shareUrl) {
-					// Show success notification
-					const messageKey =
-						visibility === "public"
-							? "common:info.public_share_link_copied"
-							: "common:info.organization_share_link_copied"
-					vscode.window.showInformationMessage(t(messageKey))
-
-					// Send success feedback to webview for inline display
-					await provider.postMessageToWebview({
-						type: "shareTaskSuccess",
-						visibility,
-						text: result.shareUrl,
-					})
-				} else {
-					// Handle error
-					const errorMessage = result.error || "Failed to create share link"
-					if (errorMessage.includes("Authentication")) {
-						vscode.window.showErrorMessage(t("common:errors.share_auth_required"))
-					} else if (errorMessage.includes("sharing is not enabled")) {
-						vscode.window.showErrorMessage(t("common:errors.share_not_enabled"))
-					} else if (errorMessage.includes("not found")) {
-						vscode.window.showErrorMessage(t("common:errors.share_task_not_found"))
-					} else {
-						vscode.window.showErrorMessage(errorMessage)
-					}
-				}
-			} catch (error) {
-				provider.log(`[shareCurrentTask] Unexpected error: ${error}`)
-				vscode.window.showErrorMessage(t("common:errors.share_task_failed"))
 			}
 			break
 		case "showTaskWithId":
@@ -951,7 +890,6 @@ export const webviewMessageHandler = async (
 						"vercel-ai-gateway": {},
 						litellm: {},
 						requesty: {},
-						unbound: {},
 						ollama: {},
 						lmstudio: {},
 						roo: {},
@@ -982,22 +920,13 @@ export const webviewMessageHandler = async (
 						baseUrl: apiConfiguration.requestyBaseUrl,
 					},
 				},
-				{
-					key: "unbound",
-					options: {
-						provider: "unbound",
-						apiKey: apiConfiguration.unboundApiKey,
-					},
-				},
 				{ key: "vercel-ai-gateway", options: { provider: "vercel-ai-gateway" } },
 				{
 					key: "roo",
 					options: {
 						provider: "roo",
 						baseUrl: process.env.ROO_CODE_PROVIDER_URL ?? "https://api.roocode.com/proxy",
-						apiKey: CloudService.hasInstance()
-							? CloudService.instance.authService?.getSessionToken()
-							: undefined,
+						apiKey: undefined,
 					},
 				},
 			]
@@ -1135,9 +1064,7 @@ export const webviewMessageHandler = async (
 				const rooOptions = {
 					provider: "roo" as const,
 					baseUrl: process.env.ROO_CODE_PROVIDER_URL ?? "https://api.roocode.com/proxy",
-					apiKey: CloudService.hasInstance()
-						? CloudService.instance.authService?.getSessionToken()
-						: undefined,
+					apiKey: undefined,
 				}
 				// Flush cache and refresh to ensure fresh models with current auth state
 				await flushModels(rooOptions, true)
@@ -1158,31 +1085,6 @@ export const webviewMessageHandler = async (
 					success: false,
 					error: errorMessage,
 					values: { provider: "roo" },
-				})
-			}
-			break
-		}
-		case "requestRooCreditBalance": {
-			// Fetch Roo credit balance using CloudAPI
-			const requestId = message.requestId
-			try {
-				if (!CloudService.hasInstance() || !CloudService.instance.cloudAPI) {
-					throw new Error("Cloud service not available")
-				}
-
-				const balance = await CloudService.instance.cloudAPI.creditBalance()
-
-				provider.postMessageToWebview({
-					type: "rooCreditBalance",
-					requestId,
-					values: { balance },
-				})
-			} catch (error) {
-				const errorMessage = error instanceof Error ? error.message : String(error)
-				provider.postMessageToWebview({
-					type: "rooCreditBalance",
-					requestId,
-					values: { error: errorMessage },
 				})
 			}
 			break
@@ -1490,17 +1392,6 @@ export const webviewMessageHandler = async (
 			}
 			break
 		}
-		case "taskSyncEnabled":
-			const enabled = message.bool ?? false
-			const updatedSettings: Partial<UserSettingsConfig> = { taskSyncEnabled: enabled }
-
-			try {
-				await CloudService.instance.updateUserSettings(updatedSettings)
-			} catch (error) {
-				provider.log(`Failed to update cloud settings for task sync: ${error}`)
-			}
-
-			break
 
 		case "refreshAllMcpServers": {
 			const mcpHub = provider.getMcpHub()
@@ -1589,21 +1480,6 @@ export const webviewMessageHandler = async (
 					hasOpenedModeSelector: currentState.hasOpenedModeSelector ?? false,
 				}
 				provider.postMessageToWebview({ type: "state", state: stateWithPrompts })
-
-				if (TelemetryService.hasInstance()) {
-					// Determine which setting was changed by comparing objects
-					const oldPrompt = existingPrompts[message.promptMode] || {}
-					const newPrompt = message.customPrompt
-					const changedSettings = Object.keys(newPrompt).filter(
-						(key) =>
-							JSON.stringify((oldPrompt as Record<string, unknown>)[key]) !==
-							JSON.stringify((newPrompt as Record<string, unknown>)[key]),
-					)
-
-					if (changedSettings.length > 0) {
-						TelemetryService.instance.captureModeSettingChanged(changedSettings[0])
-					}
-				}
 			}
 			break
 		case "deleteMessage": {
@@ -1701,7 +1577,6 @@ export const webviewMessageHandler = async (
 					})
 
 					if (result.success && result.enhancedText) {
-						MessageEnhancer.captureTelemetry(currentCline?.taskId, includeTaskHistoryInEnhance)
 						await provider.postMessageToWebview({ type: "enhancedPrompt", text: result.enhancedText })
 					} else {
 						throw new Error(result.error || "Unknown error")
@@ -2033,31 +1908,6 @@ export const webviewMessageHandler = async (
 					await updateGlobalState("customModes", customModes)
 					await updateGlobalState("mode", message.modeConfig.slug)
 					await provider.postStateToWebview()
-
-					// Track telemetry for custom mode creation or update
-					if (TelemetryService.hasInstance()) {
-						if (isNewMode) {
-							// This is a new custom mode
-							TelemetryService.instance.captureCustomModeCreated(
-								message.modeConfig.slug,
-								message.modeConfig.name,
-							)
-						} else {
-							// Determine which setting was changed by comparing objects
-							const existingMode = existingModes.find((mode) => mode.slug === message.modeConfig?.slug)
-							const changedSettings = existingMode
-								? Object.keys(message.modeConfig).filter(
-										(key) =>
-											JSON.stringify((existingMode as Record<string, unknown>)[key]) !==
-											JSON.stringify((message.modeConfig as Record<string, unknown>)[key]),
-									)
-								: []
-
-							if (changedSettings.length > 0) {
-								TelemetryService.instance.captureModeSettingChanged(changedSettings[0])
-							}
-						}
-					}
 				} catch (error) {
 					// Error already shown to user by updateCustomMode
 					// Just prevent unhandled rejection and skip state updates
@@ -2312,77 +2162,11 @@ export const webviewMessageHandler = async (
 				})
 			}
 			break
-		case "telemetrySetting": {
-			const telemetrySetting = message.text as TelemetrySetting
-			const previousSetting = getGlobalState("telemetrySetting") || "unset"
-			const isOptedIn = telemetrySetting !== "disabled"
-			const wasPreviouslyOptedIn = previousSetting !== "disabled"
-
-			// If turning telemetry OFF, fire event BEFORE disabling
-			if (wasPreviouslyOptedIn && !isOptedIn && TelemetryService.hasInstance()) {
-				TelemetryService.instance.captureTelemetrySettingsChanged(previousSetting, telemetrySetting)
-			}
-
-			// Update the telemetry state
-			await updateGlobalState("telemetrySetting", telemetrySetting)
-
-			if (TelemetryService.hasInstance()) {
-				TelemetryService.instance.updateTelemetryState(isOptedIn)
-			}
-
-			// If turning telemetry ON, fire event AFTER enabling
-			if (!wasPreviouslyOptedIn && isOptedIn && TelemetryService.hasInstance()) {
-				TelemetryService.instance.captureTelemetrySettingsChanged(previousSetting, telemetrySetting)
-			}
-
-			await provider.postStateToWebview()
-			break
-		}
 		case "debugSetting": {
 			await vscode.workspace
 				.getConfiguration(Package.name)
 				.update("debug", message.bool ?? false, vscode.ConfigurationTarget.Global)
 			await provider.postStateToWebview()
-			break
-		}
-		case "cloudButtonClicked": {
-			// Navigate to the cloud tab.
-			provider.postMessageToWebview({ type: "action", action: "cloudButtonClicked" })
-			break
-		}
-		case "rooCloudSignIn": {
-			try {
-				TelemetryService.instance.captureEvent(TelemetryEventName.AUTHENTICATION_INITIATED)
-				// Use provider signup flow if useProviderSignup is explicitly true
-				await CloudService.instance.login(undefined, message.useProviderSignup ?? false)
-			} catch (error) {
-				provider.log(`AuthService#login failed: ${error}`)
-				vscode.window.showErrorMessage("Sign in failed.")
-			}
-
-			break
-		}
-		case "cloudLandingPageSignIn": {
-			try {
-				const landingPageSlug = message.text || "supernova"
-				TelemetryService.instance.captureEvent(TelemetryEventName.AUTHENTICATION_INITIATED)
-				await CloudService.instance.login(landingPageSlug)
-			} catch (error) {
-				provider.log(`CloudService#login failed: ${error}`)
-				vscode.window.showErrorMessage("Sign in failed.")
-			}
-			break
-		}
-		case "rooCloudSignOut": {
-			try {
-				await CloudService.instance.logout()
-				await provider.postStateToWebview()
-				provider.postMessageToWebview({ type: "authenticatedUser", userInfo: undefined })
-			} catch (error) {
-				provider.log(`AuthService#logout failed: ${error}`)
-				vscode.window.showErrorMessage("Sign out failed.")
-			}
-
 			break
 		}
 		case "openAiCodexSignIn": {
@@ -2424,84 +2208,10 @@ export const webviewMessageHandler = async (
 			}
 			break
 		}
-		case "rooCloudManualUrl": {
-			try {
-				if (!message.text) {
-					vscode.window.showErrorMessage(t("common:errors.manual_url_empty"))
-					break
-				}
-
-				// Parse the callback URL to extract parameters
-				const callbackUrl = message.text.trim()
-				const uri = vscode.Uri.parse(callbackUrl)
-
-				if (!uri.query) {
-					throw new Error(t("common:errors.manual_url_no_query"))
-				}
-
-				const query = new URLSearchParams(uri.query)
-				const code = query.get("code")
-				const state = query.get("state")
-				const organizationId = query.get("organizationId")
-
-				if (!code || !state) {
-					throw new Error(t("common:errors.manual_url_missing_params"))
-				}
-
-				// Reuse the existing authentication flow
-				await CloudService.instance.handleAuthCallback(
-					code,
-					state,
-					organizationId === "null" ? null : organizationId,
-				)
-
-				await provider.postStateToWebview()
-			} catch (error) {
-				provider.log(`ManualUrl#handleAuthCallback failed: ${error}`)
-				const errorMessage = error instanceof Error ? error.message : t("common:errors.manual_url_auth_failed")
-
-				// Show error message through VS Code UI
-				vscode.window.showErrorMessage(`${t("common:errors.manual_url_auth_error")}: ${errorMessage}`)
-			}
-
-			break
-		}
 		case "clearCloudAuthSkipModel": {
 			// Clear the flag that indicates auth completed without model selection
 			await provider.context.globalState.update("roo-auth-skip-model", undefined)
 			await provider.postStateToWebview()
-			break
-		}
-		case "switchOrganization": {
-			try {
-				const organizationId = message.organizationId ?? null
-
-				// Switch to the new organization context
-				await CloudService.instance.switchOrganization(organizationId)
-
-				// Refresh the state to update UI
-				await provider.postStateToWebview()
-
-				// Send success response back to webview
-				await provider.postMessageToWebview({
-					type: "organizationSwitchResult",
-					success: true,
-					organizationId: organizationId,
-				})
-			} catch (error) {
-				provider.log(`Organization switch failed: ${error}`)
-				const errorMessage = error instanceof Error ? error.message : String(error)
-
-				// Send error response back to webview
-				await provider.postMessageToWebview({
-					type: "organizationSwitchResult",
-					success: false,
-					error: errorMessage,
-					organizationId: message.organizationId ?? null,
-				})
-
-				vscode.window.showErrorMessage(`Failed to switch organization: ${errorMessage}`)
-			}
 			break
 		}
 
@@ -3000,11 +2710,6 @@ export const webviewMessageHandler = async (
 
 		case "switchTab": {
 			if (message.tab) {
-				// Capture tab shown event for all switchTab messages (which are user-initiated).
-				if (TelemetryService.hasInstance()) {
-					TelemetryService.instance.captureTabShown(message.tab)
-				}
-
 				await provider.postMessageToWebview({
 					type: "action",
 					action: "switchTab",
@@ -3227,11 +2932,6 @@ export const webviewMessageHandler = async (
 					text: text,
 				})
 			}
-			break
-		}
-		case "showMdmAuthRequiredNotification": {
-			// Show notification that organization requires authentication
-			vscode.window.showWarningMessage(t("common:mdm.info.organization_requires_auth"))
 			break
 		}
 
@@ -3681,7 +3381,6 @@ export const webviewMessageHandler = async (
 			// "indexingStatusUpdate" |
 			// "indexCleared" |
 			// "marketplaceInstallResult" |
-			// "shareTaskSuccess" |
 			// "playSound" |
 			// "draggedImages" |
 			// "setApiConfigPassword" |

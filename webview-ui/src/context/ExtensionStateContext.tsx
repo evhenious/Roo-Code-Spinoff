@@ -7,7 +7,6 @@ import {
 	type ModeConfig,
 	type ExperimentId,
 	type TodoItem,
-	type TelemetrySetting,
 	type OrganizationAllowList,
 	type CloudOrganizationMembership,
 	type ExtensionMessage,
@@ -20,8 +19,6 @@ import {
 	ORGANIZATION_ALLOW_ALL,
 	DEFAULT_CHECKPOINT_TIMEOUT_SECONDS,
 } from "@roo-code/types"
-
-import { findLastIndex } from "@roo/array"
 
 import { checkExistKey } from "@roo/checkExistApiConfig"
 import { Mode, defaultModeSlug, defaultPrompts } from "@roo/modes"
@@ -48,7 +45,6 @@ export interface ExtensionStateContextType extends ExtensionState {
 	cloudOrganizations?: CloudOrganizationMembership[]
 	sharingEnabled: boolean
 	publicSharingEnabled: boolean
-	mdmCompliant?: boolean
 	hasOpenedModeSelector: boolean // New property to track if user has opened mode selector
 	setHasOpenedModeSelector: (value: boolean) => void // Setter for the new property
 	alwaysAllowFollowupQuestions: boolean // New property for follow-up questions auto-approve
@@ -71,7 +67,6 @@ export interface ExtensionStateContextType extends ExtensionState {
 	setAlwaysAllowSubtasks: (value: boolean) => void
 	setShowRooIgnoredFiles: (value: boolean) => void
 	setEnableSubfolderRules: (value: boolean) => void
-	setShowAnnouncement: (value: boolean) => void
 	setAllowedCommands: (value: string[]) => void
 	setDeniedCommands: (value: string[]) => void
 	setAllowedMaxRequests: (value: number | undefined) => void
@@ -111,14 +106,12 @@ export interface ExtensionStateContextType extends ExtensionState {
 	setMaxOpenTabsContext: (value: number) => void
 	maxWorkspaceFiles: number
 	setMaxWorkspaceFiles: (value: number) => void
-	setTelemetrySetting: (value: TelemetrySetting) => void
 	awsUsePromptCache?: boolean
 	setAwsUsePromptCache: (value: boolean) => void
 	maxImageFileSize: number
 	setMaxImageFileSize: (value: number) => void
 	maxTotalImageSize: number
 	setMaxTotalImageSize: (value: number) => void
-	machineId?: string
 	pinnedApiConfigs?: Record<string, boolean>
 	setPinnedApiConfigs: (value: Record<string, boolean>) => void
 	togglePinnedApiConfig: (configName: string) => void
@@ -195,7 +188,6 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 		version: "",
 		clineMessages: [],
 		taskHistory: [],
-		shouldShowAnnouncement: false,
 		allowedCommands: [],
 		deniedCommands: [],
 		soundEnabled: false,
@@ -222,7 +214,6 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 		maxOpenTabsContext: 20,
 		maxWorkspaceFiles: 200,
 		cwd: "",
-		telemetrySetting: "unset",
 		showRooIgnoredFiles: true, // Default to showing .rooignore'd files with lock symbol (current behavior).
 		enableSubfolderRules: false, // Default to disabled - must be enabled to load rules from subdirectories
 		renderContext: "sidebar",
@@ -374,7 +365,7 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 					const clineMessage = message.clineMessage!
 					setState((prevState) => {
 						// worth noting it will never be possible for a more up-to-date message to be sent here or in normal messages post since the presentAssistantContent function uses lock
-						const lastIndex = findLastIndex(prevState.clineMessages, (msg) => msg.ts === clineMessage.ts)
+						const lastIndex = prevState.clineMessages.findLastIndex((msg) => msg.ts === clineMessage.ts)
 						if (lastIndex !== -1) {
 							const newClineMessages = [...prevState.clineMessages]
 							newClineMessages[lastIndex] = clineMessage
@@ -526,7 +517,6 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 		setAlwaysAllowFollowupQuestions,
 		setFollowupAutoApproveTimeoutMs: (value) =>
 			setState((prevState) => ({ ...prevState, followupAutoApproveTimeoutMs: value })),
-		setShowAnnouncement: (value) => setState((prevState) => ({ ...prevState, shouldShowAnnouncement: value })),
 		setAllowedCommands: (value) => setState((prevState) => ({ ...prevState, allowedCommands: value })),
 		setDeniedCommands: (value) => setState((prevState) => ({ ...prevState, deniedCommands: value })),
 		setAllowedMaxRequests: (value) => setState((prevState) => ({ ...prevState, allowedMaxRequests: value })),
@@ -558,7 +548,6 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 		setCustomModes: (value) => setState((prevState) => ({ ...prevState, customModes: value })),
 		setMaxOpenTabsContext: (value) => setState((prevState) => ({ ...prevState, maxOpenTabsContext: value })),
 		setMaxWorkspaceFiles: (value) => setState((prevState) => ({ ...prevState, maxWorkspaceFiles: value })),
-		setTelemetrySetting: (value) => setState((prevState) => ({ ...prevState, telemetrySetting: value })),
 		setShowRooIgnoredFiles: (value) => setState((prevState) => ({ ...prevState, showRooIgnoredFiles: value })),
 		setEnableSubfolderRules: (value) => setState((prevState) => ({ ...prevState, enableSubfolderRules: value })),
 		setAwsUsePromptCache: (value) => setState((prevState) => ({ ...prevState, awsUsePromptCache: value })),

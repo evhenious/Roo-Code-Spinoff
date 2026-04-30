@@ -2,13 +2,12 @@ import React, { useCallback, useEffect, useRef, useState, useMemo } from "react"
 import { useEvent } from "react-use"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 
-import { type ExtensionMessage, TelemetryEventName } from "@roo-code/types"
+import { type ExtensionMessage } from "@roo-code/types"
 
 import TranslationProvider from "./i18n/TranslationContext"
 import { MarketplaceViewStateManager } from "./components/marketplace/MarketplaceViewStateManager"
 
 import { vscode } from "./utils/vscode"
-import { telemetryClient } from "./utils/TelemetryClient"
 import { initializeSourceMaps, exposeSourceMapsForDebugging } from "./utils/sourceMapInitializer"
 import { ExtensionStateContextProvider, useExtensionState } from "./context/ExtensionStateContext"
 import ChatView, { ChatViewRef } from "./components/chat/ChatView"
@@ -19,12 +18,11 @@ import { MarketplaceView } from "./components/marketplace/MarketplaceView"
 import { CheckpointRestoreDialog } from "./components/chat/CheckpointRestoreDialog"
 import { DeleteMessageDialog, EditMessageDialog } from "./components/chat/MessageModificationConfirmationDialog"
 import ErrorBoundary from "./components/ErrorBoundary"
-import { CloudView } from "./components/cloud/CloudView"
 import { useAddNonInteractiveClickListener } from "./components/ui/hooks/useNonInteractiveClick"
 import { TooltipProvider } from "./components/ui/tooltip"
 import { STANDARD_TOOLTIP_DELAY } from "./components/ui/standard-tooltip"
 
-type Tab = "settings" | "history" | "chat" | "marketplace" | "cloud"
+type Tab = "settings" | "history" | "chat" | "marketplace"
 
 interface DeleteMessageDialogState {
 	isOpen: boolean
@@ -49,29 +47,14 @@ const tabsByMessageAction: Partial<Record<NonNullable<ExtensionMessage["action"]
 	settingsButtonClicked: "settings",
 	historyButtonClicked: "history",
 	marketplaceButtonClicked: "marketplace",
-	cloudButtonClicked: "cloud",
 }
 
 const App = () => {
-	const {
-		didHydrateState,
-		showWelcome,
-		shouldShowAnnouncement,
-		telemetrySetting,
-		telemetryKey,
-		machineId,
-		cloudUserInfo,
-		cloudIsAuthenticated,
-		cloudApiUrl,
-		cloudOrganizations,
-		renderContext,
-		mdmCompliant,
-	} = useExtensionState()
+	const { didHydrateState, showWelcome, renderContext } = useExtensionState()
 
 	// Create a persistent state manager
 	const marketplaceStateManager = useMemo(() => new MarketplaceViewStateManager(), [])
 
-	const [showAnnouncement, setShowAnnouncement] = useState(false)
 	const [tab, setTab] = useState<Tab>("chat")
 
 	const [deleteMessageDialogState, setDeleteMessageDialogState] = useState<DeleteMessageDialogState>({
@@ -91,30 +74,19 @@ const App = () => {
 	const settingsRef = useRef<SettingsViewRef>(null)
 	const chatViewRef = useRef<ChatViewRef>(null)
 
-	const switchTab = useCallback(
-		(newTab: Tab) => {
-			// Only check MDM compliance if mdmCompliant is explicitly false (meaning there's an MDM policy and user is non-compliant)
-			// If mdmCompliant is undefined or true, allow tab switching
-			if (mdmCompliant === false && newTab !== "cloud") {
-				// Notify the user that authentication is required by their organization
-				vscode.postMessage({ type: "showMdmAuthRequiredNotification" })
-				return
-			}
-
-			setCurrentSection(undefined)
-			setCurrentMarketplaceTab(undefined)
-
-			if (settingsRef.current?.checkUnsaveChanges) {
-				settingsRef.current.checkUnsaveChanges(() => setTab(newTab))
-			} else {
-				setTab(newTab)
-			}
-		},
-		[mdmCompliant],
-	)
-
 	const [currentSection, setCurrentSection] = useState<string | undefined>(undefined)
 	const [currentMarketplaceTab, setCurrentMarketplaceTab] = useState<string | undefined>(undefined)
+
+	const switchTab = useCallback((newTab: Tab) => {
+		setCurrentSection(undefined)
+		setCurrentMarketplaceTab(undefined)
+
+		if (settingsRef.current?.checkUnsaveChanges) {
+			settingsRef.current.checkUnsaveChanges(() => setTab(newTab))
+		} else {
+			setTab(newTab)
+		}
+	}, [])
 
 	const onMessage = useCallback(
 		(e: MessageEvent) => {
@@ -141,6 +113,7 @@ const App = () => {
 						setCurrentMarketplaceTab(marketplaceTab)
 					}
 				}
+				return
 			}
 
 			if (message.type === "showDeleteMessageDialog" && message.messageTs) {
@@ -149,6 +122,7 @@ const App = () => {
 					messageTs: message.messageTs,
 					hasCheckpoint: message.hasCheckpoint || false,
 				})
+				return
 			}
 
 			if (message.type === "showEditMessageDialog" && message.messageTs && message.text) {
@@ -159,29 +133,18 @@ const App = () => {
 					hasCheckpoint: message.hasCheckpoint || false,
 					images: message.images || [],
 				})
+				return
 			}
 
 			if (message.type === "acceptInput") {
 				chatViewRef.current?.acceptInput()
+				return
 			}
 		},
 		[switchTab],
 	)
 
 	useEvent("message", onMessage)
-
-	useEffect(() => {
-		if (shouldShowAnnouncement && tab === "chat") {
-			setShowAnnouncement(true)
-			vscode.postMessage({ type: "didShowAnnouncement" })
-		}
-	}, [shouldShowAnnouncement, tab])
-
-	useEffect(() => {
-		if (didHydrateState) {
-			telemetryClient.updateTelemetryState(telemetrySetting, telemetryKey, machineId)
-		}
-	}, [telemetrySetting, telemetryKey, machineId, didHydrateState])
 
 	// Tell the extension that we are ready to receive messages.
 	useEffect(() => vscode.postMessage({ type: "webviewDidLaunch" }), [])
@@ -209,12 +172,6 @@ const App = () => {
 			}
 		}, [renderContext]),
 	)
-	// Track marketplace tab views
-	useEffect(() => {
-		if (tab === "marketplace") {
-			telemetryClient.capture(TelemetryEventName.MARKETPLACE_TAB_VIEWED)
-		}
-	}, [tab])
 
 	if (!didHydrateState) {
 		return null
@@ -237,20 +194,7 @@ const App = () => {
 					targetTab={currentMarketplaceTab as "mcp" | "mode" | undefined}
 				/>
 			)}
-			{tab === "cloud" && (
-				<CloudView
-					userInfo={cloudUserInfo}
-					isAuthenticated={cloudIsAuthenticated}
-					cloudApiUrl={cloudApiUrl}
-					organizations={cloudOrganizations}
-				/>
-			)}
-			<ChatView
-				ref={chatViewRef}
-				isHidden={tab !== "chat"}
-				showAnnouncement={showAnnouncement}
-				hideAnnouncement={() => setShowAnnouncement(false)}
-			/>
+			<ChatView ref={chatViewRef} isHidden={tab !== "chat"} />
 			{deleteMessageDialogState.hasCheckpoint ? (
 				<MemoizedCheckpointRestoreDialog
 					open={deleteMessageDialogState.isOpen}

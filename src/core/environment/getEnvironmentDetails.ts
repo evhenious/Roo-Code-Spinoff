@@ -162,7 +162,7 @@ export async function getEnvironmentDetails(cline: Task, includeFileDetails: boo
 
 	if (recentlyModifiedFiles.length > 0) {
 		details +=
-			"\n\n# Recently Modified Files\nThese files have been modified since you last accessed them (file was just edited so you may need to re-read it before editing):"
+			"\n\n# Recently Modified Files\nThese files have been modified since you last accessed them, so you may need to re-read them before editing:"
 		for (const filePath of recentlyModifiedFiles) {
 			details += `\n${filePath}`
 		}
@@ -239,7 +239,7 @@ export async function getEnvironmentDetails(cline: Task, includeFileDetails: boo
 
 			// Early return for limit of 0
 			if (maxFiles === 0) {
-				details += "(Workspace files context disabled. Use list_files to explore if needed.)"
+				details += "(Use the list_files tool to explore workspace files if needed.)"
 			} else {
 				const [files, didHitLimit] = await listFiles(cline.cwd, true, maxFiles)
 				const { showRooIgnoredFiles = false } = state ?? {}

@@ -272,10 +272,10 @@ describe("SYSTEM_PROMPT", () => {
 		expect(prompt).toMatchFileSnapshot("./__snapshots__/system-prompt/with-undefined-mcp-hub.snap")
 	})
 
-	it("should include vscode language in custom instructions", async () => {
+	it("should default to English when no language is specified", async () => {
 		// Mock vscode.env.language
 		const vscode = vi.mocked(await import("vscode")) as any
-		vscode.env = { language: "es" }
+		vscode.env = { language: "en" }
 		// Ensure workspace mock is maintained
 		vscode.workspace = {
 			workspaceFolders: [
@@ -315,8 +315,8 @@ describe("SYSTEM_PROMPT", () => {
 			undefined, // rooIgnoreInstructions
 		)
 
-		expect(prompt).toContain("Language Preference:")
-		expect(prompt).toContain('You should always speak and think in the "es" language')
+		// Since no language is passed in options, no Language Preference section should be added
+		expect(prompt).not.toContain("Language Preference:")
 
 		// Reset mock
 		vscode.env = { language: "en" }

@@ -38,7 +38,9 @@ const TaskItemFooter: React.FC<TaskItemFooterProps> = ({
 				)}
 				{/* Datetime with time-ago format */}
 				<StandardTooltip content={new Date(item.ts).toLocaleString()}>
-					<span className="first-letter:uppercase">{formatTimeAgo(item.ts)}</span>
+					<span className="first-letter:uppercase border bg-amber-50 text-gray-500 border-gray-400 px-1 py-0.5 rounded-sm">
+						{formatTimeAgo(item.ts)}
+					</span>
 				</StandardTooltip>
 
 				{/* Cost */}

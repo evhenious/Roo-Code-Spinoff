@@ -17,7 +17,7 @@ vi.mock("vscode", () => {
 		})),
 		workspaceFolders: [],
 	}
-	const env = { machineId: "test-machine", uriScheme: "vscode", appName: "VSCode", language: "en", sessionId: "sess" }
+	const env = { uriScheme: "vscode", appName: "VSCode", language: "en", sessionId: "sess" }
 	const Uri = { file: (p: string) => ({ fsPath: p, toString: () => p }) }
 	const commands = { executeCommand: vi.fn() }
 	const ExtensionMode = { Development: 2 }

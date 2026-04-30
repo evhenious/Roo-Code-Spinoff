@@ -1,5 +1,5 @@
 import { memo } from "react"
-import { ArrowRight, Folder } from "lucide-react"
+import { Folder } from "lucide-react"
 import type { DisplayHistoryItem } from "./types"
 
 import { vscode } from "@/utils/vscode"
@@ -7,7 +7,6 @@ import { cn } from "@/lib/utils"
 import { Checkbox } from "@/components/ui/checkbox"
 
 import TaskItemFooter from "./TaskItemFooter"
-import { StandardTooltip } from "../ui"
 
 interface TaskItemProps {
 	item: DisplayHistoryItem
@@ -93,13 +92,9 @@ const TaskItem = ({
 									!isCompact && isSelectionMode ? "mb-1" : "",
 								)}
 								data-testid="task-content">
-								<StandardTooltip content={item.task}>
-									<span>{item.task}</span>
-								</StandardTooltip>
+								<span>{item.task}</span>
 							</div>
 						)}
-						{/* Arrow icon that appears on hover */}
-						<ArrowRight className="size-4 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
 					</div>
 
 					{showWorkspace && item.workspace && (

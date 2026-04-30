@@ -6,7 +6,6 @@
  * - Preserves HTTP status codes for UI-aware error display
  * - Maintains error details for retry logic (e.g., RetryInfo for 429 errors)
  * - Provides consistent error message formatting
- * - Enables telemetry and debugging with complete error context
  */
 
 import i18n from "../../../i18n/setup"

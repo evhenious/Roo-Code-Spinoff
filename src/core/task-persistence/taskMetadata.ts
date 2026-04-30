@@ -6,7 +6,6 @@ import type { ClineMessage, HistoryItem } from "@roo-code/types"
 import { combineApiRequests } from "../../shared/combineApiRequests"
 import { combineCommandSequences } from "../../shared/combineCommandSequences"
 import { getApiMetrics } from "../../shared/getApiMetrics"
-import { findLastIndex } from "../../shared/array"
 import { getTaskDirectoryPath } from "../../utils/storage"
 import { t } from "../../i18n"
 
@@ -67,7 +66,7 @@ export async function taskMetadata({
 		taskMessage = messages[0] // First message is always the task say.
 
 		const lastRelevantMessage =
-			messages[findLastIndex(messages, (m) => !(m.ask === "resume_task" || m.ask === "resume_completed_task"))] ||
+			messages[messages.findLastIndex((m) => !(m.ask === "resume_task" || m.ask === "resume_completed_task"))] ||
 			taskMessage
 
 		timestamp = lastRelevantMessage.ts

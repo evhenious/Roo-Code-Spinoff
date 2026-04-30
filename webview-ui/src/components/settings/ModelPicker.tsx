@@ -30,7 +30,6 @@ type ModelIdKey = keyof Pick<
 	ProviderSettings,
 	| "openRouterModelId"
 	| "requestyModelId"
-	| "unboundModelId"
 	| "openAiModelId"
 	| "litellmModelId"
 	| "vercelAiGatewayModelId"

@@ -391,7 +391,7 @@ export class NativeToolCallParser {
 		// Build partial nativeArgs based on what we have so far
 		let nativeArgs: any = undefined
 
-		// Track if legacy format was used (for telemetry)
+		// Track if legacy format was used
 		let usedLegacyFormat = false
 
 		switch (name) {

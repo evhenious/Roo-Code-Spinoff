@@ -4,7 +4,6 @@ import type { GlobalSettings, RooCodeSettings } from "./global-settings.js"
 import type { ProviderSettings, ProviderSettingsEntry } from "./provider-settings.js"
 import type { HistoryItem } from "./history.js"
 import type { ModeConfig, PromptComponent } from "./mode.js"
-import type { TelemetrySetting } from "./telemetry.js"
 import type { Experiments } from "./experiment.js"
 import type { ClineMessage, QueuedMessage } from "./message.js"
 import {
@@ -14,7 +13,7 @@ import {
 	marketplaceItemSchema,
 } from "./marketplace.js"
 import type { TodoItem } from "./todo.js"
-import type { CloudUserInfo, CloudOrganizationMembership, OrganizationAllowList, ShareVisibility } from "./cloud.js"
+import type { CloudUserInfo, CloudOrganizationMembership, OrganizationAllowList } from "./cloud.js"
 import type { SerializedCustomToolDefinition } from "./custom-tool.js"
 import type { GitCommit } from "./git.js"
 import type { McpServer } from "./mcp.js"
@@ -79,7 +78,6 @@ export interface ExtensionMessage {
 		| "marketplaceInstallResult"
 		| "marketplaceRemoveResult"
 		| "marketplaceData"
-		| "shareTaskSuccess"
 		| "codeIndexSettingsSaved"
 		| "codeIndexSecretStatus"
 		| "showDeleteMessageDialog"
@@ -117,7 +115,6 @@ export interface ExtensionMessage {
 		| "settingsButtonClicked"
 		| "historyButtonClicked"
 		| "marketplaceButtonClicked"
-		| "cloudButtonClicked"
 		| "didBecomeVisible"
 		| "focusInput"
 		| "switchTab"
@@ -168,7 +165,6 @@ export interface ExtensionMessage {
 	organizationMcps?: MarketplaceItem[]
 	marketplaceInstalledMetadata?: MarketplaceInstalledMetadata
 	errors?: string[]
-	visibility?: ShareVisibility
 	rulesFolderPath?: string
 	settings?: any // eslint-disable-line @typescript-eslint/no-explicit-any
 	messageTs?: number
@@ -315,7 +311,6 @@ export type ExtensionState = Pick<
 	currentTaskTodos?: TodoItem[] // Initial todos for the current task
 	apiConfiguration: ProviderSettings
 	uriScheme?: string
-	shouldShowAnnouncement: boolean
 
 	taskHistory: HistoryItem[]
 
@@ -340,9 +335,6 @@ export type ExtensionState = Pick<
 	toolRequirements?: Record<string, boolean> // Map of tool names to their requirements (e.g. {"apply_diff": true})
 
 	cwd?: string // Current working directory
-	telemetrySetting: TelemetrySetting
-	telemetryKey?: string
-	machineId?: string
 
 	renderContext: "sidebar" | "editor"
 	settingsImportedAt?: number
@@ -367,10 +359,8 @@ export type ExtensionState = Pick<
 	hasOpenedModeSelector: boolean
 	openRouterImageApiKey?: string
 	messageQueue?: QueuedMessage[]
-	lastShownAnnouncementId?: string
 	apiModelId?: string
 	mcpServers?: McpServer[]
-	mdmCompliant?: boolean
 	taskSyncEnabled: boolean
 	openAiCodexIsAuthenticated?: boolean
 	debug?: boolean
@@ -426,7 +416,6 @@ export interface WebviewMessage {
 		| "askResponse"
 		| "terminalOperation"
 		| "clearTask"
-		| "didShowAnnouncement"
 		| "selectImages"
 		| "exportCurrentTask"
 		| "shareCurrentTask"
@@ -494,13 +483,11 @@ export interface WebviewMessage {
 		| "checkpointRestore"
 		| "deleteMcpServer"
 		| "codebaseIndexEnabled"
-		| "telemetrySetting"
 		| "searchFiles"
 		| "toggleApiConfigPin"
 		| "hasOpenedModeSelector"
 		| "lockApiConfigAcrossModes"
 		| "clearCloudAuthSkipModel"
-		| "cloudButtonClicked"
 		| "rooCloudSignIn"
 		| "cloudLandingPageSignIn"
 		| "rooCloudSignOut"
@@ -528,7 +515,6 @@ export interface WebviewMessage {
 		| "marketplaceInstallResult"
 		| "fetchMarketplaceData"
 		| "switchTab"
-		| "shareTaskSuccess"
 		| "exportMode"
 		| "exportModeResult"
 		| "importMode"
@@ -542,7 +528,6 @@ export interface WebviewMessage {
 		| "deleteCommand"
 		| "createCommand"
 		| "insertTextIntoTextarea"
-		| "showMdmAuthRequiredNotification"
 		| "imageGenerationSettings"
 		| "queueMessage"
 		| "removeQueuedMessage"
@@ -640,7 +625,6 @@ export interface WebviewMessage {
 	mpInstallOptions?: InstallMarketplaceItemOptions
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	config?: Record<string, any> // Add config to the payload
-	visibility?: ShareVisibility // For share visibility
 	hasContent?: boolean // For checkRulesDirectoryResult
 	checkOnly?: boolean // For deleteCustomMode check
 	upsellId?: string // For dismissUpsell

@@ -1,14 +1,5 @@
 import { CodeParser } from "../parser"
 
-// Mock TelemetryService
-vi.mock("../../../../../packages/telemetry/src/TelemetryService", () => ({
-	TelemetryService: {
-		instance: {
-			captureEvent: vi.fn(),
-		},
-	},
-}))
-
 import { shouldUseFallbackChunking } from "../../shared/supported-extensions"
 
 describe("CodeParser - VB.NET and Fallback Extensions Support", () => {
@@ -70,15 +61,15 @@ Namespace MyApplication
     Public Module Program
         Sub Main(args As String())
             Dim calc As New Calculator()
-            
+
             Console.WriteLine("Calculator Demo")
             Console.WriteLine("===============")
-            
+
             Console.WriteLine($"10 + 5 = {calc.Add(10, 5)}")
             Console.WriteLine($"10 - 5 = {calc.Subtract(10, 5)}")
             Console.WriteLine($"10 * 5 = {calc.Multiply(10, 5)}")
             Console.WriteLine($"10 / 5 = {calc.Divide(10, 5)}")
-            
+
             Console.WriteLine()
             Console.WriteLine("History:")
             For Each entry In calc.GetHistory()
@@ -214,7 +205,7 @@ End Namespace
 				val doubled = numbers.map(_ * 2)
 				println(s"Doubled numbers: $doubled")
 			}
-			
+
 			def factorial(n: Int): Int = {
 				if (n <= 1) 1
 				else n * factorial(n - 1)

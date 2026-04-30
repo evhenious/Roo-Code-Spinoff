@@ -44,18 +44,6 @@
 		"about": "About Roo Code"
 	},
 	"about": {
-		"bugReport": {
-			"label": "Found a bug?",
-			"link": "Report on GitHub"
-		},
-		"featureRequest": {
-			"label": "Have an idea?",
-			"link": "Share it with us"
-		},
-		"securityIssue": {
-			"label": "Discovered a vulnerability?",
-			"link": "Follow our disclosure process"
-		},
 		"community": "Want tips or to just hang out with other Roo Code users? Join <redditLink>reddit.com/r/RooCode</redditLink> or <discordLink>discord.gg/roocode</discordLink>",
 		"contactAndCommunity": "Contact & Community",
 		"manageSettings": "Manage Settings",
@@ -416,8 +404,6 @@
 		"headerName": "Header name",
 		"headerValue": "Header value",
 		"noCustomHeaders": "No custom headers defined. Click the + button to add one.",
-		"unboundApiKey": "Unbound API Key",
-		"getUnboundApiKey": "Get Unbound API Key",
 		"requestyApiKey": "Requesty API Key",
 		"refreshModels": {
 			"label": "Refresh Models",
@@ -928,10 +914,6 @@
 		"simplifiedExplanation": "You can adjust detailed model settings later."
 	},
 	"footer": {
-		"telemetry": {
-			"label": "Allow anonymous error and usage reporting",
-			"description": "Help improve Roo Code by sending anonymous usage data and error reports. This telemetry does not collect code, prompts or personal information. See our <privacyLink>privacy policy</privacyLink> for more details."
-		},
 		"settings": {
 			"import": "Import",
 			"export": "Export",

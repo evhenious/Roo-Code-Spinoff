@@ -17,7 +17,6 @@ import {
 	SquareTerminal,
 	FlaskConical,
 	AlertTriangle,
-	Globe,
 	Info,
 	MessageSquare,
 	LucideIcon,
@@ -34,7 +33,6 @@ import {
 import {
 	type ProviderSettings,
 	type ExperimentId,
-	type TelemetrySetting,
 	DEFAULT_CHECKPOINT_TIMEOUT_SECONDS,
 	ImageGenerationProvider,
 } from "@roo-code/types"
@@ -71,7 +69,6 @@ import { NotificationSettings } from "./NotificationSettings"
 import { ContextManagementSettings } from "./ContextManagementSettings"
 import { TerminalSettings } from "./TerminalSettings"
 import { ExperimentalSettings } from "./ExperimentalSettings"
-import { LanguageSettings } from "./LanguageSettings"
 import { About } from "./About"
 import { Section } from "./Section"
 import PromptsSettings from "./PromptsSettings"
@@ -110,7 +107,6 @@ export const sectionNames = [
 	"prompts",
 	"ui",
 	"experimental",
-	"language",
 	"about",
 ] as const
 
@@ -153,7 +149,6 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 		deniedCommands,
 		allowedMaxRequests,
 		allowedMaxCost,
-		language,
 		alwaysAllowExecute,
 		alwaysAllowMcp,
 		alwaysAllowModeSwitch,
@@ -173,7 +168,6 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 		ttsEnabled,
 		ttsSpeed,
 		soundVolume,
-		telemetrySetting,
 		terminalOutputPreviewSize,
 		terminalShellIntegrationTimeout,
 		terminalShellIntegrationDisabled, // Added from upstream
@@ -290,17 +284,6 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 		})
 	}, [])
 
-	const setTelemetrySetting = useCallback((setting: TelemetrySetting) => {
-		setCachedState((prevState) => {
-			if (prevState.telemetrySetting === setting) {
-				return prevState
-			}
-
-			setChangeDetected(true)
-			return { ...prevState, telemetrySetting: setting }
-		})
-	}, [])
-
 	const setDebug = useCallback((debug: boolean) => {
 		setCachedState((prevState) => {
 			if (prevState.debug === debug) {
@@ -363,7 +346,6 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 			vscode.postMessage({
 				type: "updateSettings",
 				updatedSettings: {
-					language,
 					alwaysAllowReadOnly: alwaysAllowReadOnly ?? undefined,
 					alwaysAllowReadOnlyOutsideWorkspace: alwaysAllowReadOnlyOutsideWorkspace ?? undefined,
 					alwaysAllowWrite: alwaysAllowWrite ?? undefined,
@@ -428,7 +410,6 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 			// These have more complex logic so they aren't (yet) handled
 			// by the `updateSettings` message.
 			vscode.postMessage({ type: "upsertApiConfiguration", text: currentApiConfigName, apiConfiguration })
-			vscode.postMessage({ type: "telemetrySetting", text: telemetrySetting })
 			vscode.postMessage({ type: "debugSetting", bool: cachedState.debug })
 
 			setChangeDetected(false)
@@ -522,7 +503,6 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 			{ id: "worktrees", icon: GitBranch },
 			{ id: "ui", icon: Glasses },
 			{ id: "experimental", icon: FlaskConical },
-			{ id: "language", icon: Globe },
 			{ id: "about", icon: Info },
 		],
 		[], // No dependencies needed now
@@ -914,20 +894,8 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 							/>
 						)}
 
-						{/* Language Section */}
-						{renderTab === "language" && (
-							<LanguageSettings language={language || "en"} setCachedStateField={setCachedStateField} />
-						)}
-
 						{/* About Section */}
-						{renderTab === "about" && (
-							<About
-								telemetrySetting={telemetrySetting}
-								setTelemetrySetting={setTelemetrySetting}
-								debug={cachedState.debug}
-								setDebug={setDebug}
-							/>
-						)}
+						{renderTab === "about" && <About debug={cachedState.debug} setDebug={setDebug} />}
 					</SearchIndexProvider>
 				</TabContent>
 			</div>

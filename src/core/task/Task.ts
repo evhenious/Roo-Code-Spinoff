@@ -14,7 +14,6 @@ import delay from "delay"
 import pWaitFor from "p-wait-for"
 import { serializeError } from "serialize-error"
 import { Package } from "../../shared/package"
-import { formatToolInvocation } from "../tools/helpers/toolResultFormatting"
 
 import {
 	type TaskLike,
@@ -36,7 +35,6 @@ import {
 	type ClineApiReqCancelReason,
 	type ClineApiReqInfo,
 	RooCodeEventName,
-	TelemetryEventName,
 	TaskStatus,
 	TodoItem,
 	getApiProtocol,
@@ -50,12 +48,9 @@ import {
 	DEFAULT_CHECKPOINT_TIMEOUT_SECONDS,
 	MAX_CHECKPOINT_TIMEOUT_SECONDS,
 	MIN_CHECKPOINT_TIMEOUT_SECONDS,
-	ConsecutiveMistakeError,
 	MAX_MCP_TOOLS_THRESHOLD,
 	countEnabledMcpTools,
 } from "@roo-code/types"
-import { TelemetryService } from "@roo-code/telemetry"
-import { CloudService } from "@roo-code/cloud"
 
 // api
 import { ApiHandler, ApiHandlerCreateMessageMetadata, buildApiHandler } from "../../api"
@@ -63,14 +58,13 @@ import { ApiStream, GroundingSource } from "../../api/transform/stream"
 import { maybeRemoveImageBlocks } from "../../api/transform/image-cleaning"
 
 // shared
-import { findLastIndex } from "../../shared/array"
 import { combineApiRequests } from "../../shared/combineApiRequests"
 import { combineCommandSequences } from "../../shared/combineCommandSequences"
 import { t } from "../../i18n"
 import { getApiMetrics, hasTokenUsageChanged, hasToolUsageChanged } from "../../shared/getApiMetrics"
 import { ClineAskResponse } from "../../shared/WebviewMessage"
 import { defaultModeSlug, getModeBySlug } from "../../shared/modes"
-import { DiffStrategy, type ToolUse, type ToolParamName, toolParamNames } from "../../shared/tools"
+import { DiffStrategy, type ToolUse } from "../../shared/tools"
 import { getModelMaxOutputTokens } from "../../shared/api"
 
 // services
@@ -80,7 +74,6 @@ import { RepoPerTaskCheckpointService } from "../../services/checkpoints"
 
 // integrations
 import { DiffViewProvider } from "../../integrations/editor/DiffViewProvider"
-import { findToolName } from "../../integrations/misc/export-markdown"
 import { RooTerminalProcess } from "../../integrations/terminal/types"
 import { TerminalRegistry } from "../../integrations/terminal/TerminalRegistry"
 import { OutputInterceptor } from "../../integrations/terminal/OutputInterceptor"
@@ -408,9 +401,6 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 	private readonly TOKEN_USAGE_EMIT_INTERVAL_MS = 2000 // 2 seconds
 	private debouncedEmitTokenUsage: ReturnType<typeof debounce>
 
-	// Cloud Sync Tracking
-	private cloudSyncedMessageTimestamps: Set<number> = new Set()
-
 	// Initial status for the task's history item (set at creation time to avoid race conditions)
 	private readonly initialStatus?: "active" | "delegated" | "completed"
 
@@ -506,14 +496,12 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 			this._taskApiConfigName = historyItem.apiConfigName
 			this.taskModeReady = Promise.resolve()
 			this.taskApiConfigReady = Promise.resolve()
-			TelemetryService.instance.captureTaskRestarted(this.taskId)
 		} else {
 			// For new tasks, don't set the mode/apiConfigName yet - wait for async initialization.
 			this._taskMode = undefined
 			this._taskApiConfigName = undefined
 			this.taskModeReady = this.initializeTaskMode(provider)
 			this.taskApiConfigReady = this.initializeTaskApiConfigName(provider)
-			TelemetryService.instance.captureTaskCreated(this.taskId)
 		}
 
 		this.assistantMessageParser = undefined
@@ -1161,51 +1149,18 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 		await provider?.postStateToWebviewWithoutTaskHistory()
 		this.emit(RooCodeEventName.Message, { action: "created", message })
 		await this.saveClineMessages()
-
-		const shouldCaptureMessage = message.partial !== true && CloudService.isEnabled()
-
-		if (shouldCaptureMessage) {
-			CloudService.instance.captureEvent({
-				event: TelemetryEventName.TASK_MESSAGE,
-				properties: { taskId: this.taskId, message },
-			})
-			// Track that this message has been synced to cloud
-			this.cloudSyncedMessageTimestamps.add(message.ts)
-		}
 	}
 
 	public async overwriteClineMessages(newMessages: ClineMessage[]) {
 		this.clineMessages = newMessages
 		restoreTodoListForTask(this)
 		await this.saveClineMessages()
-
-		// When overwriting messages (e.g., during task resume), repopulate the cloud sync tracking Set
-		// with timestamps from all non-partial messages to prevent re-syncing previously synced messages
-		this.cloudSyncedMessageTimestamps.clear()
-		for (const msg of newMessages) {
-			if (msg.partial !== true) {
-				this.cloudSyncedMessageTimestamps.add(msg.ts)
-			}
-		}
 	}
 
 	private async updateClineMessage(message: ClineMessage) {
 		const provider = this.providerRef.deref()
 		await provider?.postMessageToWebview({ type: "messageUpdated", clineMessage: message })
 		this.emit(RooCodeEventName.Message, { action: "updated", message })
-
-		// Check if we should sync to cloud and haven't already synced this message
-		const shouldCaptureMessage = message.partial !== true && CloudService.isEnabled()
-		const hasNotBeenSynced = !this.cloudSyncedMessageTimestamps.has(message.ts)
-
-		if (shouldCaptureMessage && hasNotBeenSynced) {
-			CloudService.instance.captureEvent({
-				event: TelemetryEventName.TASK_MESSAGE,
-				properties: { taskId: this.taskId, message },
-			})
-			// Track that this message has been synced to cloud
-			this.cloudSyncedMessageTimestamps.add(message.ts)
-		}
 	}
 
 	private async saveClineMessages(): Promise<boolean> {
@@ -1515,9 +1470,8 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 
 		// Mark the last follow-up question as answered
 		if (askResponse === "messageResponse" || askResponse === "yesButtonClicked") {
-			// Find the last unanswered follow-up message using findLastIndex
-			const lastFollowUpIndex = findLastIndex(
-				this.clineMessages,
+			// Find the last unanswered follow-up message
+			const lastFollowUpIndex = this.clineMessages.findLastIndex(
 				(msg) => msg.type === "ask" && msg.ask === "followup" && !msg.isAnswered,
 			)
 
@@ -1533,8 +1487,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 
 		// Mark the last tool-approval ask as answered when user approves (or auto-approval)
 		if (askResponse === "yesButtonClicked") {
-			const lastToolAskIndex = findLastIndex(
-				this.clineMessages,
+			const lastToolAskIndex = this.clineMessages.findLastIndex(
 				(msg) => msg.type === "ask" && msg.ask === "tool" && !msg.isAnswered,
 			)
 			if (lastToolAskIndex !== -1) {
@@ -2003,8 +1956,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 			const modifiedClineMessages = await this.getSavedClineMessages()
 
 			// Remove any resume messages that may have been added before.
-			const lastRelevantMessageIndex = findLastIndex(
-				modifiedClineMessages,
+			const lastRelevantMessageIndex = modifiedClineMessages.findLastIndex(
 				(m) => !(m.ask === "resume_task" || m.ask === "resume_completed_task"),
 			)
 
@@ -2026,8 +1978,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 			// last `api_req_started` has a cost value, if it doesn't and no
 			// cancellation reason to present, then we remove it since it indicates
 			// an api request without any partial content streamed.
-			const lastApiReqStartedIndex = findLastIndex(
-				modifiedClineMessages,
+			const lastApiReqStartedIndex = modifiedClineMessages.findLastIndex(
 				(m) => m.type === "say" && m.say === "api_req_started",
 			)
 
@@ -2526,21 +2477,8 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 			}
 
 			if (this.consecutiveMistakeLimit > 0 && this.consecutiveMistakeCount >= this.consecutiveMistakeLimit) {
-				// Track consecutive mistake errors in telemetry via event and PostHog exception tracking.
 				// The reason is "no_tools_used" because this limit is reached via initiateTaskLoop
 				// which increments consecutiveMistakeCount when the model doesn't use any tools.
-				TelemetryService.instance.captureConsecutiveMistakeError(this.taskId)
-				TelemetryService.instance.captureException(
-					new ConsecutiveMistakeError(
-						`Task reached consecutive mistake limit (${this.consecutiveMistakeLimit})`,
-						this.taskId,
-						this.consecutiveMistakeCount,
-						this.consecutiveMistakeLimit,
-						"no_tools_used",
-						this.apiConfiguration.apiProvider,
-						getModelId(this.apiConfiguration),
-					),
-				)
 
 				const { response, text, images } = await this.ask(
 					"mistake_limit_reached",
@@ -2657,14 +2595,13 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 				((currentItem.retryAttempt ?? 0) === 0 && !isEmptyUserContent) || currentItem.userMessageWasRemoved
 			if (shouldAddUserMessage) {
 				await this.addToApiConversationHistory({ role: "user", content: finalUserContent })
-				TelemetryService.instance.captureConversationMessage(this.taskId, "user")
 			}
 
 			// Since we sent off a placeholder api_req_started message to update the
 			// webview while waiting to actually start the API request (to load
 			// potential details for example), we need to update the text of that
 			// message.
-			const lastApiReqIndex = findLastIndex(this.clineMessages, (m) => m.say === "api_req_started")
+			const lastApiReqIndex = this.clineMessages.findLastIndex((m) => m.say === "api_req_started")
 
 			this.clineMessages[lastApiReqIndex].text = JSON.stringify({
 				apiProtocol,
@@ -3147,14 +3084,6 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 												tokens.cacheWrite,
 												tokens.cacheRead,
 											)
-
-								TelemetryService.instance.captureLlmCompletion(this.taskId, {
-									inputTokens: costResult.totalInputTokens,
-									outputTokens: costResult.totalOutputTokens,
-									cacheWriteTokens: tokens.cacheWrite,
-									cacheReadTokens: tokens.cacheRead,
-									cost: tokens.total ?? costResult.totalCost,
-								})
 							}
 						}
 
@@ -3389,8 +3318,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 				// We can't use say() here because the reasoning message may not be the last message
 				// (other messages like text blocks or tool uses may have been added after it during streaming)
 				if (reasoningMessage) {
-					const lastReasoningIndex = findLastIndex(
-						this.clineMessages,
+					const lastReasoningIndex = this.clineMessages.findLastIndex(
 						(m) => m.type === "say" && m.say === "reasoning",
 					)
 
@@ -3551,8 +3479,6 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 						reasoningMessage || undefined,
 					)
 					this.assistantMessageSavedToHistory = true
-
-					TelemetryService.instance.captureConversationMessage(this.taskId, "assistant")
 				}
 
 				// Present any partial blocks that were just completed.
@@ -4234,6 +4160,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 				throw new Error("Provider reference lost during tool building")
 			}
 
+			//!! tool definitions are injected here
 			const toolsResult = await buildNativeToolsArrayWithRestrictions({
 				provider,
 				cwd: this.cwd,

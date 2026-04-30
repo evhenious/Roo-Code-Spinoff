@@ -2,8 +2,6 @@ import type { Disposable, ExtensionContext } from "vscode"
 import EventEmitter from "events"
 
 import type {
-	TelemetryEvent,
-	ClineMessage,
 	CloudServiceEvents,
 	AuthService,
 	SettingsService,
@@ -11,19 +9,12 @@ import type {
 	CloudOrganizationMembership,
 	OrganizationAllowList,
 	OrganizationSettings,
-	ShareVisibility,
 	UserSettingsConfig,
 	UserSettingsData,
 	UserFeatures,
 } from "@roo-code/types"
 
-import { TaskNotFoundError } from "./errors.js"
-import { WebAuthService } from "./WebAuthService.js"
-import { StaticTokenAuthService } from "./StaticTokenAuthService.js"
-import { CloudSettingsService } from "./CloudSettingsService.js"
 import { StaticSettingsService } from "./StaticSettingsService.js"
-import { CloudTelemetryClient as TelemetryClient } from "./TelemetryClient.js"
-import { CloudShareService } from "./CloudShareService.js"
 import { CloudAPI } from "./CloudAPI.js"
 import { RetryQueue } from "./retry-queue/index.js"
 
@@ -31,6 +22,7 @@ type AuthStateChangedPayload = CloudServiceEvents["auth-state-changed"][0]
 type AuthUserInfoPayload = CloudServiceEvents["user-info"][0]
 type SettingsPayload = CloudServiceEvents["settings-updated"][0]
 
+// DEPRECATION state. Need to cut it off
 export class CloudService extends EventEmitter<CloudServiceEvents> implements Disposable {
 	private static _instance: CloudService | null = null
 
@@ -57,18 +49,6 @@ export class CloudService extends EventEmitter<CloudServiceEvents> implements Di
 
 	public get settingsService() {
 		return this._settingsService
-	}
-
-	private _telemetryClient: TelemetryClient | null = null
-
-	public get telemetryClient() {
-		return this._telemetryClient
-	}
-
-	private _shareService: CloudShareService | null = null
-
-	public get shareService() {
-		return this._shareService
 	}
 
 	private _cloudAPI: CloudAPI | null = null
@@ -116,37 +96,12 @@ export class CloudService extends EventEmitter<CloudServiceEvents> implements Di
 		}
 
 		try {
-			// For testing you can create a token with:
-			// `pnpm --filter @roo-code-cloud/roomote-cli development auth job-token --job-id 1 --user-id user_2xmBhejNeDTwanM8CgIOnMgVxzC --org-id org_2wbhchVXZMQl8OS1yt0mrDazCpW`
-			// The token will last for 1 hour.
-			const cloudToken = process.env.ROO_CODE_CLOUD_TOKEN
-
-			if (cloudToken && cloudToken.length > 0) {
-				this._authService = new StaticTokenAuthService(this.context, cloudToken, this.log)
-				this._isCloudAgent = true
-			} else {
-				this._authService = new WebAuthService(this.context, this.log)
-			}
-
-			this._authService.on("auth-state-changed", this.authStateListener)
-			this._authService.on("user-info", this.authUserInfoListener)
-			await this._authService.initialize()
-
 			// Check for static settings environment variable.
 			const staticOrgSettings = process.env.ROO_CODE_CLOUD_ORG_SETTINGS
 
 			if (staticOrgSettings && staticOrgSettings.length > 0) {
 				this._settingsService = new StaticSettingsService(staticOrgSettings, this.log)
-			} else {
-				const cloudSettingsService = new CloudSettingsService(this.context, this._authService, this.log)
-
-				cloudSettingsService.on("settings-updated", this.settingsListener)
-				await cloudSettingsService.initialize()
-
-				this._settingsService = cloudSettingsService
 			}
-
-			this._cloudAPI = new CloudAPI(this._authService, this.log)
 
 			// Initialize retry queue with auth header provider.
 			this._retryQueue = new RetryQueue(
@@ -164,10 +119,6 @@ export class CloudService extends EventEmitter<CloudServiceEvents> implements Di
 					return undefined
 				},
 			)
-
-			this._telemetryClient = new TelemetryClient(this._authService, this._settingsService, this._retryQueue)
-
-			this._shareService = new CloudShareService(this._cloudAPI, this._settingsService, this.log)
 
 			this.isInitialized = true
 		} catch (error) {
@@ -300,46 +251,7 @@ export class CloudService extends EventEmitter<CloudServiceEvents> implements Di
 
 	public isTaskSyncEnabled(): boolean {
 		this.ensureInitialized()
-		return this.settingsService!.isTaskSyncEnabled()
-	}
-
-	// TelemetryClient
-
-	public captureEvent(event: TelemetryEvent): void {
-		this.ensureInitialized()
-		this.telemetryClient!.capture(event)
-	}
-
-	// ShareService
-
-	public async shareTask(
-		taskId: string,
-		visibility: ShareVisibility = "organization",
-		clineMessages?: ClineMessage[],
-	) {
-		this.ensureInitialized()
-
-		try {
-			return await this.shareService!.shareTask(taskId, visibility)
-		} catch (error) {
-			if (error instanceof TaskNotFoundError && clineMessages) {
-				// Backfill messages and retry.
-				await this.telemetryClient!.backfillMessages(clineMessages, taskId)
-				return await this.shareService!.shareTask(taskId, visibility)
-			}
-
-			throw error
-		}
-	}
-
-	public async canShareTask(): Promise<boolean> {
-		this.ensureInitialized()
-		return this.shareService!.canShareTask()
-	}
-
-	public async canSharePublicly(): Promise<boolean> {
-		this.ensureInitialized()
-		return this.shareService!.canSharePublicly()
+		return false
 	}
 
 	// Lifecycle
@@ -351,10 +263,6 @@ export class CloudService extends EventEmitter<CloudServiceEvents> implements Di
 		}
 
 		if (this.settingsService) {
-			if (this.settingsService instanceof CloudSettingsService) {
-				this.settingsService.off("settings-updated", this.settingsListener)
-			}
-
 			this.settingsService.dispose()
 		}
 
@@ -366,7 +274,7 @@ export class CloudService extends EventEmitter<CloudServiceEvents> implements Di
 	}
 
 	private ensureInitialized(): void {
-		if (!this.isInitialized) {
+		if (!this.isInitialized || !this._settingsService) {
 			throw new Error("CloudService not initialized.")
 		}
 	}

@@ -4,7 +4,6 @@ import {
 	getErrorStatusCode,
 	getErrorMessage,
 	extractMessageFromJsonPayload,
-	shouldReportApiErrorToTelemetry,
 	EXPECTED_API_ERROR_CODES,
 	ApiProviderError,
 	isApiProviderError,
@@ -234,51 +233,6 @@ describe("telemetry error utilities", () => {
 		it("should return undefined when message field is not a string", () => {
 			const json = '{"error":{"message":123}}'
 			expect(extractMessageFromJsonPayload(json)).toBeUndefined()
-		})
-	})
-
-	describe("shouldReportApiErrorToTelemetry", () => {
-		it("should return false for expected error codes", () => {
-			for (const code of EXPECTED_API_ERROR_CODES) {
-				expect(shouldReportApiErrorToTelemetry(code)).toBe(false)
-			}
-		})
-
-		it("should return false for 402 billing errors", () => {
-			expect(shouldReportApiErrorToTelemetry(402)).toBe(false)
-			expect(shouldReportApiErrorToTelemetry(402, "Payment required")).toBe(false)
-		})
-
-		it("should return false for 429 rate limit errors", () => {
-			expect(shouldReportApiErrorToTelemetry(429)).toBe(false)
-			expect(shouldReportApiErrorToTelemetry(429, "Rate limit exceeded")).toBe(false)
-		})
-
-		it("should return false for messages starting with 429", () => {
-			expect(shouldReportApiErrorToTelemetry(undefined, "429 Rate limit exceeded")).toBe(false)
-			expect(shouldReportApiErrorToTelemetry(undefined, "429: Too many requests")).toBe(false)
-		})
-
-		it("should return false for messages containing 'rate limit' (case insensitive)", () => {
-			expect(shouldReportApiErrorToTelemetry(undefined, "Rate limit exceeded")).toBe(false)
-			expect(shouldReportApiErrorToTelemetry(undefined, "RATE LIMIT error")).toBe(false)
-			expect(shouldReportApiErrorToTelemetry(undefined, "Request failed due to rate limit")).toBe(false)
-		})
-
-		it("should return true for non-rate-limit errors", () => {
-			expect(shouldReportApiErrorToTelemetry(500)).toBe(true)
-			expect(shouldReportApiErrorToTelemetry(400, "Bad request")).toBe(true)
-			expect(shouldReportApiErrorToTelemetry(401, "Unauthorized")).toBe(true)
-		})
-
-		it("should return true when no error code or message is provided", () => {
-			expect(shouldReportApiErrorToTelemetry()).toBe(true)
-			expect(shouldReportApiErrorToTelemetry(undefined, undefined)).toBe(true)
-		})
-
-		it("should return true for regular error messages without rate limit keywords", () => {
-			expect(shouldReportApiErrorToTelemetry(undefined, "Internal server error")).toBe(true)
-			expect(shouldReportApiErrorToTelemetry(undefined, "Connection timeout")).toBe(true)
 		})
 	})
 

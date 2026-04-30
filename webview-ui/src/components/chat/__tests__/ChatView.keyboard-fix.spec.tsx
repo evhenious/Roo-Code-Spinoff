@@ -52,10 +52,6 @@ vi.mock("@src/components/welcome/RooHero", () => ({
 	default: () => null,
 }))
 
-vi.mock("../common/TelemetryBanner", () => ({
-	default: () => null,
-}))
-
 // Mock i18n
 vi.mock("react-i18next", () => ({
 	useTranslation: () => ({
@@ -116,8 +112,6 @@ const mockPostMessage = (state: any) => {
 
 const defaultProps: ChatViewProps = {
 	isHidden: false,
-	showAnnouncement: false,
-	hideAnnouncement: () => {},
 }
 
 const queryClient = new QueryClient()

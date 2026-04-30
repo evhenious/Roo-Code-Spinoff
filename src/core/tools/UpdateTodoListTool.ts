@@ -177,14 +177,19 @@ function normalizeStatus(status: string | undefined): TodoStatus {
 
 export function parseMarkdownChecklist(md: string): TodoItem[] {
 	if (typeof md !== "string") return []
+
 	const lines = md
+		.replace(/\\n/g, "\n") // defensive fix for newline split for items
 		.split(/\r?\n/)
 		.map((l) => l.trim())
 		.filter(Boolean)
+
 	const todos: TodoItem[] = []
+
 	for (const line of lines) {
 		const match = line.match(/^(?:-\s*)?\[\s*([ xX\-~])\s*\]\s+(.+)$/)
 		if (!match) continue
+
 		let status: TodoStatus = "pending"
 		if (match[1] === "x" || match[1] === "X") status = "completed"
 		else if (match[1] === "-" || match[1] === "~") status = "in_progress"
@@ -198,6 +203,7 @@ export function parseMarkdownChecklist(md: string): TodoItem[] {
 			status,
 		})
 	}
+
 	return todos
 }
 

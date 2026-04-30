@@ -2,7 +2,6 @@
  * Main factory function for creating VSCode API mock
  */
 
-import { machineIdSync } from "../utils/machine-id.js"
 import { logs } from "../utils/logger.js"
 
 // Import classes
@@ -103,7 +102,6 @@ export function createVSCodeAPIMock(
 		appName: `wrapper|cli|cli|${Package.version}`,
 		appRoot: options?.appRoot || import.meta.dirname,
 		language: "en",
-		machineId: identity?.machineId || machineIdSync(),
 		sessionId: identity?.sessionId || "cli-session-id",
 		remoteName: undefined,
 		shell: process.env.SHELL || "/bin/bash",

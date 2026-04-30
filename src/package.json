@@ -4,6 +4,7 @@
 	"description": "%extension.description%",
 	"publisher": "RooVeterinaryInc",
 	"version": "3.53.0",
+	"distilled": "1.rc1",
 	"icon": "assets/icons/icon.png",
 	"galleryBanner": {
 		"color": "#617A91",
@@ -11,23 +12,20 @@
 	},
 	"engines": {
 		"vscode": "^1.84.0",
-		"node": "20.19.2"
+		"node": "22.22.1"
 	},
 	"author": {
-		"name": "Roo Code"
+		"name": "evhenious"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/RooCodeInc/Roo-Code"
+		"url": "https://github.com/evhenious/Roo-Code-Spinoff"
 	},
-	"homepage": "https://roocode.com",
+	"homepage": "https://github.com/evhenious/Roo-Code-Spinoff",
 	"categories": [
 		"AI",
 		"Chat",
-		"Programming Languages",
-		"Education",
-		"Snippets",
-		"Testing"
+		"Programming Languages"
 	],
 	"keywords": [
 		"cline",
@@ -73,7 +71,7 @@
 			{
 				"command": "roo-cline.plusButtonClicked",
 				"title": "%command.newTask.title%",
-				"icon": "$(edit)"
+				"icon": "$(plus)"
 			},
 			{
 				"command": "roo-cline.historyButtonClicked",
@@ -89,11 +87,6 @@
 				"command": "roo-cline.popoutButtonClicked",
 				"title": "%command.openInEditor.title%",
 				"icon": "$(link-external)"
-			},
-			{
-				"command": "roo-cline.cloudButtonClicked",
-				"title": "%command.cloud.title%",
-				"icon": "$(cloud)"
 			},
 			{
 				"command": "roo-cline.settingsButtonClicked",
@@ -224,11 +217,6 @@
 					"when": "view == roo-cline.SidebarProvider"
 				},
 				{
-					"command": "roo-cline.cloudButtonClicked",
-					"group": "navigation@3",
-					"when": "view == roo-cline.SidebarProvider"
-				},
-				{
 					"command": "roo-cline.marketplaceButtonClicked",
 					"group": "navigation@4",
 					"when": "view == roo-cline.SidebarProvider"
@@ -253,11 +241,6 @@
 				{
 					"command": "roo-cline.settingsButtonClicked",
 					"group": "navigation@2",
-					"when": "activeWebviewPanelId == roo-cline.TabPanelProvider"
-				},
-				{
-					"command": "roo-cline.cloudButtonClicked",
-					"group": "navigation@3",
 					"when": "activeWebviewPanelId == roo-cline.TabPanelProvider"
 				},
 				{
@@ -441,7 +424,7 @@
 		"format": "prettier --write .",
 		"bundle": "node esbuild.mjs",
 		"vscode:prepublish": "pnpm bundle --production",
-		"vsix": "mkdirp ../bin && vsce package --no-dependencies --out ../bin",
+		"vsix": "./scripts/build-vsix.sh",
 		"publish:marketplace": "vsce publish --no-dependencies && ovsx publish --no-dependencies",
 		"watch:bundle": "pnpm bundle --watch",
 		"watch:tsc": "cd .. && tsc --noEmit --watch --project src/tsconfig.json",
@@ -468,7 +451,6 @@
 		"@roo-code/cloud": "workspace:^",
 		"@roo-code/core": "workspace:^",
 		"@roo-code/ipc": "workspace:^",
-		"@roo-code/telemetry": "workspace:^",
 		"@roo-code/types": "workspace:^",
 		"@vscode/codicons": "^0.0.36",
 		"ai-sdk-provider-poe": "2.0.18",

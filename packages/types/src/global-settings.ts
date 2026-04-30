@@ -10,7 +10,6 @@ import {
 import { historyItemSchema } from "./history.js"
 import { codebaseIndexModelsSchema, codebaseIndexConfigSchema } from "./codebase-index.js"
 import { experimentsSchema } from "./experiment.js"
-import { telemetrySettingsSchema } from "./telemetry.js"
 import { modeConfigSchema } from "./mode.js"
 import { customModePromptsSchema, customSupportPromptsSchema } from "./mode.js"
 import { toolNamesSchema } from "./tool.js"
@@ -83,7 +82,6 @@ export const globalSettingsSchema = z.object({
 	listApiConfigMeta: z.array(providerSettingsEntrySchema).optional(),
 	pinnedApiConfigs: z.record(z.string(), z.boolean()).optional(),
 
-	lastShownAnnouncementId: z.string().optional(),
 	customInstructions: z.string().optional(),
 	taskHistory: z.array(historyItemSchema).optional(),
 	dismissedUpsells: z.array(z.string()).optional(),
@@ -188,8 +186,6 @@ export const globalSettingsSchema = z.object({
 
 	language: languagesSchema.optional(),
 
-	telemetrySetting: telemetrySettingsSchema.optional(),
-
 	mcpEnabled: z.boolean().optional(),
 
 	mode: z.string().optional(),
@@ -265,7 +261,6 @@ export const SECRET_STATE_KEYS = [
 	"mistralApiKey",
 	"minimaxApiKey",
 	"requestyApiKey",
-	"unboundApiKey",
 	"xaiApiKey",
 	"litellmApiKey",
 	"codeIndexOpenAiKey",
@@ -320,8 +315,6 @@ export const isGlobalStateKey = (key: string): key is Keys<GlobalState> =>
 export const EVALS_SETTINGS: RooCodeSettings = {
 	apiProvider: "openrouter",
 
-	lastShownAnnouncementId: "jul-09-2025-3-23-0",
-
 	pinnedApiConfigs: {},
 
 	autoApprovalEnabled: true,
@@ -371,7 +364,6 @@ export const EVALS_SETTINGS: RooCodeSettings = {
 	maxDiagnosticMessages: 50,
 
 	language: "en",
-	telemetrySetting: "enabled",
 
 	mcpEnabled: false,
 

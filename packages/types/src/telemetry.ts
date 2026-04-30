@@ -1,84 +1,6 @@
 import { z } from "zod"
 
 import { providerNames } from "./provider-settings.js"
-import { clineMessageSchema } from "./message.js"
-
-/**
- * TelemetrySetting
- */
-
-export const telemetrySettings = ["unset", "enabled", "disabled"] as const
-
-export const telemetrySettingsSchema = z.enum(telemetrySettings)
-
-export type TelemetrySetting = z.infer<typeof telemetrySettingsSchema>
-
-/**
- * TelemetryEventName
- */
-
-export enum TelemetryEventName {
-	TASK_CREATED = "Task Created",
-	TASK_RESTARTED = "Task Reopened",
-	TASK_COMPLETED = "Task Completed",
-	TASK_MESSAGE = "Task Message",
-	TASK_CONVERSATION_MESSAGE = "Conversation Message",
-	LLM_COMPLETION = "LLM Completion",
-	MODE_SWITCH = "Mode Switched",
-	MODE_SELECTOR_OPENED = "Mode Selector Opened",
-	TOOL_USED = "Tool Used",
-
-	CHECKPOINT_CREATED = "Checkpoint Created",
-	CHECKPOINT_RESTORED = "Checkpoint Restored",
-	CHECKPOINT_DIFFED = "Checkpoint Diffed",
-
-	TAB_SHOWN = "Tab Shown",
-	MODE_SETTINGS_CHANGED = "Mode Setting Changed",
-	CUSTOM_MODE_CREATED = "Custom Mode Created",
-
-	CONTEXT_CONDENSED = "Context Condensed",
-	SLIDING_WINDOW_TRUNCATION = "Sliding Window Truncation",
-
-	CODE_ACTION_USED = "Code Action Used",
-	PROMPT_ENHANCED = "Prompt Enhanced",
-
-	TITLE_BUTTON_CLICKED = "Title Button Clicked",
-
-	AUTHENTICATION_INITIATED = "Authentication Initiated",
-
-	MARKETPLACE_ITEM_INSTALLED = "Marketplace Item Installed",
-	MARKETPLACE_ITEM_REMOVED = "Marketplace Item Removed",
-	MARKETPLACE_TAB_VIEWED = "Marketplace Tab Viewed",
-	MARKETPLACE_INSTALL_BUTTON_CLICKED = "Marketplace Install Button Clicked",
-
-	SHARE_BUTTON_CLICKED = "Share Button Clicked",
-	SHARE_ORGANIZATION_CLICKED = "Share Organization Clicked",
-	SHARE_PUBLIC_CLICKED = "Share Public Clicked",
-	SHARE_CONNECT_TO_CLOUD_CLICKED = "Share Connect To Cloud Clicked",
-
-	ACCOUNT_CONNECT_CLICKED = "Account Connect Clicked",
-	ACCOUNT_CONNECT_SUCCESS = "Account Connect Success",
-	ACCOUNT_LOGOUT_CLICKED = "Account Logout Clicked",
-	ACCOUNT_LOGOUT_SUCCESS = "Account Logout Success",
-
-	FEATURED_PROVIDER_CLICKED = "Featured Provider Clicked",
-
-	UPSELL_DISMISSED = "Upsell Dismissed",
-	UPSELL_CLICKED = "Upsell Clicked",
-
-	SCHEMA_VALIDATION_ERROR = "Schema Validation Error",
-	DIFF_APPLICATION_ERROR = "Diff Application Error",
-	SHELL_INTEGRATION_ERROR = "Shell Integration Error",
-	CONSECUTIVE_MISTAKE_ERROR = "Consecutive Mistake Error",
-	CODE_INDEX_ERROR = "Code Index Error",
-	TELEMETRY_SETTINGS_CHANGED = "Telemetry Settings Changed",
-	MODEL_CACHE_EMPTY_RESPONSE = "Model Cache Empty Response",
-	READ_FILE_LEGACY_FORMAT_USED = "Read File Legacy Format Used",
-}
-
-/**
- * TelemetryProperties
- */
 
 export const staticAppPropertiesSchema = z.object({
 	appName: z.string(),
@@ -148,129 +70,6 @@ export const telemetryPropertiesSchema = z.object({
 export type TelemetryProperties = z.infer<typeof telemetryPropertiesSchema>
 
 /**
- * TelemetryEvent
- */
-
-export type TelemetryEvent = {
-	event: TelemetryEventName
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	properties?: Record<string, any>
-}
-
-/**
- * RooCodeTelemetryEvent
- */
-
-export const rooCodeTelemetryEventSchema = z.discriminatedUnion("type", [
-	z.object({
-		type: z.enum([
-			TelemetryEventName.TASK_CREATED,
-			TelemetryEventName.TASK_RESTARTED,
-			TelemetryEventName.TASK_COMPLETED,
-			TelemetryEventName.TASK_CONVERSATION_MESSAGE,
-			TelemetryEventName.MODE_SWITCH,
-			TelemetryEventName.MODE_SELECTOR_OPENED,
-			TelemetryEventName.TOOL_USED,
-			TelemetryEventName.CHECKPOINT_CREATED,
-			TelemetryEventName.CHECKPOINT_RESTORED,
-			TelemetryEventName.CHECKPOINT_DIFFED,
-			TelemetryEventName.CODE_ACTION_USED,
-			TelemetryEventName.PROMPT_ENHANCED,
-			TelemetryEventName.TITLE_BUTTON_CLICKED,
-			TelemetryEventName.AUTHENTICATION_INITIATED,
-			TelemetryEventName.MARKETPLACE_ITEM_INSTALLED,
-			TelemetryEventName.MARKETPLACE_ITEM_REMOVED,
-			TelemetryEventName.MARKETPLACE_TAB_VIEWED,
-			TelemetryEventName.MARKETPLACE_INSTALL_BUTTON_CLICKED,
-			TelemetryEventName.SHARE_BUTTON_CLICKED,
-			TelemetryEventName.SHARE_ORGANIZATION_CLICKED,
-			TelemetryEventName.SHARE_PUBLIC_CLICKED,
-			TelemetryEventName.SHARE_CONNECT_TO_CLOUD_CLICKED,
-			TelemetryEventName.ACCOUNT_CONNECT_CLICKED,
-			TelemetryEventName.ACCOUNT_CONNECT_SUCCESS,
-			TelemetryEventName.ACCOUNT_LOGOUT_CLICKED,
-			TelemetryEventName.ACCOUNT_LOGOUT_SUCCESS,
-			TelemetryEventName.FEATURED_PROVIDER_CLICKED,
-			TelemetryEventName.UPSELL_DISMISSED,
-			TelemetryEventName.UPSELL_CLICKED,
-			TelemetryEventName.SCHEMA_VALIDATION_ERROR,
-			TelemetryEventName.DIFF_APPLICATION_ERROR,
-			TelemetryEventName.SHELL_INTEGRATION_ERROR,
-			TelemetryEventName.CONSECUTIVE_MISTAKE_ERROR,
-			TelemetryEventName.CODE_INDEX_ERROR,
-			TelemetryEventName.MODEL_CACHE_EMPTY_RESPONSE,
-			TelemetryEventName.CONTEXT_CONDENSED,
-			TelemetryEventName.SLIDING_WINDOW_TRUNCATION,
-			TelemetryEventName.TAB_SHOWN,
-			TelemetryEventName.MODE_SETTINGS_CHANGED,
-			TelemetryEventName.CUSTOM_MODE_CREATED,
-			TelemetryEventName.READ_FILE_LEGACY_FORMAT_USED,
-		]),
-		properties: telemetryPropertiesSchema,
-	}),
-	z.object({
-		type: z.literal(TelemetryEventName.TELEMETRY_SETTINGS_CHANGED),
-		properties: z.object({
-			...telemetryPropertiesSchema.shape,
-			previousSetting: telemetrySettingsSchema,
-			newSetting: telemetrySettingsSchema,
-		}),
-	}),
-	z.object({
-		type: z.literal(TelemetryEventName.TASK_MESSAGE),
-		properties: z.object({
-			...telemetryPropertiesSchema.shape,
-			taskId: z.string(),
-			message: clineMessageSchema,
-		}),
-	}),
-	z.object({
-		type: z.literal(TelemetryEventName.LLM_COMPLETION),
-		properties: z.object({
-			...telemetryPropertiesSchema.shape,
-			inputTokens: z.number(),
-			outputTokens: z.number(),
-			cacheReadTokens: z.number().optional(),
-			cacheWriteTokens: z.number().optional(),
-			cost: z.number().optional(),
-		}),
-	}),
-])
-
-export type RooCodeTelemetryEvent = z.infer<typeof rooCodeTelemetryEventSchema>
-
-/**
- * TelemetryEventSubscription
- */
-
-export type TelemetryEventSubscription =
-	| { type: "include"; events: TelemetryEventName[] }
-	| { type: "exclude"; events: TelemetryEventName[] }
-
-/**
- * TelemetryPropertiesProvider
- */
-
-export interface TelemetryPropertiesProvider {
-	getTelemetryProperties(): Promise<TelemetryProperties>
-}
-
-/**
- * TelemetryClient
- */
-
-export interface TelemetryClient {
-	subscription?: TelemetryEventSubscription
-
-	setProvider(provider: TelemetryPropertiesProvider): void
-	capture(options: TelemetryEvent): Promise<void>
-	captureException(error: Error, additionalProperties?: Record<string, unknown>): Promise<void>
-	updateTelemetryState(isOptedIn: boolean): void
-	isTelemetryEnabled(): boolean
-	shutdown(): Promise<void>
-}
-
-/**
  * Expected API error codes that should not be reported to telemetry.
  * These are normal/expected errors that users can't do much about.
  */
@@ -278,15 +77,6 @@ export const EXPECTED_API_ERROR_CODES = new Set([
 	402, // Payment required - billing issues
 	429, // Rate limit - expected when hitting API limits
 ])
-
-/**
- * Patterns in error messages that indicate expected errors (rate limits, etc.)
- * These are checked when no numeric error code is available.
- */
-const EXPECTED_ERROR_MESSAGE_PATTERNS = [
-	/^429\b/, // Message starts with "429"
-	/rate limit/i, // Contains "rate limit" (case insensitive)
-]
 
 /**
  * Interface representing the error structure from OpenAI SDK.
@@ -409,31 +199,6 @@ export function getErrorMessage(error: unknown): string | undefined {
 	}
 
 	return message
-}
-
-/**
- * Helper to check if an API error should be reported to telemetry.
- * Filters out expected errors like rate limits by checking both error codes and messages.
- * @param errorCode - The HTTP error code (if available)
- * @param errorMessage - The error message (if available)
- * @returns true if the error should be reported, false if it should be filtered out
- */
-export function shouldReportApiErrorToTelemetry(errorCode?: number, errorMessage?: string): boolean {
-	// Check numeric error code
-	if (errorCode !== undefined && EXPECTED_API_ERROR_CODES.has(errorCode)) {
-		return false
-	}
-
-	// Check error message for expected patterns (e.g., "429 Rate limit exceeded")
-	if (errorMessage) {
-		for (const pattern of EXPECTED_ERROR_MESSAGE_PATTERNS) {
-			if (pattern.test(errorMessage)) {
-				return false
-			}
-		}
-	}
-
-	return true
 }
 
 /**

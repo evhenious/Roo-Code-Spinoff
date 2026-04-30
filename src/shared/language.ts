@@ -5,39 +5,17 @@ import { type Language, isLanguage } from "@roo-code/types"
  */
 
 export const LANGUAGES: Record<Language, string> = {
-	ca: "Català",
-	de: "Deutsch",
 	en: "English",
-	es: "Español",
-	fr: "Français",
-	hi: "हिन्दी",
-	id: "Bahasa Indonesia",
-	it: "Italiano",
-	ja: "日本語",
-	ko: "한국어",
-	nl: "Nederlands",
-	pl: "Polski",
-	"pt-BR": "Português",
-	ru: "Русский",
-	tr: "Türkçe",
-	vi: "Tiếng Việt",
-	"zh-CN": "简体中文",
-	"zh-TW": "繁體中文",
 }
 
 /**
- * Formats a VSCode locale string to ensure the region code is uppercase.
- * For example, transforms "en-us" to "en-US" or "fr-ca" to "fr-CA".
+ * Formats a VSCode locale string and returns the language code.
+ * Since only English is supported, this always returns "en".
  *
- * @param vscodeLocale - The VSCode locale string to format (e.g., "en-us", "fr-ca")
- * @returns The formatted locale string with uppercase region code
+ * @param _vscodeLocale - The VSCode locale string (ignored, always returns "en")
+ * @returns "en" (the only supported language)
  */
 
-export function formatLanguage(vscodeLocale: string): Language {
-	if (!vscodeLocale) {
-		return "en"
-	}
-
-	const formattedLocale = vscodeLocale.replace(/-(\w+)$/, (_, region) => `-${region.toUpperCase()}`)
-	return isLanguage(formattedLocale) ? formattedLocale : "en"
+export function formatLanguage(_vscodeLocale: string): Language {
+	return "en"
 }
