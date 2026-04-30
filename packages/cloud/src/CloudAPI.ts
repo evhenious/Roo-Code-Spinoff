@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-import { type AuthService, type ShareVisibility, type ShareResponse, shareResponseSchema } from "@roo-code/types"
+import { type AuthService } from "@roo-code/types"
 
 import { getRooCodeApiUrl } from "./config.js"
 import { getUserAgent } from "./utils.js"
@@ -106,19 +106,6 @@ export class CloudAPI {
 					responseBody,
 				)
 		}
-	}
-
-	async shareTask(taskId: string, visibility: ShareVisibility = "organization"): Promise<ShareResponse> {
-		this.log(`[CloudAPI] Sharing task ${taskId} with visibility: ${visibility}`)
-
-		const response = await this.request("/api/extension/share", {
-			method: "POST",
-			body: JSON.stringify({ taskId, visibility }),
-			parseResponse: (data) => shareResponseSchema.parse(data),
-		})
-
-		this.log("[CloudAPI] Share response:", response)
-		return response
 	}
 
 	async bridgeConfig() {

@@ -74,6 +74,9 @@ const App = () => {
 	const settingsRef = useRef<SettingsViewRef>(null)
 	const chatViewRef = useRef<ChatViewRef>(null)
 
+	const [currentSection, setCurrentSection] = useState<string | undefined>(undefined)
+	const [currentMarketplaceTab, setCurrentMarketplaceTab] = useState<string | undefined>(undefined)
+
 	const switchTab = useCallback((newTab: Tab) => {
 		setCurrentSection(undefined)
 		setCurrentMarketplaceTab(undefined)
@@ -84,9 +87,6 @@ const App = () => {
 			setTab(newTab)
 		}
 	}, [])
-
-	const [currentSection, setCurrentSection] = useState<string | undefined>(undefined)
-	const [currentMarketplaceTab, setCurrentMarketplaceTab] = useState<string | undefined>(undefined)
 
 	const onMessage = useCallback(
 		(e: MessageEvent) => {
@@ -113,6 +113,7 @@ const App = () => {
 						setCurrentMarketplaceTab(marketplaceTab)
 					}
 				}
+				return
 			}
 
 			if (message.type === "showDeleteMessageDialog" && message.messageTs) {
@@ -121,6 +122,7 @@ const App = () => {
 					messageTs: message.messageTs,
 					hasCheckpoint: message.hasCheckpoint || false,
 				})
+				return
 			}
 
 			if (message.type === "showEditMessageDialog" && message.messageTs && message.text) {
@@ -131,10 +133,12 @@ const App = () => {
 					hasCheckpoint: message.hasCheckpoint || false,
 					images: message.images || [],
 				})
+				return
 			}
 
 			if (message.type === "acceptInput") {
 				chatViewRef.current?.acceptInput()
+				return
 			}
 		},
 		[switchTab],

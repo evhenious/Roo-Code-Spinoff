@@ -128,9 +128,6 @@ export type WorkspaceTaskVisibility = z.infer<typeof workspaceTaskVisibilitySche
 
 export const organizationCloudSettingsSchema = z.object({
 	recordTaskMessages: z.boolean().optional(),
-	enableTaskSharing: z.boolean().optional(),
-	allowPublicTaskSharing: z.boolean().optional(),
-	taskShareExpirationDays: z.number().int().positive().optional(),
 	allowMembersViewAllTasks: z.boolean().optional(),
 	workspaceTaskVisibility: workspaceTaskVisibilitySchema.optional(),
 	llmEnhancedFeaturesEnabled: z.boolean().optional(),
@@ -200,35 +197,12 @@ export const ORGANIZATION_DEFAULT: OrganizationSettings = {
 	version: 0,
 	cloudSettings: {
 		recordTaskMessages: true,
-		enableTaskSharing: true,
-		allowPublicTaskSharing: true,
-		taskShareExpirationDays: 30,
 		allowMembersViewAllTasks: true,
 		llmEnhancedFeaturesEnabled: false,
 	},
 	defaultSettings: {},
 	allowList: ORGANIZATION_ALLOW_ALL,
 } as const
-
-/**
- * ShareVisibility
- */
-
-export type ShareVisibility = "organization" | "public"
-
-/**
- * ShareResponse
- */
-
-export const shareResponseSchema = z.object({
-	success: z.boolean(),
-	shareUrl: z.string().optional(),
-	error: z.string().optional(),
-	isNewShare: z.boolean().optional(),
-	manageUrl: z.string().optional(),
-})
-
-export type ShareResponse = z.infer<typeof shareResponseSchema>
 
 /**
  * AuthService

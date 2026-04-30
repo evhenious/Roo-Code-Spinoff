@@ -81,7 +81,6 @@ describe("organizationSettingsSchema with features", () => {
 			version: 1,
 			cloudSettings: {
 				recordTaskMessages: true,
-				enableTaskSharing: false,
 			},
 			defaultSettings: {},
 			allowList: {
@@ -105,87 +104,10 @@ describe("organizationSettingsSchema with features", () => {
 	})
 })
 
-describe("organizationCloudSettingsSchema with allowPublicTaskSharing", () => {
-	it("should validate without allowPublicTaskSharing property", () => {
-		const input = {
-			recordTaskMessages: true,
-			enableTaskSharing: true,
-		}
-		const result = organizationCloudSettingsSchema.safeParse(input)
-		expect(result.success).toBe(true)
-		expect(result.data?.allowPublicTaskSharing).toBeUndefined()
-	})
-
-	it("should validate with allowPublicTaskSharing as true", () => {
-		const input = {
-			recordTaskMessages: true,
-			enableTaskSharing: true,
-			allowPublicTaskSharing: true,
-		}
-		const result = organizationCloudSettingsSchema.safeParse(input)
-		expect(result.success).toBe(true)
-		expect(result.data?.allowPublicTaskSharing).toBe(true)
-	})
-
-	it("should validate with allowPublicTaskSharing as false", () => {
-		const input = {
-			recordTaskMessages: true,
-			enableTaskSharing: true,
-			allowPublicTaskSharing: false,
-		}
-		const result = organizationCloudSettingsSchema.safeParse(input)
-		expect(result.success).toBe(true)
-		expect(result.data?.allowPublicTaskSharing).toBe(false)
-	})
-
-	it("should reject non-boolean allowPublicTaskSharing", () => {
-		const input = {
-			allowPublicTaskSharing: "true",
-		}
-		const result = organizationCloudSettingsSchema.safeParse(input)
-		expect(result.success).toBe(false)
-	})
-
-	it("should have correct TypeScript type", () => {
-		// Type-only test to ensure TypeScript compilation
-		const settings: OrganizationCloudSettings = {
-			recordTaskMessages: true,
-			enableTaskSharing: true,
-			allowPublicTaskSharing: true,
-		}
-		expect(settings.allowPublicTaskSharing).toBe(true)
-
-		const settingsWithoutPublicSharing: OrganizationCloudSettings = {
-			recordTaskMessages: false,
-		}
-		expect(settingsWithoutPublicSharing.allowPublicTaskSharing).toBeUndefined()
-	})
-
-	it("should validate in organizationSettingsSchema with allowPublicTaskSharing", () => {
-		const input = {
-			version: 1,
-			cloudSettings: {
-				recordTaskMessages: true,
-				enableTaskSharing: true,
-				allowPublicTaskSharing: false,
-			},
-			defaultSettings: {},
-			allowList: {
-				allowAll: true,
-				providers: {},
-			},
-		}
-		const result = organizationSettingsSchema.safeParse(input)
-		expect(result.success).toBe(true)
-		expect(result.data?.cloudSettings?.allowPublicTaskSharing).toBe(false)
-	})
-})
-
 describe("organizationCloudSettingsSchema with workspaceTaskVisibility", () => {
 	it("should validate without workspaceTaskVisibility property", () => {
 		const input = {
 			recordTaskMessages: true,
-			enableTaskSharing: true,
 		}
 		const result = organizationCloudSettingsSchema.safeParse(input)
 		expect(result.success).toBe(true)
@@ -247,7 +169,6 @@ describe("organizationCloudSettingsSchema with workspaceTaskVisibility", () => {
 			version: 1,
 			cloudSettings: {
 				recordTaskMessages: true,
-				enableTaskSharing: true,
 				workspaceTaskVisibility: "list-only" as WorkspaceTaskVisibility,
 			},
 			defaultSettings: {},
@@ -266,7 +187,6 @@ describe("organizationCloudSettingsSchema with llmEnhancedFeaturesEnabled", () =
 	it("should validate without llmEnhancedFeaturesEnabled property", () => {
 		const input = {
 			recordTaskMessages: true,
-			enableTaskSharing: true,
 		}
 		const result = organizationCloudSettingsSchema.safeParse(input)
 		expect(result.success).toBe(true)
@@ -276,7 +196,6 @@ describe("organizationCloudSettingsSchema with llmEnhancedFeaturesEnabled", () =
 	it("should validate with llmEnhancedFeaturesEnabled as true", () => {
 		const input = {
 			recordTaskMessages: true,
-			enableTaskSharing: true,
 			llmEnhancedFeaturesEnabled: true,
 		}
 		const result = organizationCloudSettingsSchema.safeParse(input)
@@ -287,7 +206,6 @@ describe("organizationCloudSettingsSchema with llmEnhancedFeaturesEnabled", () =
 	it("should validate with llmEnhancedFeaturesEnabled as false", () => {
 		const input = {
 			recordTaskMessages: true,
-			enableTaskSharing: true,
 			llmEnhancedFeaturesEnabled: false,
 		}
 		const result = organizationCloudSettingsSchema.safeParse(input)
@@ -307,7 +225,6 @@ describe("organizationCloudSettingsSchema with llmEnhancedFeaturesEnabled", () =
 		// Type-only test to ensure TypeScript compilation
 		const settings: OrganizationCloudSettings = {
 			recordTaskMessages: true,
-			enableTaskSharing: true,
 			llmEnhancedFeaturesEnabled: true,
 		}
 		expect(settings.llmEnhancedFeaturesEnabled).toBe(true)
@@ -323,7 +240,6 @@ describe("organizationCloudSettingsSchema with llmEnhancedFeaturesEnabled", () =
 			version: 1,
 			cloudSettings: {
 				recordTaskMessages: true,
-				enableTaskSharing: true,
 				llmEnhancedFeaturesEnabled: false,
 			},
 			defaultSettings: {},

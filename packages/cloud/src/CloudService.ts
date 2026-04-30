@@ -2,7 +2,6 @@ import type { Disposable, ExtensionContext } from "vscode"
 import EventEmitter from "events"
 
 import type {
-	ClineMessage,
 	CloudServiceEvents,
 	AuthService,
 	SettingsService,
@@ -10,18 +9,15 @@ import type {
 	CloudOrganizationMembership,
 	OrganizationAllowList,
 	OrganizationSettings,
-	ShareVisibility,
 	UserSettingsConfig,
 	UserSettingsData,
 	UserFeatures,
 } from "@roo-code/types"
 
-import { TaskNotFoundError } from "./errors.js"
 import { WebAuthService } from "./WebAuthService.js"
 import { StaticTokenAuthService } from "./StaticTokenAuthService.js"
 import { CloudSettingsService } from "./CloudSettingsService.js"
 import { StaticSettingsService } from "./StaticSettingsService.js"
-import { CloudShareService } from "./CloudShareService.js"
 import { CloudAPI } from "./CloudAPI.js"
 import { RetryQueue } from "./retry-queue/index.js"
 
@@ -56,12 +52,6 @@ export class CloudService extends EventEmitter<CloudServiceEvents> implements Di
 
 	public get settingsService() {
 		return this._settingsService
-	}
-
-	private _shareService: CloudShareService | null = null
-
-	public get shareService() {
-		return this._shareService
 	}
 
 	private _cloudAPI: CloudAPI | null = null
@@ -157,8 +147,6 @@ export class CloudService extends EventEmitter<CloudServiceEvents> implements Di
 					return undefined
 				},
 			)
-
-			this._shareService = new CloudShareService(this._cloudAPI, this._settingsService, this.log)
 
 			this.isInitialized = true
 		} catch (error) {
@@ -292,38 +280,6 @@ export class CloudService extends EventEmitter<CloudServiceEvents> implements Di
 	public isTaskSyncEnabled(): boolean {
 		this.ensureInitialized()
 		return this.settingsService!.isTaskSyncEnabled()
-	}
-
-	// ShareService
-
-	// deprecated
-	public async shareTask(
-		taskId: string,
-		visibility: ShareVisibility = "organization",
-		clineMessages?: ClineMessage[],
-	) {
-		this.ensureInitialized()
-
-		try {
-			return await this.shareService!.shareTask(taskId, visibility)
-		} catch (error) {
-			if (error instanceof TaskNotFoundError && clineMessages) {
-				// Backfill messages and retry.
-				return await this.shareService!.shareTask(taskId, visibility)
-			}
-
-			throw error
-		}
-	}
-
-	public async canShareTask(): Promise<boolean> {
-		this.ensureInitialized()
-		return this.shareService!.canShareTask()
-	}
-
-	public async canSharePublicly(): Promise<boolean> {
-		this.ensureInitialized()
-		return this.shareService!.canSharePublicly()
 	}
 
 	// Lifecycle

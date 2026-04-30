@@ -17,11 +17,13 @@ export class TagMatcher<Result = TagMatcherResult> {
 	state: "TEXT" | "TAG_OPEN" | "TAG_CLOSE" = "TEXT"
 	depth = 0
 	pointer = 0
+
 	constructor(
 		readonly tagName: string,
 		readonly transform?: (chunks: TagMatcherResult) => Result,
 		readonly position = 0,
 	) {}
+
 	private collect() {
 		if (!this.cached.length) {
 			return
