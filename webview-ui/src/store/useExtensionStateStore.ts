@@ -67,120 +67,59 @@ interface ExtensionStateStore extends IExtensionStore {
 }
 
 // Helper to get default context value shape
-const getDefaultContextValue = (state: ExtensionState): Partial<ExtensionStateStore> => ({
+const getDefaultState = (state: ExtensionState): Partial<ExtensionStateStore> => ({
 	...state,
 	reasoningBlockCollapsed: state.reasoningBlockCollapsed ?? true,
 	didHydrateState: false,
 	showWelcome: !checkExistKey(state.apiConfiguration),
 	theme: undefined,
 	mcpServers: [],
-	currentCheckpoint: undefined,
-	currentTaskTodos: undefined,
 	filePaths: [],
 	openedTabs: [],
 	commands: [],
+	//
+	currentCheckpoint: undefined,
+	currentTaskTodos: undefined,
 	hasOpenedModeSelector: state.hasOpenedModeSelector ?? false,
-	alwaysAllowFollowupQuestions: (state as any).alwaysAllowFollowupQuestions ?? false,
-	followupAutoApproveTimeoutMs: (state as any).followupAutoApproveTimeoutMs ?? undefined,
+	alwaysAllowFollowupQuestions: state.alwaysAllowFollowupQuestions ?? false,
+	followupAutoApproveTimeoutMs: state.followupAutoApproveTimeoutMs ?? undefined,
 	marketplaceItems: undefined,
 	marketplaceInstalledMetadata: undefined,
 	profileThresholds: state.profileThresholds ?? {},
-	setApiConfiguration: () => {},
-	setCustomInstructions: () => {},
-	setAlwaysAllowReadOnly: () => {},
-	setAlwaysAllowReadOnlyOutsideWorkspace: () => {},
-	setAlwaysAllowWrite: () => {},
-	setAlwaysAllowWriteOutsideWorkspace: () => {},
-	setAlwaysAllowExecute: () => {},
-	setAlwaysAllowMcp: () => {},
-	setAlwaysAllowModeSwitch: () => {},
-	setAlwaysAllowSubtasks: () => {},
-	setShowRooIgnoredFiles: () => {},
-	setEnableSubfolderRules: () => {},
-	setAllowedCommands: () => {},
-	setDeniedCommands: () => {},
-	setAllowedMaxRequests: () => {},
-	setAllowedMaxCost: () => {},
-	setSoundEnabled: () => {},
-	setSoundVolume: () => {},
 	terminalShellIntegrationTimeout: state.terminalShellIntegrationTimeout,
-	setTerminalShellIntegrationTimeout: () => {},
 	terminalShellIntegrationDisabled: state.terminalShellIntegrationDisabled,
-	setTerminalShellIntegrationDisabled: () => {},
 	terminalZdotdir: state.terminalZdotdir,
-	setTerminalZdotdir: () => {},
-	setTtsEnabled: () => {},
-	setTtsSpeed: () => {},
-	setEnableCheckpoints: () => {},
 	checkpointTimeout: state.checkpointTimeout ?? DEFAULT_CHECKPOINT_TIMEOUT_SECONDS,
-	setCheckpointTimeout: () => {},
-	setWriteDelayMs: () => {},
 	terminalOutputPreviewSize: state.terminalOutputPreviewSize,
-	setTerminalOutputPreviewSize: () => {},
 	mcpEnabled: state.mcpEnabled ?? true,
-	setMcpEnabled: () => {},
-	setCurrentApiConfigName: () => {},
-	setListApiConfigMeta: () => {},
 	mode: state.mode ?? defaultModeSlug,
-	setMode: () => {},
-	setCustomModePrompts: () => {},
-	setCustomSupportPrompts: () => {},
 	enhancementApiConfigId: state.enhancementApiConfigId,
-	setEnhancementApiConfigId: () => {},
-	setExperimentEnabled: () => {},
-	setAutoApprovalEnabled: () => {},
 	customModes: state.customModes ?? [],
-	setCustomModes: () => {},
-	setMaxOpenTabsContext: () => {},
 	maxWorkspaceFiles: state.maxWorkspaceFiles ?? 200,
-	setMaxWorkspaceFiles: () => {},
-	awsUsePromptCache: (state as any).awsUsePromptCache,
-	setAwsUsePromptCache: () => {},
+	awsUsePromptCache: (state as any).awsUsePromptCache, // TODO get rid of ANY
 	maxImageFileSize: state.maxImageFileSize ?? 5,
-	setMaxImageFileSize: () => {},
 	maxTotalImageSize: state.maxTotalImageSize ?? 20,
-	setMaxTotalImageSize: () => {},
 	pinnedApiConfigs: state.pinnedApiConfigs,
-	setPinnedApiConfigs: () => {},
-	togglePinnedApiConfig: () => {},
-	setHistoryPreviewCollapsed: () => {},
-	setReasoningBlockCollapsed: () => {},
 	enterBehavior: state.enterBehavior ?? "send",
-	setEnterBehavior: () => {},
 	autoCondenseContext: state.autoCondenseContext ?? true,
-	setAutoCondenseContext: () => {},
 	autoCondenseContextPercent: state.autoCondenseContextPercent ?? 100,
-	setAutoCondenseContextPercent: () => {},
 	routerModels: undefined,
 	includeDiagnosticMessages: state.includeDiagnosticMessages,
-	setIncludeDiagnosticMessages: () => {},
 	maxDiagnosticMessages: state.maxDiagnosticMessages,
-	setMaxDiagnosticMessages: () => {},
-	includeTaskHistoryInEnhance: (state as any).includeTaskHistoryInEnhance ?? true,
-	setIncludeTaskHistoryInEnhance: () => {},
-	includeCurrentTime: (state as any).includeCurrentTime ?? true,
-	setIncludeCurrentTime: () => {},
-	includeCurrentCost: (state as any).includeCurrentCost ?? true,
-	setIncludeCurrentCost: () => {},
+	includeTaskHistoryInEnhance: state.includeTaskHistoryInEnhance ?? true,
+	includeCurrentTime: state.includeCurrentTime ?? true,
+	includeCurrentCost: state.includeCurrentCost ?? true,
 	showWorktreesInHomeScreen: state.showWorktreesInHomeScreen ?? true,
-	setShowWorktreesInHomeScreen: () => {},
-	skills: (state as any).skills,
+	skills: (state as any).skills, // TODO get rid of ANY
 })
 
 export const useExtensionStateStore = create<ExtensionStateStore>((set, get) => {
-	const initialState = getDefaultContextValue(defaultEmptyExtensionState)
+	const initialState = getDefaultState(defaultEmptyExtensionState)
 
 	return {
 		// Initial state
 		...initialState,
-		didHydrateState: false,
 		showWelcome: true,
-		// Explicitly set required properties that might be undefined in Partial
-		theme: undefined,
-		mcpServers: [],
-		filePaths: [],
-		openedTabs: [],
-		commands: [],
 
 		// Message handler
 		handleMessage: (event: MessageEvent) => {
@@ -196,29 +135,29 @@ export const useExtensionStateStore = create<ExtensionStateStore>((set, get) => 
 						...mergedState,
 						showWelcome: !checkExistKey(newState.apiConfiguration),
 						didHydrateState: true,
-					} as any)
+					})
 
 					// Update specific properties that might come from state message
-					if ((newState as any).alwaysAllowFollowupQuestions !== undefined) {
-						set({ alwaysAllowFollowupQuestions: (newState as any).alwaysAllowFollowupQuestions } as any)
+					if (newState.alwaysAllowFollowupQuestions !== undefined) {
+						set({ alwaysAllowFollowupQuestions: newState.alwaysAllowFollowupQuestions })
 					}
-					if ((newState as any).followupAutoApproveTimeoutMs !== undefined) {
-						set({ followupAutoApproveTimeoutMs: (newState as any).followupAutoApproveTimeoutMs } as any)
+					if (newState.followupAutoApproveTimeoutMs !== undefined) {
+						set({ followupAutoApproveTimeoutMs: newState.followupAutoApproveTimeoutMs })
 					}
-					if ((newState as any).includeTaskHistoryInEnhance !== undefined) {
-						set({ includeTaskHistoryInEnhance: (newState as any).includeTaskHistoryInEnhance } as any)
+					if (newState.includeTaskHistoryInEnhance !== undefined) {
+						set({ includeTaskHistoryInEnhance: newState.includeTaskHistoryInEnhance })
 					}
-					if ((newState as any).includeCurrentTime !== undefined) {
-						set({ includeCurrentTime: (newState as any).includeCurrentTime } as any)
+					if (newState.includeCurrentTime !== undefined) {
+						set({ includeCurrentTime: newState.includeCurrentTime })
 					}
-					if ((newState as any).includeCurrentCost !== undefined) {
-						set({ includeCurrentCost: (newState as any).includeCurrentCost } as any)
+					if (newState.includeCurrentCost !== undefined) {
+						set({ includeCurrentCost: newState.includeCurrentCost })
 					}
 					if (newState.marketplaceItems !== undefined) {
-						set({ marketplaceItems: newState.marketplaceItems } as any)
+						set({ marketplaceItems: newState.marketplaceItems })
 					}
 					if (newState.marketplaceInstalledMetadata !== undefined) {
-						set({ marketplaceInstalledMetadata: newState.marketplaceInstalledMetadata } as any)
+						set({ marketplaceInstalledMetadata: newState.marketplaceInstalledMetadata })
 					}
 					break
 				}
@@ -286,10 +225,10 @@ export const useExtensionStateStore = create<ExtensionStateStore>((set, get) => 
 				}
 				case "marketplaceData": {
 					if (message.marketplaceItems !== undefined) {
-						set({ marketplaceItems: message.marketplaceItems } as any)
+						set({ marketplaceItems: message.marketplaceItems })
 					}
 					if (message.marketplaceInstalledMetadata !== undefined) {
-						set({ marketplaceInstalledMetadata: message.marketplaceInstalledMetadata } as any)
+						set({ marketplaceInstalledMetadata: message.marketplaceInstalledMetadata })
 					}
 					break
 				}
