@@ -1,12 +1,7 @@
 import { useCallback, useEffect, useState } from "react"
 import { VSCodeCheckbox, VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
 
-import {
-	type ProviderSettings,
-	type OrganizationAllowList,
-	type RouterModels,
-	requestyDefaultModelId,
-} from "@roo-code/types"
+import { type ProviderSettings, type RouterModels, requestyDefaultModelId } from "@roo-code/types"
 
 import { vscode } from "@src/utils/vscode"
 import { useAppTranslation } from "@src/i18n/TranslationContext"
@@ -23,7 +18,6 @@ type RequestyProps = {
 	setApiConfigurationField: (field: keyof ProviderSettings, value: ProviderSettings[keyof ProviderSettings]) => void
 	routerModels?: RouterModels
 	refetchRouterModels: () => void
-	organizationAllowList: OrganizationAllowList
 	modelValidationError?: string
 	uriScheme?: string
 	simplifySettings?: boolean
@@ -33,7 +27,6 @@ export const Requesty = ({
 	apiConfiguration,
 	setApiConfigurationField,
 	routerModels,
-	organizationAllowList,
 	modelValidationError,
 	uriScheme,
 	simplifySettings,
@@ -144,7 +137,6 @@ export const Requesty = ({
 				modelIdKey="requestyModelId"
 				serviceName="Requesty"
 				serviceUrl="https://requesty.ai"
-				organizationAllowList={organizationAllowList}
 				errorMessage={modelValidationError}
 				simplifySettings={simplifySettings}
 			/>

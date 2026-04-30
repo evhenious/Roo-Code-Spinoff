@@ -45,7 +45,6 @@ describe("Single-open-task invariant", () => {
 			setValues: vi.fn(),
 			getState: vi.fn().mockResolvedValue({
 				apiConfiguration: { apiProvider: "anthropic", consecutiveMistakeLimit: 0 },
-				organizationAllowList: "*",
 				enableCheckpoints: true,
 				checkpointTimeout: 60,
 				cloudUserInfo: null,
@@ -95,7 +94,6 @@ describe("Single-open-task invariant", () => {
 				checkpointTimeout: 60,
 				experiments: {},
 				cloudUserInfo: null,
-				taskSyncEnabled: false,
 			}),
 			// Methods used by createTaskWithHistoryItem for pending edit cleanup
 			getPendingEditOperation: vi.fn().mockReturnValue(undefined),

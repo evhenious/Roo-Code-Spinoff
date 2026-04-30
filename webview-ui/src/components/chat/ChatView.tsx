@@ -18,7 +18,6 @@ import { combineApiRequests } from "@roo/combineApiRequests"
 import { combineCommandSequences } from "@roo/combineCommandSequences"
 import { getApiMetrics } from "@roo/getApiMetrics"
 import { getAllModes } from "@roo/modes"
-import { ProfileValidator } from "@roo/ProfileValidator"
 import { getLatestTodo } from "@roo/todo"
 
 import { vscode } from "@src/utils/vscode"
@@ -35,7 +34,6 @@ import ChatRow from "./ChatRow"
 import WarningRow from "./WarningRow"
 import { ChatTextArea } from "./ChatTextArea"
 import TaskHeader from "./TaskHeader"
-import ProfileViolationWarning from "./ProfileViolationWarning"
 import { CheckpointWarning } from "./CheckpointWarning"
 import { QueuedMessages } from "./QueuedMessages"
 import { WorktreeSelector } from "./WorktreeSelector"
@@ -68,7 +66,6 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 		currentTaskTodos,
 		taskHistory,
 		apiConfiguration,
-		organizationAllowList,
 		mode,
 		setMode,
 		alwaysAllowModeSwitch,
@@ -188,11 +185,6 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 			vscode.postMessage({ type: "cancelAutoApproval" })
 		}
 	}, [isFollowUpAutoApprovalPaused])
-
-	const isProfileDisabled = useMemo(
-		() => !!apiConfiguration && !ProfileValidator.isProfileAllowed(apiConfiguration, organizationAllowList),
-		[apiConfiguration, organizationAllowList],
-	)
 
 	// UI layout depends on the last 2 messages (since it relies on the content
 	// of these messages, we are deep comparing) i.e. the button state after
@@ -1522,7 +1514,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 
 			if (enableButtons && primaryButtonText) {
 				handlePrimaryButtonClick(inputValue, selectedImages)
-			} else if (!sendingDisabled && !isProfileDisabled && hasInput) {
+			} else if (!sendingDisabled && hasInput) {
 				handleSendMessage(inputValue, selectedImages)
 			}
 		},
@@ -1728,7 +1720,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 				ref={textAreaRef}
 				inputValue={inputValue}
 				setInputValue={setInputValue}
-				sendingDisabled={sendingDisabled || isProfileDisabled}
+				sendingDisabled={sendingDisabled}
 				selectApiConfigDisabled={sendingDisabled && clineAsk !== "api_req_failed"}
 				placeholderText={placeholderText}
 				selectedImages={selectedImages}
@@ -1748,12 +1740,6 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 				onStop={handleStopTask}
 				onEnqueueMessage={handleEnqueueCurrentMessage}
 			/>
-
-			{isProfileDisabled && (
-				<div className="px-3">
-					<ProfileViolationWarning />
-				</div>
-			)}
 
 			<div id="roo-portal" />
 		</div>

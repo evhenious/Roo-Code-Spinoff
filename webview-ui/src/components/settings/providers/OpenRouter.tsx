@@ -2,12 +2,7 @@ import { useCallback, useState } from "react"
 import { Checkbox } from "vscrui"
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
 
-import {
-	type ProviderSettings,
-	type OrganizationAllowList,
-	type RouterModels,
-	openRouterDefaultModelId,
-} from "@roo-code/types"
+import { type ProviderSettings, type RouterModels, openRouterDefaultModelId } from "@roo-code/types"
 
 import { useAppTranslation } from "@src/i18n/TranslationContext"
 import { getOpenRouterAuthUrl } from "@src/oauth/urls"
@@ -25,7 +20,6 @@ type OpenRouterProps = {
 	selectedModelId: string
 	uriScheme: string | undefined
 	simplifySettings?: boolean
-	organizationAllowList: OrganizationAllowList
 	modelValidationError?: string
 }
 
@@ -35,7 +29,6 @@ export const OpenRouter = ({
 	routerModels,
 	uriScheme,
 	simplifySettings,
-	organizationAllowList,
 	modelValidationError,
 }: OpenRouterProps) => {
 	const { t } = useAppTranslation()
@@ -111,7 +104,6 @@ export const OpenRouter = ({
 				modelIdKey="openRouterModelId"
 				serviceName="OpenRouter"
 				serviceUrl="https://openrouter.ai/models"
-				organizationAllowList={organizationAllowList}
 				errorMessage={modelValidationError}
 				simplifySettings={simplifySettings}
 			/>

@@ -3,11 +3,10 @@ import { VSCodeLink } from "@vscode/webview-ui-toolkit/react"
 import { Trans } from "react-i18next"
 import { ChevronsUpDown, Check, X, Info } from "lucide-react"
 
-import { type ProviderSettings, type ModelInfo, type OrganizationAllowList, isRetiredProvider } from "@roo-code/types"
+import { type ProviderSettings, type ModelInfo } from "@roo-code/types"
 
 import { useAppTranslation } from "@src/i18n/TranslationContext"
 import { useSelectedModel } from "@/components/ui/hooks/useSelectedModel"
-import { filterModels } from "./utils/organizationFilters"
 import { cn } from "@src/lib/utils"
 import {
 	Command,
@@ -52,7 +51,6 @@ interface ModelPickerProps {
 		value: ProviderSettings[K],
 		isUserAction?: boolean,
 	) => void
-	organizationAllowList?: OrganizationAllowList
 	errorMessage?: string
 	simplifySettings?: boolean
 	hidePricing?: boolean
@@ -74,7 +72,6 @@ export const ModelPicker = ({
 	serviceUrl,
 	apiConfiguration,
 	setApiConfigurationField,
-	organizationAllowList,
 	errorMessage,
 	simplifySettings,
 	hidePricing,
@@ -104,17 +101,10 @@ export const ModelPicker = ({
 		return selectedModelId
 	}, [displayTransform, apiConfiguration, modelIdKey, selectedModelId])
 
-	const activeProvider =
-		apiConfiguration.apiProvider && isRetiredProvider(apiConfiguration.apiProvider)
-			? undefined
-			: apiConfiguration.apiProvider
-
 	const modelIds = useMemo(() => {
-		const filteredModels = filterModels(models, activeProvider, organizationAllowList)
-
 		// Include the currently selected model even if deprecated (so users can see what they have selected)
 		// But filter out other deprecated models from being newly selectable
-		const availableModels = Object.entries(filteredModels ?? {})
+		const availableModels = Object.entries(models ?? {})
 			.filter(([modelId, modelInfo]) => {
 				// Always include the currently selected model
 				if (modelId === selectedModelId) return true
@@ -130,7 +120,7 @@ export const ModelPicker = ({
 			)
 
 		return Object.keys(availableModels).sort((a, b) => a.localeCompare(b))
-	}, [models, activeProvider, organizationAllowList, selectedModelId])
+	}, [models, selectedModelId])
 
 	const [searchValue, setSearchValue] = useState("")
 

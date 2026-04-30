@@ -7,7 +7,6 @@ import {
 	type ExperimentId,
 	type ExtensionState,
 	type ExtensionMessage,
-	ORGANIZATION_ALLOW_ALL,
 	DEFAULT_CHECKPOINT_TIMEOUT_SECONDS,
 } from "@roo-code/types"
 
@@ -57,9 +56,6 @@ export const mergeExtensionState = (prevState: ExtensionState, newState: Partial
 
 // Store state interface
 interface ExtensionStateStore extends IExtensionStore {
-	// Internal state for tracking previous auth (not exposed to consumers)
-	prevCloudIsAuthenticated: boolean
-
 	// Message handling action
 	handleMessage: (event: MessageEvent) => void
 
@@ -83,11 +79,6 @@ const getDefaultContextValue = (state: ExtensionState): Partial<ExtensionStateSt
 	filePaths: [],
 	openedTabs: [],
 	commands: [],
-	organizationAllowList: state.organizationAllowList ?? ORGANIZATION_ALLOW_ALL,
-	cloudIsAuthenticated: state.cloudIsAuthenticated ?? false,
-	cloudOrganizations: state.cloudOrganizations ?? [],
-	sharingEnabled: state.sharingEnabled ?? false,
-	publicSharingEnabled: state.publicSharingEnabled ?? false,
 	hasOpenedModeSelector: state.hasOpenedModeSelector ?? false,
 	alwaysAllowFollowupQuestions: (state as any).alwaysAllowFollowupQuestions ?? false,
 	followupAutoApproveTimeoutMs: (state as any).followupAutoApproveTimeoutMs ?? undefined,
@@ -128,8 +119,6 @@ const getDefaultContextValue = (state: ExtensionState): Partial<ExtensionStateSt
 	setTerminalOutputPreviewSize: () => {},
 	mcpEnabled: state.mcpEnabled ?? true,
 	setMcpEnabled: () => {},
-	taskSyncEnabled: state.taskSyncEnabled ?? false,
-	setTaskSyncEnabled: () => {},
 	setCurrentApiConfigName: () => {},
 	setListApiConfigMeta: () => {},
 	mode: state.mode ?? defaultModeSlug,
@@ -186,15 +175,12 @@ export const useExtensionStateStore = create<ExtensionStateStore>((set, get) => 
 		...initialState,
 		didHydrateState: false,
 		showWelcome: true,
-		prevCloudIsAuthenticated: false,
 		// Explicitly set required properties that might be undefined in Partial
 		theme: undefined,
 		mcpServers: [],
 		filePaths: [],
 		openedTabs: [],
 		commands: [],
-		organizationAllowList: ORGANIZATION_ALLOW_ALL,
-		cloudIsAuthenticated: false,
 
 		// Message handler
 		handleMessage: (event: MessageEvent) => {
@@ -393,7 +379,6 @@ export const useExtensionStateStore = create<ExtensionStateStore>((set, get) => 
 			set((prevState) => ({ ...prevState, terminalShellIntegrationDisabled: value })),
 		setTerminalZdotdir: (value: boolean) => set((prevState) => ({ ...prevState, terminalZdotdir: value })),
 		setMcpEnabled: (value: boolean) => set((prevState) => ({ ...prevState, mcpEnabled: value })),
-		setTaskSyncEnabled: (value: boolean) => set({ taskSyncEnabled: value } as any),
 		setCurrentApiConfigName: (value: string) => set((prevState) => ({ ...prevState, currentApiConfigName: value })),
 		setMode: (value: Mode) => set((prevState) => ({ ...prevState, mode: value })),
 		setCustomModePrompts: (value: CustomModePrompts) =>

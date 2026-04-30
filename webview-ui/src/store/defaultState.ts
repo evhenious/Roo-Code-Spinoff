@@ -5,15 +5,12 @@ import {
 	type ModeConfig,
 	type ExperimentId,
 	type TodoItem,
-	type OrganizationAllowList,
-	type CloudOrganizationMembership,
 	type ExtensionState,
 	type MarketplaceInstalledMetadata,
 	type SkillMetadata,
 	type Command,
 	type McpServer,
 	RouterModels,
-	ORGANIZATION_ALLOW_ALL,
 	DEFAULT_CHECKPOINT_TIMEOUT_SECONDS,
 } from "@roo-code/types"
 import { experimentDefault } from "@roo/experiments"
@@ -32,11 +29,6 @@ export interface IExtensionStore extends ExtensionState {
 	filePaths: string[]
 	openedTabs: Array<{ label: string; isActive: boolean; path?: string }>
 	commands: Command[]
-	organizationAllowList: OrganizationAllowList
-	cloudIsAuthenticated: boolean
-	cloudOrganizations?: CloudOrganizationMembership[]
-	sharingEnabled: boolean
-	publicSharingEnabled: boolean
 	hasOpenedModeSelector: boolean // New property to track if user has opened mode selector
 	setHasOpenedModeSelector: (value: boolean) => void // Setter for the new property
 	alwaysAllowFollowupQuestions: boolean // New property for follow-up questions auto-approve
@@ -81,8 +73,6 @@ export interface IExtensionStore extends ExtensionState {
 	setTerminalOutputPreviewSize: (value: "small" | "medium" | "large") => void
 	mcpEnabled: boolean
 	setMcpEnabled: (value: boolean) => void
-	taskSyncEnabled: boolean
-	setTaskSyncEnabled: (value: boolean) => void
 	setCurrentApiConfigName: (value: string) => void
 	setListApiConfigMeta: (value: ProviderSettingsEntry[]) => void
 	mode: Mode
@@ -148,7 +138,6 @@ export const defaultEmptyExtensionState: ExtensionState = {
 	writeDelayMs: 1000,
 	terminalShellIntegrationTimeout: 4000,
 	mcpEnabled: true,
-	taskSyncEnabled: false,
 	currentApiConfigName: "default",
 	listApiConfigMeta: [],
 	mode: defaultModeSlug,
@@ -175,12 +164,6 @@ export const defaultEmptyExtensionState: ExtensionState = {
 	historyPreviewCollapsed: false, // Initialize the new state (default to expanded)
 	reasoningBlockCollapsed: true, // Default to collapsed
 	enterBehavior: "send", // Default: Enter sends, Shift+Enter creates newline
-	cloudUserInfo: null,
-	cloudIsAuthenticated: false,
-	cloudOrganizations: [],
-	sharingEnabled: false,
-	publicSharingEnabled: false,
-	organizationAllowList: ORGANIZATION_ALLOW_ALL,
 	autoCondenseContext: true,
 	autoCondenseContextPercent: 100,
 	profileThresholds: {},

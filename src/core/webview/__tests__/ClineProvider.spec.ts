@@ -9,7 +9,6 @@ import {
 	type ClineMessage,
 	type ExtensionMessage,
 	type ExtensionState,
-	ORGANIZATION_ALLOW_ALL,
 	DEFAULT_CHECKPOINT_TIMEOUT_SECONDS,
 } from "@roo-code/types"
 
@@ -532,19 +531,13 @@ describe("ClineProvider", () => {
 			renderContext: "sidebar",
 			maxImageFileSize: 5,
 			maxTotalImageSize: 20,
-			cloudUserInfo: null,
-			organizationAllowList: ORGANIZATION_ALLOW_ALL,
 			autoCondenseContext: true,
 			autoCondenseContextPercent: 100,
-			cloudIsAuthenticated: false,
-			sharingEnabled: false,
-			publicSharingEnabled: false,
 			profileThresholds: {},
 			hasOpenedModeSelector: false,
 			diagnosticsEnabled: true,
 			openRouterImageApiKey: undefined,
 			openRouterImageGenerationSelectedModel: undefined,
-			taskSyncEnabled: false,
 			checkpointTimeout: DEFAULT_CHECKPOINT_TIMEOUT_SECONDS,
 		}
 

@@ -126,7 +126,6 @@ vitest.mock("../../providers/fetchers/modelCache", () => ({
 
 // Import after mocks are set up
 import { RooHandler } from "../roo"
-import { CloudService } from "@roo-code/cloud"
 
 describe("RooHandler", () => {
 	let handler: RooHandler
@@ -504,15 +503,6 @@ describe("RooHandler", () => {
 			mockGetSessionTokenFn.mockImplementation(() => undefined)
 
 			try {
-				Object.defineProperty(CloudService, "instance", {
-					get: () => ({
-						authService: undefined,
-						on: vitest.fn(),
-						off: vitest.fn(),
-					}),
-					configurable: true,
-				})
-
 				expect(() => {
 					new RooHandler(mockOptions)
 				}).not.toThrow()

@@ -211,23 +211,6 @@ vi.mock("../diff/strategies/multi-search-replace", () => ({
 	})),
 }))
 
-vi.mock("@roo-code/cloud", () => ({
-	CloudService: {
-		hasInstance: vi.fn().mockReturnValue(true),
-		get instance() {
-			return {
-				isAuthenticated: vi.fn().mockReturnValue(false),
-				getAllowList: vi.fn().mockResolvedValue("*"),
-				getUserInfo: vi.fn().mockReturnValue(null),
-				getOrganizationMemberships: vi.fn().mockResolvedValue([]),
-				getUserSettings: vi.fn().mockReturnValue(null),
-				isTaskSyncEnabled: vi.fn().mockReturnValue(false),
-			}
-		},
-	},
-	getRooCodeApiUrl: vi.fn().mockReturnValue("https://app.roocode.com"),
-}))
-
 afterAll(() => {
 	vi.restoreAllMocks()
 })

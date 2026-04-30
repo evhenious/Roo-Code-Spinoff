@@ -13,7 +13,6 @@ import {
 	marketplaceItemSchema,
 } from "./marketplace.js"
 import type { TodoItem } from "./todo.js"
-import type { CloudUserInfo, CloudOrganizationMembership, OrganizationAllowList } from "./cloud.js"
 import type { SerializedCustomToolDefinition } from "./custom-tool.js"
 import type { GitCommit } from "./git.js"
 import type { McpServer } from "./mcp.js"
@@ -158,8 +157,6 @@ export interface ExtensionMessage {
 	value?: any // eslint-disable-line @typescript-eslint/no-explicit-any
 	hasContent?: boolean
 	items?: MarketplaceItem[]
-	userInfo?: CloudUserInfo
-	organizationAllowList?: OrganizationAllowList
 	tab?: string
 	marketplaceItems?: MarketplaceItem[]
 	organizationMcps?: MarketplaceItem[]
@@ -340,14 +337,8 @@ export type ExtensionState = Pick<
 	settingsImportedAt?: number
 	historyPreviewCollapsed?: boolean
 
-	cloudUserInfo: CloudUserInfo | null
-	cloudIsAuthenticated: boolean
 	cloudAuthSkipModel?: boolean // Flag indicating auth completed without model selection (user should pick 3rd-party provider)
 	cloudApiUrl?: string
-	cloudOrganizations?: CloudOrganizationMembership[]
-	sharingEnabled: boolean
-	publicSharingEnabled: boolean
-	organizationAllowList: OrganizationAllowList
 
 	autoCondenseContext: boolean
 	autoCondenseContextPercent: number
@@ -360,7 +351,6 @@ export type ExtensionState = Pick<
 	messageQueue?: QueuedMessage[]
 	apiModelId?: string
 	mcpServers?: McpServer[]
-	taskSyncEnabled: boolean
 	openAiCodexIsAuthenticated?: boolean
 	debug?: boolean
 
@@ -464,7 +454,6 @@ export interface WebviewMessage {
 		| "deleteMessageConfirm"
 		| "submitEditedMessage"
 		| "editMessageConfirm"
-		| "taskSyncEnabled"
 		| "searchCommits"
 		| "setApiConfigPassword"
 		| "mode"

@@ -98,7 +98,6 @@ describe("ModelPicker - Deprecated Models", () => {
 					serviceUrl="https://test.com"
 					apiConfiguration={{ apiProvider: "openrouter" }}
 					setApiConfigurationField={mockSetApiConfigurationField}
-					organizationAllowList={{ allowAll: true, providers: {} }}
 				/>
 			</QueryClientProvider>,
 		)
@@ -129,7 +128,6 @@ describe("ModelPicker - Deprecated Models", () => {
 						openRouterModelId: "deprecated-model",
 					}}
 					setApiConfigurationField={mockSetApiConfigurationField}
-					organizationAllowList={{ allowAll: true, providers: {} }}
 				/>
 			</QueryClientProvider>,
 		)
@@ -153,7 +151,6 @@ describe("ModelPicker - Deprecated Models", () => {
 					serviceUrl="https://test.com"
 					apiConfiguration={{ apiProvider: "openrouter" }}
 					setApiConfigurationField={mockSetApiConfigurationField}
-					organizationAllowList={{ allowAll: true, providers: {} }}
 				/>
 			</QueryClientProvider>,
 		)
@@ -184,7 +181,6 @@ describe("ModelPicker - Deprecated Models", () => {
 						openRouterModelId: "deprecated-model",
 					}}
 					setApiConfigurationField={mockSetApiConfigurationField}
-					organizationAllowList={{ allowAll: true, providers: {} }}
 				/>
 			</QueryClientProvider>,
 		)

@@ -19,7 +19,6 @@ import {
 	type ProviderSettingsEntry,
 	type StaticAppProperties,
 	type DynamicAppProperties,
-	type CloudAppProperties,
 	type TaskProperties,
 	type GitProperties,
 	type TelemetryProperties,
@@ -28,8 +27,6 @@ import {
 	type TerminalActionId,
 	type TerminalActionPromptType,
 	type HistoryItem,
-	type CloudUserInfo,
-	type CloudOrganizationMembership,
 	type CreateTaskOptions,
 	type TokenUsage,
 	type ToolUsage,
@@ -40,7 +37,6 @@ import {
 	requestyDefaultModelId,
 	openRouterDefaultModelId,
 	DEFAULT_WRITE_DELAY_MS,
-	ORGANIZATION_ALLOW_ALL,
 	DEFAULT_MODES,
 	DEFAULT_CHECKPOINT_TIMEOUT_SECONDS,
 	getModelId,
@@ -57,7 +53,6 @@ import { experimentDefault } from "../../shared/experiments"
 import { formatLanguage } from "../../shared/language"
 import { WebviewMessage } from "../../shared/WebviewMessage"
 import { EMBEDDING_MODEL_PROFILES } from "../../shared/embeddingModels"
-import { ProfileValidator } from "../../shared/ProfileValidator"
 
 import { Terminal } from "../../integrations/terminal/Terminal"
 import { downloadTask, getTaskFileName } from "../../integrations/misc/export-markdown"
@@ -77,7 +72,6 @@ import { fileExistsAtPath } from "../../utils/fs"
 import { setTtsEnabled, setTtsSpeed } from "../../utils/tts"
 import { getWorkspaceGitInfo } from "../../utils/git"
 import { getWorkspacePath } from "../../utils/path"
-import { OrganizationAllowListViolationError } from "../../utils/errors"
 
 import { setPanel } from "../../activate/registerCommands"
 
@@ -699,16 +693,7 @@ export class ClineProvider
 			return
 		}
 
-		try {
-			await visibleProvider.createTask(prompt)
-		} catch (error) {
-			if (error instanceof OrganizationAllowListViolationError) {
-				// Errors from terminal commands seem to get swallowed / ignored.
-				vscode.window.showErrorMessage(error.message)
-			}
-
-			throw error
-		}
+		await visibleProvider.createTask(prompt)
 	}
 
 	async resolveWebviewView(webviewView: vscode.WebviewView | vscode.WebviewPanel) {
@@ -953,8 +938,7 @@ export class ClineProvider
 			)
 		}
 
-		const { apiConfiguration, enableCheckpoints, checkpointTimeout, experiments, cloudUserInfo, taskSyncEnabled } =
-			await this.getState()
+		const { apiConfiguration, enableCheckpoints, checkpointTimeout, experiments } = await this.getState()
 
 		const task = new Task({
 			provider: this,
@@ -2014,7 +1998,7 @@ export class ClineProvider
 			ttsSpeed,
 			enableCheckpoints,
 			checkpointTimeout,
-			taskHistory,
+			taskHistory, // why not used ?
 			soundVolume,
 			writeDelayMs,
 			terminalShellIntegrationTimeout,
@@ -2047,11 +2031,6 @@ export class ClineProvider
 			historyPreviewCollapsed,
 			reasoningBlockCollapsed,
 			enterBehavior,
-			cloudUserInfo,
-			cloudIsAuthenticated,
-			sharingEnabled,
-			publicSharingEnabled,
-			organizationAllowList,
 			customCondensingPrompt,
 			codebaseIndexConfig,
 			codebaseIndexModels,
@@ -2064,14 +2043,11 @@ export class ClineProvider
 			includeCurrentTime,
 			includeCurrentCost,
 			maxGitStatusFiles,
-			taskSyncEnabled,
 			imageGenerationProvider,
 			openRouterImageApiKey,
 			openRouterImageGenerationSelectedModel,
 			lockApiConfigAcrossModes,
 		} = await this.getState()
-
-		let cloudOrganizations: CloudOrganizationMembership[] = []
 
 		const mergedAllowedCommands = this.mergeAllowedCommands(allowedCommands)
 		const mergedDeniedCommands = this.mergeDeniedCommands(deniedCommands)
@@ -2145,13 +2121,7 @@ export class ClineProvider
 			historyPreviewCollapsed: historyPreviewCollapsed ?? false,
 			reasoningBlockCollapsed: reasoningBlockCollapsed ?? true,
 			enterBehavior: enterBehavior ?? "send",
-			cloudUserInfo,
-			cloudIsAuthenticated: cloudIsAuthenticated ?? false,
 			cloudAuthSkipModel: this.context.globalState.get<boolean>("roo-auth-skip-model") ?? false,
-			cloudOrganizations,
-			sharingEnabled: sharingEnabled ?? false,
-			publicSharingEnabled: publicSharingEnabled ?? false,
-			organizationAllowList,
 			customCondensingPrompt,
 			codebaseIndexModels: codebaseIndexModels ?? EMBEDDING_MODEL_PROFILES,
 			codebaseIndexConfig: {
@@ -2180,7 +2150,6 @@ export class ClineProvider
 			includeCurrentTime: includeCurrentTime ?? true,
 			includeCurrentCost: includeCurrentCost ?? true,
 			maxGitStatusFiles: maxGitStatusFiles ?? 0,
-			taskSyncEnabled,
 			imageGenerationProvider,
 			openRouterImageApiKey,
 			openRouterImageGenerationSelectedModel,
@@ -2221,13 +2190,6 @@ export class ClineProvider
 		if (!providerSettings.apiProvider) {
 			providerSettings.apiProvider = apiProvider
 		}
-
-		let organizationAllowList = ORGANIZATION_ALLOW_ALL
-		let cloudUserInfo: CloudUserInfo | null = null
-		let cloudIsAuthenticated: boolean = false
-		let sharingEnabled: boolean = false
-		let publicSharingEnabled: boolean = false
-		let taskSyncEnabled: boolean = false
 
 		// Return the same structure as before.
 		return {
@@ -2293,11 +2255,6 @@ export class ClineProvider
 			historyPreviewCollapsed: stateValues.historyPreviewCollapsed ?? false,
 			reasoningBlockCollapsed: stateValues.reasoningBlockCollapsed ?? true,
 			enterBehavior: stateValues.enterBehavior ?? "send",
-			cloudUserInfo,
-			cloudIsAuthenticated,
-			sharingEnabled,
-			publicSharingEnabled,
-			organizationAllowList,
 			customCondensingPrompt: stateValues.customCondensingPrompt,
 			codebaseIndexModels: stateValues.codebaseIndexModels ?? EMBEDDING_MODEL_PROFILES,
 			codebaseIndexConfig: {
@@ -2327,7 +2284,6 @@ export class ClineProvider
 			includeCurrentTime: stateValues.includeCurrentTime ?? true,
 			includeCurrentCost: stateValues.includeCurrentCost ?? true,
 			maxGitStatusFiles: stateValues.maxGitStatusFiles ?? 0,
-			taskSyncEnabled,
 			imageGenerationProvider: stateValues.imageGenerationProvider,
 			openRouterImageApiKey: stateValues.openRouterImageApiKey,
 			openRouterImageGenerationSelectedModel: stateValues.openRouterImageGenerationSelectedModel,
@@ -2662,8 +2618,7 @@ export class ClineProvider
 			}
 		}
 
-		const { apiConfiguration, organizationAllowList, enableCheckpoints, checkpointTimeout, experiments } =
-			await this.getState()
+		const { apiConfiguration, enableCheckpoints, checkpointTimeout, experiments } = await this.getState()
 
 		// Single-open-task invariant: always enforce for user-initiated top-level tasks
 		if (!parentTask) {
@@ -2672,10 +2627,6 @@ export class ClineProvider
 			} catch {
 				// Non-fatal
 			}
-		}
-
-		if (!ProfileValidator.isProfileAllowed(apiConfiguration, organizationAllowList)) {
-			throw new OrganizationAllowListViolationError(t("common:errors.violated_organization_allowlist"))
 		}
 
 		const task = new Task({
@@ -2875,14 +2826,6 @@ export class ClineProvider
 		return this._appProperties ?? this.getAppProperties()
 	}
 
-	private getCloudProperties(): CloudAppProperties {
-		let cloudIsAuthenticated: boolean | undefined
-
-		return {
-			cloudIsAuthenticated,
-		}
-	}
-
 	private async getTaskProperties(): Promise<DynamicAppProperties & TaskProperties> {
 		const { language = "en", mode, apiConfiguration } = await this.getState()
 
@@ -2929,7 +2872,6 @@ export class ClineProvider
 	public async getTelemetryProperties(): Promise<TelemetryProperties> {
 		return {
 			...this.getAppProperties(),
-			...this.getCloudProperties(),
 			...(await this.getTaskProperties()),
 			...(await this.getGitProperties()),
 		}

@@ -1,12 +1,7 @@
 import { useCallback, useState, useEffect, useRef } from "react"
 import { VSCodeTextField, VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react"
 
-import {
-	type ProviderSettings,
-	type OrganizationAllowList,
-	type ExtensionMessage,
-	litellmDefaultModelId,
-} from "@roo-code/types"
+import { type ProviderSettings, type ExtensionMessage, litellmDefaultModelId } from "@roo-code/types"
 
 import { RouterName } from "@roo/api"
 
@@ -21,7 +16,6 @@ import { ModelPicker } from "../ModelPicker"
 type LiteLLMProps = {
 	apiConfiguration: ProviderSettings
 	setApiConfigurationField: (field: keyof ProviderSettings, value: ProviderSettings[keyof ProviderSettings]) => void
-	organizationAllowList: OrganizationAllowList
 	modelValidationError?: string
 	simplifySettings?: boolean
 }
@@ -29,7 +23,6 @@ type LiteLLMProps = {
 export const LiteLLM = ({
 	apiConfiguration,
 	setApiConfigurationField,
-	organizationAllowList,
 	modelValidationError,
 	simplifySettings,
 }: LiteLLMProps) => {
@@ -155,7 +148,6 @@ export const LiteLLM = ({
 				serviceName="LiteLLM"
 				serviceUrl="https://docs.litellm.ai/"
 				setApiConfigurationField={setApiConfigurationField}
-				organizationAllowList={organizationAllowList}
 				errorMessage={modelValidationError}
 				simplifySettings={simplifySettings}
 			/>

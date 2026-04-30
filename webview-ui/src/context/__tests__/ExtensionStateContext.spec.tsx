@@ -197,18 +197,12 @@ describe("mergeExtensionState", () => {
 			showRooIgnoredFiles: true,
 			enableSubfolderRules: false,
 			renderContext: "sidebar",
-			cloudUserInfo: null,
-			organizationAllowList: { allowAll: true, providers: {} },
 			autoCondenseContext: true,
 			autoCondenseContextPercent: 100,
-			cloudIsAuthenticated: false,
-			sharingEnabled: false,
-			publicSharingEnabled: false,
 			profileThresholds: {},
 			hasOpenedModeSelector: false, // Add the new required property
 			maxImageFileSize: 5,
 			maxTotalImageSize: 20,
-			taskSyncEnabled: false,
 			checkpointTimeout: DEFAULT_CHECKPOINT_TIMEOUT_SECONDS, // Add the checkpoint timeout property
 			maxReadFileLine: -1,
 		}
@@ -264,18 +258,12 @@ describe("mergeExtensionState", () => {
 			showRooIgnoredFiles: true,
 			enableSubfolderRules: false,
 			renderContext: "sidebar",
-			cloudUserInfo: null,
-			organizationAllowList: { allowAll: true, providers: {} },
 			autoCondenseContext: true,
 			autoCondenseContextPercent: 100,
-			cloudIsAuthenticated: false,
-			sharingEnabled: false,
-			publicSharingEnabled: false,
 			profileThresholds: {},
 			hasOpenedModeSelector: false,
 			maxImageFileSize: 5,
 			maxTotalImageSize: 20,
-			taskSyncEnabled: false,
 			checkpointTimeout: DEFAULT_CHECKPOINT_TIMEOUT_SECONDS,
 			maxReadFileLine: -1,
 		}
@@ -351,9 +339,7 @@ describe("mergeExtensionState", () => {
 			}
 
 			// Simulate a cloud event push that omits clineMessages and clineMessagesSeq
-			const result = mergeExtensionState(prevState, {
-				cloudIsAuthenticated: true,
-			})
+			const result = mergeExtensionState(prevState, {})
 
 			expect(result.clineMessages).toBe(existingMessages)
 			expect(result.clineMessagesSeq).toBe(5)

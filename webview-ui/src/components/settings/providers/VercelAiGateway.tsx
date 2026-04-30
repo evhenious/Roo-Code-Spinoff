@@ -1,12 +1,7 @@
 import { useCallback } from "react"
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
 
-import {
-	type ProviderSettings,
-	type OrganizationAllowList,
-	type RouterModels,
-	vercelAiGatewayDefaultModelId,
-} from "@roo-code/types"
+import { type ProviderSettings, type RouterModels, vercelAiGatewayDefaultModelId } from "@roo-code/types"
 
 import { useAppTranslation } from "@src/i18n/TranslationContext"
 import { VSCodeButtonLink } from "@src/components/common/VSCodeButtonLink"
@@ -18,7 +13,6 @@ type VercelAiGatewayProps = {
 	apiConfiguration: ProviderSettings
 	setApiConfigurationField: (field: keyof ProviderSettings, value: ProviderSettings[keyof ProviderSettings]) => void
 	routerModels?: RouterModels
-	organizationAllowList: OrganizationAllowList
 	modelValidationError?: string
 	simplifySettings?: boolean
 }
@@ -27,7 +21,6 @@ export const VercelAiGateway = ({
 	apiConfiguration,
 	setApiConfigurationField,
 	routerModels,
-	organizationAllowList,
 	modelValidationError,
 	simplifySettings,
 }: VercelAiGatewayProps) => {
@@ -73,7 +66,6 @@ export const VercelAiGateway = ({
 				modelIdKey="vercelAiGatewayModelId"
 				serviceName="Vercel AI Gateway"
 				serviceUrl="https://vercel.com/ai-gateway/models"
-				organizationAllowList={organizationAllowList}
 				errorMessage={modelValidationError}
 				simplifySettings={simplifySettings}
 			/>
