@@ -85,7 +85,6 @@ export interface DiagnosticCollection extends Disposable {
  * Identity information for VSCode environment
  */
 export interface IdentityInfo {
-	machineId: string
 	sessionId: string
 	cliUserId?: string
 }

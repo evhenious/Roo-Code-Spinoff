@@ -335,7 +335,6 @@ export type ExtensionState = Pick<
 	toolRequirements?: Record<string, boolean> // Map of tool names to their requirements (e.g. {"apply_diff": true})
 
 	cwd?: string // Current working directory
-	machineId?: string
 
 	renderContext: "sidebar" | "editor"
 	settingsImportedAt?: number
