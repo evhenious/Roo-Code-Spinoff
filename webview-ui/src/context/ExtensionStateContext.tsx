@@ -1,9 +1,6 @@
 import React, { useEffect } from "react"
 
-import { useExtensionStateStore, mergeExtensionState } from "@src/store/useExtensionStateStore"
-
-// Re-export mergeExtensionState for backward compatibility with tests
-export { mergeExtensionState }
+import { useExtensionStateStore } from "@src/store/useExtensionStateStore"
 
 export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 	const handleMessage = useExtensionStateStore((state) => state.handleMessage)

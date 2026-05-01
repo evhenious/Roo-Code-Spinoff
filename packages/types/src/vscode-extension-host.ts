@@ -419,7 +419,6 @@ export interface WebviewMessage {
 		| "requestOpenAiModels"
 		| "requestOllamaModels"
 		| "requestLmStudioModels"
-		| "requestRooModels"
 		| "requestRooCreditBalance"
 		| "requestVsCodeLmModels"
 		| "openImage"

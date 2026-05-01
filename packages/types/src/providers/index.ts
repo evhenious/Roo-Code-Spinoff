@@ -16,7 +16,6 @@ export * from "./openrouter.js"
 export * from "./poe.js"
 export * from "./qwen-code.js"
 export * from "./requesty.js"
-export * from "./roo.js"
 export * from "./sambanova.js"
 export * from "./vertex.js"
 export * from "./vscode-llm.js"
@@ -39,7 +38,6 @@ import { openRouterDefaultModelId } from "./openrouter.js"
 import { poeDefaultModelId } from "./poe.js"
 import { qwenCodeDefaultModelId } from "./qwen-code.js"
 import { requestyDefaultModelId } from "./requesty.js"
-import { rooDefaultModelId } from "./roo.js"
 import { sambaNovaDefaultModelId } from "./sambanova.js"
 import { vertexDefaultModelId } from "./vertex.js"
 import { vscodeLlmDefaultModelId } from "./vscode-llm.js"
@@ -103,8 +101,6 @@ export function getProviderDefaultModelId(
 			return sambaNovaDefaultModelId
 		case "fireworks":
 			return fireworksDefaultModelId
-		case "roo":
-			return rooDefaultModelId
 		case "qwen-code":
 			return qwenCodeDefaultModelId
 		case "poe":

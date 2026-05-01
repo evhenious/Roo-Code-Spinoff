@@ -61,9 +61,6 @@ interface ExtensionStateStore extends IExtensionStore {
 
 	// Initialization action
 	initialize: () => void
-
-	// Cloud auth refresh action
-	requestRooModels: () => void
 }
 
 // Helper to get default context value shape
@@ -265,11 +262,6 @@ export const useExtensionStateStore = create<ExtensionStateStore>((set, get) => 
 		// Initialization
 		initialize: () => {
 			vscode.postMessage({ type: "webviewDidLaunch" })
-		},
-
-		// Cloud auth refresh
-		requestRooModels: () => {
-			vscode.postMessage({ type: "requestRooModels" })
 		},
 
 		// Setters
