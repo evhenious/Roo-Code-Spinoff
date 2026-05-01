@@ -239,6 +239,9 @@ export interface OpenAiCodexRateLimitsMessage {
 	error?: string
 }
 
+/**
+ * Main state shape, shared betwen backend and webview
+ */
 export type ExtensionState = Pick<
 	GlobalSettings,
 	| "currentApiConfigName"

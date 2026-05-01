@@ -81,7 +81,7 @@ import McpView from "../mcp/McpView"
 import { WorktreesView } from "../worktrees/WorktreesView"
 import { SettingsSearch } from "./SettingsSearch"
 import { useSearchIndexRegistry, SearchIndexProvider } from "./useSettingsSearch"
-import { IExtensionStore } from "@/store/defaultState"
+import { IExtensionStoreData } from "@/store/defaultState"
 
 export const settingsTabsContainer = "flex flex-1 overflow-hidden [&.narrow_.tab-label]:hidden"
 export const settingsTabList =
@@ -223,7 +223,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 		}
 	}, [settingsImportedAt, extensionState])
 
-	const setCachedStateField: SetCachedStateField<keyof IExtensionStore> = useCallback((field, value) => {
+	const setCachedStateField: SetCachedStateField<keyof IExtensionStoreData> = useCallback((field, value) => {
 		setCachedState((prevState) => {
 			if (prevState[field] === value) {
 				return prevState

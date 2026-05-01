@@ -7,14 +7,13 @@ import {
 	type ExperimentId,
 	type ExtensionState,
 	type ExtensionMessage,
-	DEFAULT_CHECKPOINT_TIMEOUT_SECONDS,
 } from "@roo-code/types"
 
 import { checkExistKey } from "@roo/checkExistApiConfig"
-import { Mode, defaultModeSlug } from "@roo/modes"
+import { Mode } from "@roo/modes"
 import { CustomSupportPrompts } from "@roo/support-prompt"
 
-import { defaultEmptyExtensionState, IExtensionStore } from "./defaultState"
+import { defaultEmptyExtensionState, IExtensionStoreData } from "./defaultState"
 import { vscode } from "@src/utils/vscode"
 import { convertTextMateToHljs } from "@src/utils/textMateToHljs"
 
@@ -55,62 +54,48 @@ export const mergeExtensionState = (prevState: ExtensionState, newState: Partial
 }
 
 // Store state interface
-interface ExtensionStateStore extends IExtensionStore {
+interface IExtensionStoreWithMethods extends IExtensionStoreData {
 	// Message handling action
 	handleMessage: (event: MessageEvent) => void
 
 	// Initialization action
 	initialize: () => void
+
+	setApiConfiguration: (value: ProviderSettings) => void
+	setAllowedCommands: (value: string[]) => void
+	setAlwaysAllowExecute: (value: boolean) => void
+	setAlwaysAllowFollowupQuestions: (value: boolean) => void
+	setAlwaysAllowReadOnly: (value: boolean) => void
+	setAlwaysAllowSubtasks: (value: boolean) => void
+	setAlwaysAllowMcp: (value: boolean) => void
+	setAlwaysAllowModeSwitch: (value: boolean) => void
+	setAlwaysAllowWrite: (value: boolean) => void
+	setAutoApprovalEnabled: (value: boolean) => void
+	setCustomInstructions: (value?: string) => void
+	setDeniedCommands: (value: string[]) => void
+	setHasOpenedModeSelector: (value: boolean) => void
+	setIncludeTaskHistoryInEnhance: (value: boolean) => void
+	setEnhancementApiConfigId: (value: string) => void
+	setMcpEnabled: (value: boolean) => void
+	setMode: (value: Mode) => void
+	setShowRooIgnoredFiles: (value: boolean) => void
+	setShowWorktreesInHomeScreen: (value: boolean) => void
+	togglePinnedApiConfig: (value: string) => void
 }
 
 // Helper to get default context value shape
-const getDefaultState = (state: ExtensionState): Partial<ExtensionStateStore> => ({
+const getDefaultState = (state: ExtensionState): IExtensionStoreData => ({
 	...state,
-	reasoningBlockCollapsed: state.reasoningBlockCollapsed ?? true,
+
+	commands: [],
 	didHydrateState: false,
-	showWelcome: !checkExistKey(state.apiConfiguration),
-	theme: undefined,
-	mcpServers: [],
 	filePaths: [],
 	openedTabs: [],
-	commands: [],
-	//
-	currentCheckpoint: undefined,
-	currentTaskTodos: undefined,
-	hasOpenedModeSelector: state.hasOpenedModeSelector ?? false,
-	alwaysAllowFollowupQuestions: state.alwaysAllowFollowupQuestions ?? false,
-	followupAutoApproveTimeoutMs: state.followupAutoApproveTimeoutMs ?? undefined,
-	marketplaceItems: undefined,
-	marketplaceInstalledMetadata: undefined,
-	profileThresholds: state.profileThresholds ?? {},
-	terminalShellIntegrationTimeout: state.terminalShellIntegrationTimeout,
-	terminalShellIntegrationDisabled: state.terminalShellIntegrationDisabled,
-	terminalZdotdir: state.terminalZdotdir,
-	checkpointTimeout: state.checkpointTimeout ?? DEFAULT_CHECKPOINT_TIMEOUT_SECONDS,
-	terminalOutputPreviewSize: state.terminalOutputPreviewSize,
-	mcpEnabled: state.mcpEnabled ?? true,
-	mode: state.mode ?? defaultModeSlug,
-	enhancementApiConfigId: state.enhancementApiConfigId,
-	customModes: state.customModes ?? [],
-	maxWorkspaceFiles: state.maxWorkspaceFiles ?? 200,
-	awsUsePromptCache: (state as any).awsUsePromptCache, // TODO get rid of ANY
-	maxImageFileSize: state.maxImageFileSize ?? 5,
-	maxTotalImageSize: state.maxTotalImageSize ?? 20,
-	pinnedApiConfigs: state.pinnedApiConfigs,
-	enterBehavior: state.enterBehavior ?? "send",
-	autoCondenseContext: state.autoCondenseContext ?? true,
-	autoCondenseContextPercent: state.autoCondenseContextPercent ?? 100,
-	routerModels: undefined,
-	includeDiagnosticMessages: state.includeDiagnosticMessages,
-	maxDiagnosticMessages: state.maxDiagnosticMessages,
-	includeTaskHistoryInEnhance: state.includeTaskHistoryInEnhance ?? true,
-	includeCurrentTime: state.includeCurrentTime ?? true,
-	includeCurrentCost: state.includeCurrentCost ?? true,
-	showWorktreesInHomeScreen: state.showWorktreesInHomeScreen ?? true,
-	skills: (state as any).skills, // TODO get rid of ANY
+	showWelcome: !checkExistKey(state.apiConfiguration),
+	skills: [],
 })
 
-export const useExtensionStateStore = create<ExtensionStateStore>((set, get) => {
+export const useExtensionStateStore = create<IExtensionStoreWithMethods>((set, get) => {
 	const initialState = getDefaultState(defaultEmptyExtensionState)
 
 	return {
@@ -325,7 +310,6 @@ export const useExtensionStateStore = create<ExtensionStateStore>((set, get) => 
 		setShowRooIgnoredFiles: (value: boolean) => set((prevState) => ({ ...prevState, showRooIgnoredFiles: value })),
 		setEnableSubfolderRules: (value: boolean) =>
 			set((prevState) => ({ ...prevState, enableSubfolderRules: value })),
-		setAwsUsePromptCache: (value: boolean) => set((prevState) => ({ ...prevState, awsUsePromptCache: value })),
 		setMaxImageFileSize: (value: number) => set((prevState) => ({ ...prevState, maxImageFileSize: value })),
 		setMaxTotalImageSize: (value: number) => set((prevState) => ({ ...prevState, maxTotalImageSize: value })),
 		setPinnedApiConfigs: (value: Record<string, boolean>) =>
@@ -363,7 +347,7 @@ export const useExtensionStateStore = create<ExtensionStateStore>((set, get) => 
 		setIncludeCurrentCost: (value: boolean) => set({ includeCurrentCost: value }),
 		setShowWorktreesInHomeScreen: (value: boolean) =>
 			set((prevState) => ({ ...prevState, showWorktreesInHomeScreen: value })),
-	} as ExtensionStateStore
+	} as IExtensionStoreWithMethods
 })
 
 // Export the hook that replaces useExtensionState

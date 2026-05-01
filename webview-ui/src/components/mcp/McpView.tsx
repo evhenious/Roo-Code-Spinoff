@@ -29,7 +29,7 @@ import McpEnabledToggle from "./McpEnabledToggle"
 import { McpErrorRow } from "./McpErrorRow"
 
 const McpView = () => {
-	const { mcpServers: servers, alwaysAllowMcp, mcpEnabled } = useExtensionState()
+	const { mcpServers: servers = [], alwaysAllowMcp, mcpEnabled } = useExtensionState()
 
 	const { t } = useAppTranslation()
 	const { isOverThreshold, title, message } = useTooManyTools()

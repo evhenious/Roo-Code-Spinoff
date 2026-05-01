@@ -26,6 +26,9 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 	return <>{children}</>
 }
 
+/**
+ * Main entrypoint to access WebView state store
+ */
 export const useExtensionState = () => {
 	return useExtensionStateStore()
 }

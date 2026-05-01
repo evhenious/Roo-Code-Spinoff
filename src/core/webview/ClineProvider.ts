@@ -1998,7 +1998,7 @@ export class ClineProvider
 			ttsSpeed,
 			enableCheckpoints,
 			checkpointTimeout,
-			taskHistory, // why not used ?
+			taskHistory, // ??? why not used ?
 			soundVolume,
 			writeDelayMs,
 			terminalShellIntegrationTimeout,
