@@ -2168,12 +2168,6 @@ export const webviewMessageHandler = async (
 			}
 			break
 		}
-		case "clearCloudAuthSkipModel": {
-			// Clear the flag that indicates auth completed without model selection
-			await provider.context.globalState.update("roo-auth-skip-model", undefined)
-			await provider.postStateToWebview()
-			break
-		}
 
 		case "saveCodeIndexSettingsAtomic": {
 			if (!message.codeIndexSettings) {

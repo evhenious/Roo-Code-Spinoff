@@ -1,11 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react"
-import {
-	VSCodeLink,
-	VSCodeProgressRing,
-	VSCodeRadio,
-	VSCodeRadioGroup,
-	VSCodeTextField,
-} from "@vscode/webview-ui-toolkit/react"
+import { VSCodeProgressRing, VSCodeRadio, VSCodeRadioGroup } from "@vscode/webview-ui-toolkit/react"
 
 import type { ProviderSettings } from "@roo-code/types"
 
@@ -20,10 +14,10 @@ import { Tab, TabContent } from "../common/Tab"
 
 import RooHero from "./RooHero"
 import { Trans } from "react-i18next"
-import { ArrowLeft, ArrowRight, BadgeInfo, Brain, TriangleAlert } from "lucide-react"
+import { ArrowLeft, Brain, TriangleAlert } from "lucide-react"
 import { buildDocLink } from "@/utils/docLinks"
 
-type ProviderOption = "roo" | "custom"
+type ProviderOption = "custom"
 type AuthOrigin = "landing" | "providerSelection"
 
 const WelcomeViewProvider = () => {
@@ -56,29 +50,17 @@ const WelcomeViewProvider = () => {
 	)
 
 	const handleGetStarted = useCallback(() => {
-		// Landing screen - always trigger auth with Roo
-		if (selectedProvider === null) {
-			setAuthOrigin("landing")
-			vscode.postMessage({ type: "rooCloudSignIn", useProviderSignup: true })
-			setAuthInProgress(true)
-		} else {
-			// Custom provider - validate first
-			const error = apiConfiguration ? validateApiConfiguration(apiConfiguration) : undefined
+		// Custom provider - validate first
+		const error = apiConfiguration ? validateApiConfiguration(apiConfiguration) : undefined
 
-			if (error) {
-				setErrorMessage(error)
-				return
-			}
-
-			setErrorMessage(undefined)
-			vscode.postMessage({ type: "upsertApiConfiguration", text: currentApiConfigName, apiConfiguration })
+		if (error) {
+			setErrorMessage(error)
+			return
 		}
-	}, [selectedProvider, apiConfiguration, currentApiConfigName])
 
-	const handleNoAccount = useCallback(() => {
-		// Navigate to Provider Selection, defaulting to Roo option
-		setSelectedProvider("roo")
-	}, [])
+		setErrorMessage(undefined)
+		vscode.postMessage({ type: "upsertApiConfiguration", text: currentApiConfigName, apiConfiguration })
+	}, [apiConfiguration, currentApiConfigName])
 
 	const handleBackToLanding = useCallback(() => {
 		// Return to the landing screen
@@ -102,33 +84,6 @@ const WelcomeViewProvider = () => {
 		setAuthOrigin(null)
 	}, [authOrigin])
 
-	const handleManualUrlChange = (e: any) => {
-		const url = e.target.value
-		setManualUrl(url)
-
-		// Auto-trigger authentication when a complete URL is pasted
-		setTimeout(() => {
-			if (url.trim() && url.includes("://") && url.includes("/auth/clerk/callback")) {
-				setManualErrorMessage(false)
-				vscode.postMessage({ type: "rooCloudManualUrl", text: url.trim() })
-			}
-		}, 100)
-	}
-
-	const handleSubmit = useCallback(() => {
-		const url = manualUrl.trim()
-		if (url && url.includes("://") && url.includes("/auth/clerk/callback")) {
-			setManualErrorMessage(false)
-			vscode.postMessage({ type: "rooCloudManualUrl", text: url })
-		} else {
-			setManualErrorMessage(true)
-		}
-	}, [manualUrl])
-
-	const handleOpenSignupUrl = () => {
-		vscode.postMessage({ type: "rooCloudSignIn", useProviderSignup: false })
-	}
-
 	// Render the waiting for cloud state
 	if (authInProgress) {
 		return (
@@ -140,23 +95,6 @@ const WelcomeViewProvider = () => {
 						<p className="text-vscode-descriptionForeground mt-0">
 							{t("welcome:waitingForCloud.description")}
 						</p>
-
-						<div className="flex gap-2 items-start pr-4 text-vscode-descriptionForeground">
-							<BadgeInfo className="size-4 inline shrink-0" />
-							<p className="m-0">
-								<Trans
-									i18nKey="welcome:waitingForCloud.noPrompt"
-									components={{
-										clickHere: (
-											<button
-												onClick={handleOpenSignupUrl}
-												className="text-vscode-textLink-foreground hover:text-vscode-textLink-activeForeground underline cursor-pointer bg-transparent border-none p-0"
-											/>
-										),
-									}}
-								/>
-							</p>
-						</div>
 
 						<div className="flex gap-2 items-start pr-4 text-vscode-descriptionForeground">
 							<TriangleAlert className="size-4 inline shrink-0" />
@@ -180,21 +118,6 @@ const WelcomeViewProvider = () => {
 										<p className="text-vscode-descriptionForeground mt-0">
 											{t("welcome:waitingForCloud.pasteUrl")}
 										</p>
-										<div className="flex gap-2 items-center">
-											<VSCodeTextField
-												ref={manualUrlInputRef as any}
-												value={manualUrl}
-												onKeyUp={handleManualUrlChange}
-												placeholder="vscode://RooVeterinaryInc.roo-cline/auth/clerk/callback?state=..."
-												className="flex-1"
-											/>
-											<Button
-												onClick={handleSubmit}
-												disabled={manualUrl.length < 40}
-												variant="secondary">
-												<ArrowRight className="size-4" />
-											</Button>
-										</div>
 										<p className="mt-2">
 											<Trans
 												i18nKey="welcome:waitingForCloud.docsLink"
@@ -254,9 +177,6 @@ const WelcomeViewProvider = () => {
 						<Button onClick={handleGetStarted} variant="primary">
 							{t("welcome:landing.getStarted")}
 						</Button>
-						<VSCodeLink onClick={handleNoAccount} className="cursor-pointer">
-							{t("welcome:landing.noAccount")}
-						</VSCodeLink>
 					</div>
 
 					<div className="absolute bottom-6 left-6">

@@ -477,11 +477,7 @@ export interface WebviewMessage {
 		| "toggleApiConfigPin"
 		| "hasOpenedModeSelector"
 		| "lockApiConfigAcrossModes"
-		| "clearCloudAuthSkipModel"
-		| "rooCloudSignIn"
 		| "cloudLandingPageSignIn"
-		| "rooCloudSignOut"
-		| "rooCloudManualUrl"
 		| "openAiCodexSignIn"
 		| "openAiCodexSignOut"
 		| "switchOrganization"
@@ -559,7 +555,7 @@ export interface WebviewMessage {
 	text?: string
 	taskId?: string
 	editedMessageContent?: string
-	tab?: "settings" | "history" | "mcp" | "modes" | "chat" | "marketplace" | "cloud"
+	tab?: "settings" | "history" | "mcp" | "modes" | "chat" | "marketplace"
 	disabled?: boolean
 	context?: string
 	dataUri?: string
