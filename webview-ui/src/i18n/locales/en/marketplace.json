@@ -42,7 +42,6 @@
 		"none": "None"
 	},
 	"sections": {
-		"organizationMcps": "{{organization}} MCPs",
 		"marketplace": "Marketplace"
 	},
 	"type-group": {

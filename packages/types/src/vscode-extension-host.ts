@@ -65,11 +65,9 @@ export interface ExtensionMessage {
 		| "commandExecutionStatus"
 		| "mcpExecutionStatus"
 		| "vsCodeSetting"
-		| "authenticatedUser"
 		| "condenseTaskContextStarted"
 		| "condenseTaskContextResponse"
 		| "singleRouterModelFetchResponse"
-		| "rooCreditBalance"
 		| "indexingStatusUpdate"
 		| "indexCleared"
 		| "codebaseIndexConfig"
@@ -83,7 +81,6 @@ export interface ExtensionMessage {
 		| "commands"
 		| "insertTextIntoTextarea"
 		| "dismissedUpsells"
-		| "organizationSwitchResult"
 		| "interactionRequired"
 		| "customToolsResult"
 		| "modes"
@@ -158,7 +155,6 @@ export interface ExtensionMessage {
 	items?: MarketplaceItem[]
 	tab?: string
 	marketplaceItems?: MarketplaceItem[]
-	organizationMcps?: MarketplaceItem[]
 	marketplaceInstalledMetadata?: MarketplaceInstalledMetadata
 	errors?: string[]
 	rulesFolderPath?: string
@@ -168,8 +164,7 @@ export interface ExtensionMessage {
 	context?: string
 	commands?: Command[]
 	queuedMessages?: QueuedMessage[]
-	list?: string[] // For dismissedUpsells
-	organizationId?: string | null // For organizationSwitchResult
+	list?: string[] // For dismissedUpsells // TODO remove
 	tools?: SerializedCustomToolDefinition[] // For customToolsResult
 	skills?: SkillMetadata[] // For skills response
 	modes?: { slug: string; name: string }[] // For modes response
@@ -347,7 +342,6 @@ export interface WebviewMessage {
 		| "requestOpenAiModels"
 		| "requestOllamaModels"
 		| "requestLmStudioModels"
-		| "requestRooCreditBalance"
 		| "requestVsCodeLmModels"
 		| "openImage"
 		| "saveImage"
@@ -540,7 +534,6 @@ export interface WebviewMessage {
 	checkOnly?: boolean // For deleteCustomMode check
 	upsellId?: string // For dismissUpsell
 	list?: string[] // For dismissedUpsells response
-	organizationId?: string | null // For organization switching
 	useProviderSignup?: boolean // For rooCloudSignIn to use provider signup flow
 	codeIndexSettings?: {
 		// Global state settings

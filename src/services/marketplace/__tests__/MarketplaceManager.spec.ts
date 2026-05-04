@@ -164,7 +164,6 @@ describe("MarketplaceManager", () => {
 
 			expect(result.marketplaceItems).toHaveLength(1)
 			expect(result.marketplaceItems[0].name).toBe("Test Mode")
-			expect(result.organizationMcps).toHaveLength(0)
 		})
 
 		it("should handle API errors gracefully", async () => {
@@ -174,7 +173,6 @@ describe("MarketplaceManager", () => {
 			const result = await manager.getMarketplaceItems()
 
 			expect(result.marketplaceItems).toHaveLength(0)
-			expect(result.organizationMcps).toHaveLength(0)
 			expect(result.errors).toEqual(["API request failed"])
 		})
 	})
