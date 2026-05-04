@@ -73,7 +73,7 @@ export interface RooCodeAPI extends EventEmitter<RooCodeAPIEvents> {
 	 * Returns the current configuration.
 	 * @returns The current configuration.
 	 */
-	getConfiguration(): RooCodeSettings
+	getConfiguration(): Partial<RooCodeSettings>
 	/**
 	 * Sets the configuration for the current task.
 	 * @param values An object containing key-value pairs to set.

@@ -494,7 +494,7 @@ describe("ClineProvider", () => {
 	test("postMessageToWebview sends message to webview", async () => {
 		await provider.resolveWebviewView(mockWebviewView)
 
-		const mockState: ExtensionState = {
+		const mockState: Partial<ExtensionState> = {
 			version: "1.0.0",
 			clineMessages: [],
 			taskHistory: [],

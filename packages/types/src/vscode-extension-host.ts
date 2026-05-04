@@ -574,9 +574,9 @@ export interface WebviewMessage {
 		codebaseIndexVercelAiGatewayApiKey?: string
 		codebaseIndexOpenRouterApiKey?: string
 	}
-	updatedSettings?: RooCodeSettings
+	updatedSettings?: Partial<RooCodeSettings>
 	/** Task configuration applied via `createTask()` when starting a cloud task. */
-	taskConfiguration?: RooCodeSettings
+	taskConfiguration?: Partial<RooCodeSettings>
 	// Worktree properties
 	worktreePath?: string
 	worktreeBranch?: string

@@ -99,7 +99,7 @@ export const globalSettingsSchema = z.object({
 	alwaysAllowWrite: z.boolean().optional(),
 	alwaysAllowWriteOutsideWorkspace: z.boolean().optional(),
 	alwaysAllowWriteProtected: z.boolean().optional(),
-	writeDelayMs: z.number().min(0).optional(),
+	writeDelayMs: z.number().min(0).default(1000),
 	requestDelaySeconds: z.number().optional(),
 	alwaysAllowMcp: z.boolean().optional(),
 	alwaysAllowModeSwitch: z.boolean().optional(),
@@ -114,8 +114,8 @@ export const globalSettingsSchema = z.object({
 	preventCompletionWithOpenTodos: z.boolean().optional(),
 	allowedMaxRequests: z.number().nullish(),
 	allowedMaxCost: z.number().nullish(),
-	autoCondenseContext: z.boolean().optional(),
-	autoCondenseContextPercent: z.number().optional(),
+	autoCondenseContext: z.boolean().default(true),
+	autoCondenseContextPercent: z.number().default(100),
 
 	/**
 	 * Whether to include current time in the environment details
@@ -158,8 +158,8 @@ export const globalSettingsSchema = z.object({
 	soundEnabled: z.boolean().optional(),
 	soundVolume: z.number().optional(),
 
-	maxOpenTabsContext: z.number().optional(),
-	maxWorkspaceFiles: z.number().optional(),
+	maxOpenTabsContext: z.number().default(20),
+	maxWorkspaceFiles: z.number().default(200),
 	showRooIgnoredFiles: z.boolean().optional(),
 	enableSubfolderRules: z.boolean().optional(),
 	maxImageFileSize: z.number().optional(),
@@ -179,16 +179,16 @@ export const globalSettingsSchema = z.object({
 	diagnosticsEnabled: z.boolean().optional(),
 
 	rateLimitSeconds: z.number().optional(),
-	experiments: experimentsSchema.optional(),
+	experiments: experimentsSchema,
 
 	codebaseIndexModels: codebaseIndexModelsSchema.optional(),
 	codebaseIndexConfig: codebaseIndexConfigSchema.optional(),
 
-	language: languagesSchema.optional(),
+	language: languagesSchema,
 
 	mcpEnabled: z.boolean().optional(),
 
-	mode: z.string().optional(),
+	mode: z.string().default("ask"),
 	modeApiConfigs: z.record(z.string(), z.string()).optional(),
 	customModes: z.array(modeConfigSchema).optional(),
 	customModePrompts: customModePromptsSchema.optional(),
@@ -312,7 +312,7 @@ export const isGlobalStateKey = (key: string): key is Keys<GlobalState> =>
  */
 
 // Default settings when running evals (unless overridden).
-export const EVALS_SETTINGS: RooCodeSettings = {
+export const EVALS_SETTINGS: Partial<RooCodeSettings> = {
 	apiProvider: "openrouter",
 
 	pinnedApiConfigs: {},

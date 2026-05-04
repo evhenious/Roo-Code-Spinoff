@@ -83,24 +83,16 @@ interface IExtensionStoreWithMethods extends IExtensionStoreData {
 	togglePinnedApiConfig: (value: string) => void
 }
 
-// Helper to get default context value shape
-const getDefaultState = (state: ExtensionState): IExtensionStoreData => ({
-	...state,
-
-	commands: [],
-	didHydrateState: false,
-	filePaths: [],
-	openedTabs: [],
-	showWelcome: !checkExistKey(state.apiConfiguration),
-	skills: [],
-})
-
 export const useExtensionStateStore = create<IExtensionStoreWithMethods>((set, get) => {
-	const initialState = getDefaultState(defaultEmptyExtensionState)
-
 	return {
 		// Initial state
-		...initialState,
+		...defaultEmptyExtensionState,
+		commands: [],
+		didHydrateState: false,
+		filePaths: [],
+		openedTabs: [],
+		skills: [],
+		//
 		showWelcome: true,
 
 		// Message handler
