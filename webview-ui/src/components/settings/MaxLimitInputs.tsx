@@ -4,8 +4,8 @@ import { MaxRequestsInput } from "./MaxRequestsInput"
 import { MaxCostInput } from "./MaxCostInput"
 
 export interface MaxLimitInputsProps {
-	allowedMaxRequests?: number
-	allowedMaxCost?: number
+	allowedMaxRequests: number | null
+	allowedMaxCost: number | null
 	onMaxRequestsChange: (value: number | undefined) => void
 	onMaxCostChange: (value: number | undefined) => void
 }

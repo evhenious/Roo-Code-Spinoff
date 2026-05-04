@@ -80,7 +80,6 @@ export interface ExtensionMessage {
 		| "showEditMessageDialog"
 		| "commands"
 		| "insertTextIntoTextarea"
-		| "dismissedUpsells"
 		| "interactionRequired"
 		| "customToolsResult"
 		| "modes"
@@ -164,7 +163,6 @@ export interface ExtensionMessage {
 	context?: string
 	commands?: Command[]
 	queuedMessages?: QueuedMessage[]
-	list?: string[] // For dismissedUpsells // TODO remove
 	tools?: SerializedCustomToolDefinition[] // For customToolsResult
 	skills?: SkillMetadata[] // For skills response
 	modes?: { slug: string; name: string }[] // For modes response
@@ -437,8 +435,6 @@ export interface WebviewMessage {
 		| "queueMessage"
 		| "removeQueuedMessage"
 		| "editQueuedMessage"
-		| "dismissUpsell"
-		| "getDismissedUpsells"
 		| "openMarkdownPreview"
 		| "updateSettings"
 		| "allowedCommands"
@@ -532,8 +528,6 @@ export interface WebviewMessage {
 	config?: Record<string, any> // Add config to the payload
 	hasContent?: boolean // For checkRulesDirectoryResult
 	checkOnly?: boolean // For deleteCustomMode check
-	upsellId?: string // For dismissUpsell
-	list?: string[] // For dismissedUpsells response
 	useProviderSignup?: boolean // For rooCloudSignIn to use provider signup flow
 	codeIndexSettings?: {
 		// Global state settings

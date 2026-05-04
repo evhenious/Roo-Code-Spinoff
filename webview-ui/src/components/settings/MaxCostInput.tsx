@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { FormattedTextField, unlimitedDecimalFormatter } from "../common/FormattedTextField"
 
 interface MaxCostInputProps {
-	allowedMaxCost?: number
+	allowedMaxCost: number | null
 	onValueChange: (value: number | undefined) => void
 }
 
@@ -17,7 +17,7 @@ export function MaxCostInput({ allowedMaxCost, onValueChange }: MaxCostInputProp
 				{t("settings:autoApprove.apiCostLimit.title")}:
 			</label>
 			<FormattedTextField
-				value={allowedMaxCost}
+				value={allowedMaxCost ?? undefined}
 				onValueChange={onValueChange}
 				formatter={unlimitedDecimalFormatter}
 				placeholder={t("settings:autoApprove.apiCostLimit.unlimited")}

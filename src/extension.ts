@@ -129,7 +129,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	const cloudLogger = createDualLogger(createOutputChannelLogger(outputChannel))
 
 	// Initialize i18n for internationalization support.
-	initializeI18n(context.globalState.get("language") ?? formatLanguage(vscode.env.language))
+	initializeI18n("en")
 
 	// Initialize terminal shell execution handlers.
 	TerminalRegistry.initialize()
@@ -174,13 +174,13 @@ export async function activate(context: vscode.ExtensionContext) {
 	const provider = new ClineProvider(context, outputChannel, "sidebar", contextProxy)
 
 	// Trigger initial cloud profile sync now that CloudService is ready.
-	try {
-		await provider.initializeCloudProfileSyncWhenReady()
-	} catch (error) {
-		outputChannel.appendLine(
-			`[CloudService] Failed to initialize cloud profile sync: ${error instanceof Error ? error.message : String(error)}`,
-		)
-	}
+	// try {
+	// 	await provider.initializeCloudProfileSyncWhenReady()
+	// } catch (error) {
+	// 	outputChannel.appendLine(
+	// 		`[CloudService] Failed to initialize cloud profile sync: ${error instanceof Error ? error.message : String(error)}`,
+	// 	)
+	// }
 
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider(ClineProvider.sideBarId, provider, {

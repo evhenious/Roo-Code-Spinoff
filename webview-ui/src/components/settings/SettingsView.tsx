@@ -30,12 +30,7 @@ import {
 	GraduationCap,
 } from "lucide-react"
 
-import {
-	type ProviderSettings,
-	type ExperimentId,
-	DEFAULT_CHECKPOINT_TIMEOUT_SECONDS,
-	ImageGenerationProvider,
-} from "@roo-code/types"
+import { type ProviderSettings, type ExperimentId, ImageGenerationProvider } from "@roo-code/types"
 
 import { vscode } from "@src/utils/vscode"
 import { cn } from "@src/lib/utils"
@@ -348,31 +343,31 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 			vscode.postMessage({
 				type: "updateSettings",
 				updatedSettings: {
-					alwaysAllowReadOnly: alwaysAllowReadOnly ?? undefined,
-					alwaysAllowReadOnlyOutsideWorkspace: alwaysAllowReadOnlyOutsideWorkspace ?? undefined,
-					alwaysAllowWrite: alwaysAllowWrite ?? undefined,
-					alwaysAllowWriteOutsideWorkspace: alwaysAllowWriteOutsideWorkspace ?? undefined,
-					alwaysAllowWriteProtected: alwaysAllowWriteProtected ?? undefined,
-					alwaysAllowExecute: alwaysAllowExecute ?? undefined,
+					alwaysAllowReadOnly,
+					alwaysAllowReadOnlyOutsideWorkspace,
+					alwaysAllowWrite,
+					alwaysAllowWriteOutsideWorkspace,
+					alwaysAllowWriteProtected,
+					alwaysAllowExecute,
 					alwaysAllowMcp,
 					alwaysAllowModeSwitch,
-					allowedCommands: allowedCommands ?? [],
-					deniedCommands: deniedCommands ?? [],
+					allowedCommands,
+					deniedCommands,
 					// Note that we use `null` instead of `undefined` since `JSON.stringify`
 					// will omit `undefined` when serializing the object and passing it to the
 					// extension host. We may need to do the same for other nullable fields.
-					allowedMaxRequests: allowedMaxRequests ?? null,
-					allowedMaxCost: allowedMaxCost ?? null,
+					allowedMaxRequests,
+					allowedMaxCost,
 					autoCondenseContext,
 					autoCondenseContextPercent,
-					soundEnabled: soundEnabled ?? true,
-					soundVolume: soundVolume ?? 0.5,
+					soundEnabled,
+					soundVolume,
 					ttsEnabled,
 					ttsSpeed,
-					enableCheckpoints: enableCheckpoints ?? false,
-					checkpointTimeout: checkpointTimeout ?? DEFAULT_CHECKPOINT_TIMEOUT_SECONDS,
+					enableCheckpoints,
+					checkpointTimeout,
 					writeDelayMs,
-					terminalShellIntegrationTimeout: terminalShellIntegrationTimeout ?? 30_000,
+					terminalShellIntegrationTimeout,
 					terminalShellIntegrationDisabled,
 					terminalCommandDelay,
 					terminalPowershellCounter,
@@ -380,26 +375,25 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 					terminalZshOhMy,
 					terminalZshP10k,
 					terminalZdotdir,
-					terminalOutputPreviewSize: terminalOutputPreviewSize ?? "medium",
+					terminalOutputPreviewSize,
 					mcpEnabled,
 					maxOpenTabsContext: Math.min(Math.max(0, maxOpenTabsContext ?? 20), 500),
 					maxWorkspaceFiles: Math.min(Math.max(0, maxWorkspaceFiles ?? 200), 500),
-					showRooIgnoredFiles: showRooIgnoredFiles ?? true,
-					enableSubfolderRules: enableSubfolderRules ?? false,
-					maxImageFileSize: maxImageFileSize ?? 5,
-					maxTotalImageSize: maxTotalImageSize ?? 20,
-					includeDiagnosticMessages:
-						includeDiagnosticMessages !== undefined ? includeDiagnosticMessages : true,
-					maxDiagnosticMessages: maxDiagnosticMessages ?? 50,
+					showRooIgnoredFiles,
+					enableSubfolderRules,
+					maxImageFileSize,
+					maxTotalImageSize,
+					includeDiagnosticMessages,
+					maxDiagnosticMessages,
 					alwaysAllowSubtasks,
-					alwaysAllowFollowupQuestions: alwaysAllowFollowupQuestions ?? false,
+					alwaysAllowFollowupQuestions,
 					followupAutoApproveTimeoutMs,
-					includeTaskHistoryInEnhance: includeTaskHistoryInEnhance ?? true,
-					reasoningBlockCollapsed: reasoningBlockCollapsed ?? true,
-					enterBehavior: enterBehavior ?? "send",
-					includeCurrentTime: includeCurrentTime ?? true,
-					includeCurrentCost: includeCurrentCost ?? true,
-					maxGitStatusFiles: maxGitStatusFiles ?? 0,
+					includeTaskHistoryInEnhance,
+					reasoningBlockCollapsed,
+					enterBehavior,
+					includeCurrentTime,
+					includeCurrentCost,
+					maxGitStatusFiles,
 					profileThresholds,
 					imageGenerationProvider,
 					openRouterImageApiKey,
@@ -774,8 +768,8 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 								alwaysAllowFollowupQuestions={alwaysAllowFollowupQuestions}
 								followupAutoApproveTimeoutMs={followupAutoApproveTimeoutMs}
 								allowedCommands={allowedCommands}
-								allowedMaxRequests={allowedMaxRequests ?? undefined}
-								allowedMaxCost={allowedMaxCost ?? undefined}
+								allowedMaxRequests={allowedMaxRequests}
+								allowedMaxCost={allowedMaxCost}
 								deniedCommands={deniedCommands}
 								setCachedStateField={setCachedStateField}
 							/>

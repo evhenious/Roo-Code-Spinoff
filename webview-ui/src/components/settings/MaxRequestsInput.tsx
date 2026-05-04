@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { FormattedTextField, unlimitedIntegerFormatter } from "../common/FormattedTextField"
 
 interface MaxRequestsInputProps {
-	allowedMaxRequests?: number
+	allowedMaxRequests: number | null
 	onValueChange: (value: number | undefined) => void
 }
 
@@ -17,7 +17,7 @@ export function MaxRequestsInput({ allowedMaxRequests, onValueChange }: MaxReque
 				{t("settings:autoApprove.apiRequestLimit.title")}:
 			</label>
 			<FormattedTextField
-				value={allowedMaxRequests}
+				value={allowedMaxRequests ?? undefined}
 				onValueChange={onValueChange}
 				formatter={unlimitedIntegerFormatter}
 				placeholder={t("settings:autoApprove.apiRequestLimit.unlimited")}

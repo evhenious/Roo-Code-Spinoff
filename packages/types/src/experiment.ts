@@ -7,10 +7,10 @@ import type { Keys, Equals, AssertEqual } from "./type-fu.js"
  */
 
 export const experimentsSchema = z.object({
-	preventFocusDisruption: z.boolean().optional().default(true),
-	imageGeneration: z.boolean().optional().default(false),
-	runSlashCommand: z.boolean().optional().default(false),
-	customTools: z.boolean().optional().default(false),
+	preventFocusDisruption: z.boolean().default(false),
+	imageGeneration: z.boolean().default(false),
+	runSlashCommand: z.boolean().default(false),
+	customTools: z.boolean().default(false),
 })
 
 export type Experiments = z.infer<typeof experimentsSchema>

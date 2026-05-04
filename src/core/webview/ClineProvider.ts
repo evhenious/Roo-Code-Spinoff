@@ -41,6 +41,7 @@ import {
 	DEFAULT_CHECKPOINT_TIMEOUT_SECONDS,
 	getModelId,
 	isRetiredProvider,
+	globalSettingsSchema,
 } from "@roo-code/types"
 import { aggregateTaskCostsRecursive, type AggregatedCosts } from "./aggregateTaskCosts"
 import { getRooCodeApiUrl } from "@roo-code/cloud"
@@ -166,7 +167,7 @@ export class ClineProvider
 
 		ClineProvider.activeInstances.add(this)
 
-		this.updateGlobalState("codebaseIndexModels", EMBEDDING_MODEL_PROFILES)
+		this.contextProxy.setValue("codebaseIndexModels", EMBEDDING_MODEL_PROFILES)
 
 		// Initialize the per-task file-based history store.
 		// The globalState write-through is debounced separately (not on every mutation)
@@ -857,7 +858,7 @@ export class ClineProvider
 				historyItem.mode = defaultModeSlug
 			}
 
-			await this.updateGlobalState("mode", historyItem.mode)
+			await this.contextProxy.setValue("mode", historyItem.mode)
 
 			// Load the saved API config for the restored mode if it exists.
 			// Skip mode-based profile activation if historyItem.apiConfigName exists,
@@ -869,7 +870,7 @@ export class ClineProvider
 				const listApiConfig = await this.providerSettingsManager.listConfig()
 
 				// Update listApiConfigMeta first to ensure UI has latest data.
-				await this.updateGlobalState("listApiConfigMeta", listApiConfig)
+				await this.contextProxy.setValue("listApiConfigMeta", listApiConfig)
 
 				// If this mode has a saved config, use it.
 				if (savedConfigId) {
@@ -909,7 +910,7 @@ export class ClineProvider
 		if (historyItem.apiConfigName && !skipProfileRestoreFromHistory) {
 			const listApiConfig = await this.providerSettingsManager.listConfig()
 			// Keep global state/UI in sync with latest profiles for parity with mode restoration above.
-			await this.updateGlobalState("listApiConfigMeta", listApiConfig)
+			await this.contextProxy.setValue("listApiConfigMeta", listApiConfig)
 			const profile = listApiConfig.find(({ name }) => name === historyItem.apiConfigName)
 
 			if (profile?.name) {
@@ -1266,7 +1267,7 @@ export class ClineProvider
 				// Update the task history with the new mode first.
 				const taskHistoryItem =
 					this.taskHistoryStore.get(task.taskId) ??
-					(this.getGlobalState("taskHistory") ?? []).find((item) => item.id === task.taskId)
+					(this.contextProxy.getValue("taskHistory") ?? []).find((item) => item.id === task.taskId)
 
 				if (taskHistoryItem) {
 					await this.updateTaskHistory({ ...taskHistoryItem, mode: newMode })
@@ -1286,7 +1287,7 @@ export class ClineProvider
 			}
 		}
 
-		await this.updateGlobalState("mode", newMode)
+		await this.contextProxy.setValue("mode", newMode)
 
 		this.emit(RooCodeEventName.ModeChanged, newMode)
 
@@ -1302,7 +1303,7 @@ export class ClineProvider
 		const listApiConfig = await this.providerSettingsManager.listConfig()
 
 		// Update listApiConfigMeta first to ensure UI has latest data.
-		await this.updateGlobalState("listApiConfigMeta", listApiConfig)
+		await this.contextProxy.setValue("listApiConfigMeta", listApiConfig)
 
 		// If this mode has a saved config, use it.
 		if (savedConfigId) {
@@ -1328,7 +1329,7 @@ export class ClineProvider
 			}
 		} else {
 			// If no saved config for this mode, save current config as default.
-			const currentApiConfigNameAfter = this.getGlobalState("currentApiConfigName")
+			const currentApiConfigNameAfter = this.contextProxy.getValue("currentApiConfigName")
 
 			if (currentApiConfigNameAfter) {
 				const config = listApiConfig.find((c) => c.name === currentApiConfigNameAfter)
@@ -1421,8 +1422,8 @@ export class ClineProvider
 				// We should probably switch to that and verify that it works.
 				// I left the original implementation in just to be safe.
 				await Promise.all([
-					this.updateGlobalState("listApiConfigMeta", await this.providerSettingsManager.listConfig()),
-					this.updateGlobalState("currentApiConfigName", name),
+					this.contextProxy.setValue("listApiConfigMeta", await this.providerSettingsManager.listConfig()),
+					this.contextProxy.setValue("currentApiConfigName", name),
 					this.providerSettingsManager.setModeConfig(mode, id),
 					this.contextProxy.setProviderSettings(providerSettings),
 				])
@@ -1434,7 +1435,7 @@ export class ClineProvider
 				// Keep the current task's sticky provider profile in sync with the newly-activated profile.
 				await this.persistStickyProviderProfileToCurrentTask(name)
 			} else {
-				await this.updateGlobalState("listApiConfigMeta", await this.providerSettingsManager.listConfig())
+				await this.contextProxy.setValue("listApiConfigMeta", await this.providerSettingsManager.listConfig())
 			}
 
 			await this.postStateToWebview()
@@ -1485,7 +1486,7 @@ export class ClineProvider
 
 			const taskHistoryItem =
 				this.taskHistoryStore.get(task.taskId) ??
-				(this.getGlobalState("taskHistory") ?? []).find((item) => item.id === task.taskId)
+				(this.contextProxy.getValue("taskHistory") ?? []).find((item) => item.id === task.taskId)
 
 			if (taskHistoryItem) {
 				await this.updateTaskHistory({ ...taskHistoryItem, apiConfigName })
@@ -1540,7 +1541,7 @@ export class ClineProvider
 
 	async updateCustomInstructions(instructions?: string) {
 		// User may be clearing the field.
-		await this.updateGlobalState("customInstructions", instructions || undefined)
+		await this.contextProxy.setValue("customInstructions", instructions || "")
 		await this.postStateToWebview()
 	}
 
@@ -1645,7 +1646,8 @@ export class ClineProvider
 		apiConversationHistory: Anthropic.MessageParam[]
 	}> {
 		const historyItem =
-			this.taskHistoryStore.get(id) ?? (this.getGlobalState("taskHistory") ?? []).find((item) => item.id === id)
+			this.taskHistoryStore.get(id) ??
+			(this.contextProxy.getValue("taskHistory") ?? []).find((item) => item.id === id)
 
 		if (!historyItem) {
 			throw new Error("Task not found")
@@ -1987,77 +1989,12 @@ export class ClineProvider
 
 		const {
 			apiConfiguration,
-			customInstructions,
-			alwaysAllowReadOnly,
-			alwaysAllowReadOnlyOutsideWorkspace,
-			alwaysAllowWrite,
-			alwaysAllowWriteOutsideWorkspace,
-			alwaysAllowWriteProtected,
-			alwaysAllowExecute,
 			allowedCommands,
 			deniedCommands,
-			alwaysAllowMcp,
-			alwaysAllowModeSwitch,
-			alwaysAllowSubtasks,
-			allowedMaxRequests,
-			allowedMaxCost,
-			autoCondenseContext,
-			autoCondenseContextPercent,
-			soundEnabled,
-			ttsEnabled,
-			ttsSpeed,
-			enableCheckpoints,
-			checkpointTimeout,
 			taskHistory, // ??? why not used ?
-			soundVolume,
-			writeDelayMs,
-			terminalShellIntegrationTimeout,
-			terminalShellIntegrationDisabled,
-			terminalCommandDelay,
-			terminalPowershellCounter,
-			terminalOutputPreviewSize,
-			terminalZshClearEolMark,
-			terminalZshOhMy,
-			terminalZshP10k,
-			terminalZdotdir,
-			mcpEnabled,
-			currentApiConfigName,
-			listApiConfigMeta,
-			pinnedApiConfigs,
-			mode,
-			customModePrompts,
-			customSupportPrompts,
-			enhancementApiConfigId,
-			autoApprovalEnabled,
-			customModes,
-			experiments,
-			maxOpenTabsContext,
-			maxWorkspaceFiles,
-			disabledTools,
-			showRooIgnoredFiles,
-			enableSubfolderRules,
-			language,
-			maxImageFileSize,
-			maxTotalImageSize,
-			historyPreviewCollapsed,
-			reasoningBlockCollapsed,
-			enterBehavior,
-			customCondensingPrompt,
 			codebaseIndexConfig,
 			codebaseIndexModels,
-			profileThresholds,
-			alwaysAllowFollowupQuestions,
-			followupAutoApproveTimeoutMs,
-			includeDiagnosticMessages,
-			maxDiagnosticMessages,
-			includeTaskHistoryInEnhance,
-			includeCurrentTime,
-			includeCurrentCost,
-			maxGitStatusFiles,
-			imageGenerationProvider,
-			openRouterImageApiKey,
-			openRouterImageGenerationSelectedModel,
-			lockApiConfigAcrossModes,
+			...state
 		} = await this.getState()
 
 		const mergedAllowedCommands = this.mergeAllowedCommands(allowedCommands)
@@ -2066,22 +2003,10 @@ export class ClineProvider
 		const currentTask = this.getCurrentTask()
 
 		return {
+			...state,
+			//
 			version: this.context.extension?.packageJSON?.version ?? "",
 			apiConfiguration,
-			customInstructions,
-			alwaysAllowReadOnly,
-			alwaysAllowReadOnlyOutsideWorkspace,
-			alwaysAllowWrite,
-			alwaysAllowWriteOutsideWorkspace,
-			alwaysAllowWriteProtected,
-			alwaysAllowExecute,
-			alwaysAllowMcp,
-			alwaysAllowModeSwitch,
-			alwaysAllowSubtasks,
-			allowedMaxRequests,
-			allowedMaxCost,
-			autoCondenseContext,
-			autoCondenseContextPercent,
 			uriScheme: vscode.env.uriScheme,
 			currentTaskId: currentTask?.taskId,
 			currentTaskItem: currentTask?.taskId ? this.taskHistoryStore.get(currentTask.taskId) : undefined,
@@ -2089,54 +2014,13 @@ export class ClineProvider
 			currentTaskTodos: currentTask?.todoList || [],
 			messageQueue: currentTask?.messageQueueService?.messages,
 			taskHistory: this.taskHistoryStore.getAll().filter((item: HistoryItem) => item.ts && item.task),
-			soundEnabled,
-			ttsEnabled,
-			ttsSpeed,
-			enableCheckpoints,
-			checkpointTimeout,
 			allowedCommands: mergedAllowedCommands,
 			deniedCommands: mergedDeniedCommands,
-			soundVolume,
-			writeDelayMs,
-			//
-			terminalShellIntegrationTimeout,
-			terminalShellIntegrationDisabled,
-			terminalCommandDelay,
-			terminalOutputPreviewSize,
-			terminalPowershellCounter,
-			terminalZshClearEolMark,
-			terminalZshOhMy,
-			terminalZshP10k,
-			terminalZdotdir,
-			//
-			mcpEnabled,
-			currentApiConfigName,
-			listApiConfigMeta,
-			pinnedApiConfigs,
-			mode,
-			customModePrompts,
-			customSupportPrompts,
-			enhancementApiConfigId,
-			autoApprovalEnabled,
-			customModes,
-			experiments,
 			mcpServers: this.mcpHub?.getAllServers() ?? [],
-			maxOpenTabsContext,
-			maxWorkspaceFiles,
 			cwd,
-			disabledTools,
-			showRooIgnoredFiles,
-			enableSubfolderRules,
-			language,
 			renderContext: this.renderContext,
-			maxImageFileSize,
-			maxTotalImageSize,
 			settingsImportedAt: this.settingsImportedAt,
-			historyPreviewCollapsed,
-			reasoningBlockCollapsed,
-			enterBehavior,
 			cloudAuthSkipModel: this.context.globalState.get<boolean>("roo-auth-skip-model") ?? false,
-			customCondensingPrompt,
 			codebaseIndexModels,
 			codebaseIndexConfig: {
 				codebaseIndexEnabled: codebaseIndexConfig?.codebaseIndexEnabled ?? false,
@@ -2152,21 +2036,8 @@ export class ClineProvider
 				codebaseIndexBedrockProfile: codebaseIndexConfig?.codebaseIndexBedrockProfile,
 				codebaseIndexOpenRouterSpecificProvider: codebaseIndexConfig?.codebaseIndexOpenRouterSpecificProvider,
 			},
-			profileThresholds,
 			cloudApiUrl: getRooCodeApiUrl(),
-			hasOpenedModeSelector: this.getGlobalState("hasOpenedModeSelector") ?? false,
-			lockApiConfigAcrossModes,
-			alwaysAllowFollowupQuestions,
-			followupAutoApproveTimeoutMs,
-			includeDiagnosticMessages,
-			maxDiagnosticMessages,
-			includeTaskHistoryInEnhance,
-			includeCurrentTime,
-			includeCurrentCost,
-			maxGitStatusFiles,
-			imageGenerationProvider,
-			openRouterImageApiKey,
-			openRouterImageGenerationSelectedModel,
+			hasOpenedModeSelector: this.contextProxy.getValue("hasOpenedModeSelector") ?? false,
 			openAiCodexIsAuthenticated: await (async () => {
 				try {
 					const { openAiCodexOAuthManager } = await import("../../integrations/openai-codex/oauth")
@@ -2205,72 +2076,19 @@ export class ClineProvider
 			providerSettings.apiProvider = apiProvider
 		}
 
+		const globalDefaults = globalSettingsSchema.parse({}) // getting all defaults from the single source of truth
+
 		// Return the same structure as before.
 		return {
+			...globalDefaults,
+			...stateValues,
+			//
 			apiConfiguration: providerSettings,
-			customInstructions: stateValues.customInstructions ?? "",
 			apiModelId: stateValues.apiModelId,
-			alwaysAllowReadOnly: stateValues.alwaysAllowReadOnly ?? false,
-			alwaysAllowReadOnlyOutsideWorkspace: stateValues.alwaysAllowReadOnlyOutsideWorkspace ?? false,
-			alwaysAllowWrite: stateValues.alwaysAllowWrite ?? false,
-			alwaysAllowWriteOutsideWorkspace: stateValues.alwaysAllowWriteOutsideWorkspace ?? false,
-			alwaysAllowWriteProtected: stateValues.alwaysAllowWriteProtected ?? false,
-			alwaysAllowExecute: stateValues.alwaysAllowExecute ?? false,
-			alwaysAllowMcp: stateValues.alwaysAllowMcp ?? false,
-			alwaysAllowModeSwitch: stateValues.alwaysAllowModeSwitch ?? false,
-			alwaysAllowSubtasks: stateValues.alwaysAllowSubtasks ?? false,
-			alwaysAllowFollowupQuestions: stateValues.alwaysAllowFollowupQuestions ?? false,
-			followupAutoApproveTimeoutMs: stateValues.followupAutoApproveTimeoutMs ?? 60000,
-			diagnosticsEnabled: stateValues.diagnosticsEnabled ?? true,
-			allowedMaxRequests: stateValues.allowedMaxRequests ?? null,
-			allowedMaxCost: stateValues.allowedMaxCost ?? null,
-			autoCondenseContext: stateValues.autoCondenseContext ?? true,
-			autoCondenseContextPercent: stateValues.autoCondenseContextPercent ?? 100,
 			taskHistory: this.taskHistoryStore.getAll(),
-			allowedCommands: stateValues.allowedCommands ?? [],
-			deniedCommands: stateValues.deniedCommands ?? [],
-			soundEnabled: stateValues.soundEnabled ?? false,
-			ttsEnabled: stateValues.ttsEnabled ?? false,
-			ttsSpeed: stateValues.ttsSpeed ?? 1.0,
-			enableCheckpoints: stateValues.enableCheckpoints ?? true,
-			checkpointTimeout: stateValues.checkpointTimeout ?? DEFAULT_CHECKPOINT_TIMEOUT_SECONDS,
-			soundVolume: stateValues.soundVolume ?? 0.5,
-			writeDelayMs: stateValues.writeDelayMs ?? DEFAULT_WRITE_DELAY_MS,
-			terminalShellIntegrationTimeout:
-				stateValues.terminalShellIntegrationTimeout ?? Terminal.defaultShellIntegrationTimeout,
-			terminalShellIntegrationDisabled: stateValues.terminalShellIntegrationDisabled ?? true,
-			terminalCommandDelay: stateValues.terminalCommandDelay ?? 0,
-			terminalPowershellCounter: stateValues.terminalPowershellCounter ?? false,
-			terminalZshClearEolMark: stateValues.terminalZshClearEolMark ?? true,
-			terminalZshOhMy: stateValues.terminalZshOhMy ?? false,
-			terminalZshP10k: stateValues.terminalZshP10k ?? false,
-			terminalZdotdir: stateValues.terminalZdotdir ?? false,
-			terminalOutputPreviewSize: stateValues.terminalOutputPreviewSize ?? "medium",
-			mode: stateValues.mode ?? defaultModeSlug,
-			language: stateValues.language ?? formatLanguage(vscode.env.language),
-			mcpEnabled: stateValues.mcpEnabled ?? true,
 			mcpServers: this.mcpHub?.getAllServers() ?? [],
-			currentApiConfigName: stateValues.currentApiConfigName ?? "default",
-			listApiConfigMeta: stateValues.listApiConfigMeta ?? [],
-			pinnedApiConfigs: stateValues.pinnedApiConfigs ?? {},
-			modeApiConfigs: stateValues.modeApiConfigs ?? ({} as Record<Mode, string>),
-			customModePrompts: stateValues.customModePrompts ?? {},
-			customSupportPrompts: stateValues.customSupportPrompts ?? {},
-			enhancementApiConfigId: stateValues.enhancementApiConfigId,
-			experiments: stateValues.experiments ?? experimentDefault,
-			autoApprovalEnabled: stateValues.autoApprovalEnabled ?? false,
 			customModes,
-			maxOpenTabsContext: stateValues.maxOpenTabsContext ?? 20,
-			maxWorkspaceFiles: stateValues.maxWorkspaceFiles ?? 200,
-			disabledTools: stateValues.disabledTools ?? [],
-			showRooIgnoredFiles: stateValues.showRooIgnoredFiles ?? false,
-			enableSubfolderRules: stateValues.enableSubfolderRules ?? false,
-			maxImageFileSize: stateValues.maxImageFileSize ?? 5,
-			maxTotalImageSize: stateValues.maxTotalImageSize ?? 20,
-			historyPreviewCollapsed: stateValues.historyPreviewCollapsed ?? false,
-			reasoningBlockCollapsed: stateValues.reasoningBlockCollapsed ?? true,
-			enterBehavior: stateValues.enterBehavior ?? "send",
-			customCondensingPrompt: stateValues.customCondensingPrompt,
+			modeApiConfigs: stateValues.modeApiConfigs ?? ({} as Record<Mode, string>), // TODO sort this out
 			codebaseIndexModels: stateValues.codebaseIndexModels ?? EMBEDDING_MODEL_PROFILES,
 			codebaseIndexConfig: {
 				codebaseIndexEnabled: stateValues.codebaseIndexConfig?.codebaseIndexEnabled ?? false,
@@ -2291,17 +2109,7 @@ export class ClineProvider
 				codebaseIndexOpenRouterSpecificProvider:
 					stateValues.codebaseIndexConfig?.codebaseIndexOpenRouterSpecificProvider,
 			},
-			profileThresholds: stateValues.profileThresholds ?? {},
 			lockApiConfigAcrossModes: this.context.workspaceState.get("lockApiConfigAcrossModes", false),
-			includeDiagnosticMessages: stateValues.includeDiagnosticMessages ?? true,
-			maxDiagnosticMessages: stateValues.maxDiagnosticMessages ?? 50,
-			includeTaskHistoryInEnhance: stateValues.includeTaskHistoryInEnhance ?? true,
-			includeCurrentTime: stateValues.includeCurrentTime ?? true,
-			includeCurrentCost: stateValues.includeCurrentCost ?? true,
-			maxGitStatusFiles: stateValues.maxGitStatusFiles ?? 0,
-			imageGenerationProvider: stateValues.imageGenerationProvider,
-			openRouterImageApiKey: stateValues.openRouterImageApiKey,
-			openRouterImageGenerationSelectedModel: stateValues.openRouterImageGenerationSelectedModel,
 		}
 	}
 
@@ -2343,7 +2151,7 @@ export class ClineProvider
 			this.globalStateWriteThroughTimer = null
 			try {
 				const items = this.taskHistoryStore.getAll()
-				await this.updateGlobalState("taskHistory", items)
+				await this.contextProxy.setValue("taskHistory", items)
 			} catch (err) {
 				this.log(
 					`[scheduleGlobalStateWriteThrough] Failed: ${err instanceof Error ? err.message : String(err)}`,
@@ -2362,7 +2170,7 @@ export class ClineProvider
 		}
 
 		const items = this.taskHistoryStore.getAll()
-		this.updateGlobalState("taskHistory", items).catch((err) => {
+		this.contextProxy.setValue("taskHistory", items).catch((err) => {
 			this.log(`[flushGlobalStateWriteThrough] Failed: ${err instanceof Error ? err.message : String(err)}`)
 		})
 	}
@@ -2391,16 +2199,6 @@ export class ClineProvider
 	}
 
 	// ContextProxy
-
-	// @deprecated - Use `ContextProxy#setValue` instead.
-	private async updateGlobalState<K extends keyof GlobalState>(key: K, value: GlobalState[K]) {
-		await this.contextProxy.setValue(key, value)
-	}
-
-	// @deprecated - Use `ContextProxy#getValue` instead.
-	private getGlobalState<K extends keyof GlobalState>(key: K) {
-		return this.contextProxy.getValue(key)
-	}
 
 	public async setValue<K extends keyof RooCodeSettings>(key: K, value: RooCodeSettings[K]) {
 		await this.contextProxy.setValue(key, value)

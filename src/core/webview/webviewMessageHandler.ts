@@ -91,8 +91,6 @@ export const webviewMessageHandler = async (
 ) => {
 	// Utility functions provided for concise get/update of global state via contextProxy API.
 	const getGlobalState = <K extends keyof GlobalState>(key: K) => provider.contextProxy.getValue(key)
-	const updateGlobalState = async <K extends keyof GlobalState>(key: K, value: GlobalState[K]) =>
-		await provider.contextProxy.setValue(key, value)
 
 	const getCurrentCwd = () => {
 		return provider.getCurrentTask()?.cwd || provider.cwd
@@ -533,7 +531,7 @@ export const webviewMessageHandler = async (
 		case "webviewDidLaunch":
 			// Load custom modes first
 			const customModes = await provider.customModesManager.getCustomModes()
-			await updateGlobalState("customModes", customModes)
+			await provider.contextProxy.setValue("customModes", customModes)
 
 			provider.postStateToWebview()
 			provider.workspaceTracker?.initializeFilePaths() // Don't await.
@@ -581,7 +579,7 @@ export const webviewMessageHandler = async (
 						if (!(await provider.providerSettingsManager.hasConfig(currentConfigName))) {
 							// Current config name not valid, get first config in list.
 							const name = listApiConfig[0]?.name
-							await updateGlobalState("currentApiConfigName", name)
+							await provider.contextProxy.setValue("currentApiConfigName", name)
 
 							if (name) {
 								await provider.activateProviderProfile({ name })
@@ -591,7 +589,7 @@ export const webviewMessageHandler = async (
 					}
 
 					await Promise.all([
-						await updateGlobalState("listApiConfigMeta", listApiConfig),
+						await provider.contextProxy.setValue("listApiConfigMeta", listApiConfig),
 						await provider.postMessageToWebview({ type: "listApiConfig", listApiConfig }),
 					])
 				})
@@ -1193,7 +1191,7 @@ export const webviewMessageHandler = async (
 				? commands.filter((cmd) => typeof cmd === "string" && cmd.trim().length > 0)
 				: []
 
-			await updateGlobalState("allowedCommands", validCommands)
+			await provider.contextProxy.setValue("allowedCommands", validCommands)
 
 			// Also update workspace settings.
 			await vscode.workspace
@@ -1209,7 +1207,7 @@ export const webviewMessageHandler = async (
 				? commands.filter((cmd) => typeof cmd === "string" && cmd.trim().length > 0)
 				: []
 
-			await updateGlobalState("deniedCommands", validCommands)
+			await provider.contextProxy.setValue("deniedCommands", validCommands)
 
 			// Also update workspace settings.
 			await vscode.workspace
@@ -1365,13 +1363,13 @@ export const webviewMessageHandler = async (
 
 		case "ttsEnabled":
 			const ttsEnabled = message.bool ?? true
-			await updateGlobalState("ttsEnabled", ttsEnabled)
+			await provider.contextProxy.setValue("ttsEnabled", ttsEnabled)
 			setTtsEnabled(ttsEnabled)
 			await provider.postStateToWebview()
 			break
 		case "ttsSpeed":
 			const ttsSpeed = message.value ?? 1.0
-			await updateGlobalState("ttsSpeed", ttsSpeed)
+			await provider.contextProxy.setValue("ttsSpeed", ttsSpeed)
 			setTtsSpeed(ttsSpeed)
 			await provider.postStateToWebview()
 			break
@@ -1432,7 +1430,7 @@ export const webviewMessageHandler = async (
 			if (message.promptMode && message.customPrompt !== undefined) {
 				const existingPrompts = getGlobalState("customModePrompts") ?? {}
 				const updatedPrompts = { ...existingPrompts, [message.promptMode]: message.customPrompt }
-				await updateGlobalState("customModePrompts", updatedPrompts)
+				await provider.contextProxy.setValue("customModePrompts", updatedPrompts)
 				const currentState = await provider.getStateToPostToWebview()
 				const stateWithPrompts = {
 					...currentState,
@@ -1474,7 +1472,7 @@ export const webviewMessageHandler = async (
 		}
 
 		case "hasOpenedModeSelector":
-			await updateGlobalState("hasOpenedModeSelector", message.bool ?? true)
+			await provider.contextProxy.setValue("hasOpenedModeSelector", message.bool ?? true)
 			await provider.postStateToWebview()
 			break
 
@@ -1497,17 +1495,17 @@ export const webviewMessageHandler = async (
 					updatedPinned[message.text] = true
 				}
 
-				await updateGlobalState("pinnedApiConfigs", updatedPinned)
+				await provider.contextProxy.setValue("pinnedApiConfigs", updatedPinned)
 				await provider.postStateToWebview()
 			}
 			break
 		case "enhancementApiConfigId":
-			await updateGlobalState("enhancementApiConfigId", message.text)
+			await provider.contextProxy.setValue("enhancementApiConfigId", message.text || "")
 			await provider.postStateToWebview()
 			break
 
 		case "autoApprovalEnabled":
-			await updateGlobalState("autoApprovalEnabled", message.bool ?? false)
+			await provider.contextProxy.setValue("autoApprovalEnabled", message.bool ?? false)
 			await provider.postStateToWebview()
 			break
 		case "enhancePrompt":
@@ -1697,7 +1695,7 @@ export const webviewMessageHandler = async (
 				try {
 					await provider.providerSettingsManager.saveConfig(message.text, message.apiConfiguration)
 					const listApiConfig = await provider.providerSettingsManager.listConfig()
-					await updateGlobalState("listApiConfigMeta", listApiConfig)
+					await provider.contextProxy.setValue("listApiConfigMeta", listApiConfig)
 				} catch (error) {
 					provider.log(
 						`Error save api configuration: ${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}`,
@@ -1827,7 +1825,7 @@ export const webviewMessageHandler = async (
 		case "getListApiConfiguration":
 			try {
 				const listApiConfig = await provider.providerSettingsManager.listConfig()
-				await updateGlobalState("listApiConfigMeta", listApiConfig)
+				await provider.contextProxy.setValue("listApiConfigMeta", listApiConfig)
 				provider.postMessageToWebview({ type: "listApiConfig", listApiConfig })
 			} catch (error) {
 				provider.log(
@@ -1865,8 +1863,8 @@ export const webviewMessageHandler = async (
 					await provider.customModesManager.updateCustomMode(message.modeConfig.slug, message.modeConfig)
 					// Update state after saving the mode
 					const customModes = await provider.customModesManager.getCustomModes()
-					await updateGlobalState("customModes", customModes)
-					await updateGlobalState("mode", message.modeConfig.slug)
+					await provider.contextProxy.setValue("customModes", customModes)
+					await provider.contextProxy.setValue("mode", message.modeConfig.slug)
 					await provider.postStateToWebview()
 				} catch (error) {
 					// Error already shown to user by updateCustomMode
@@ -1937,7 +1935,7 @@ export const webviewMessageHandler = async (
 				}
 
 				// Switch back to default mode after deletion
-				await updateGlobalState("mode", defaultModeSlug)
+				await provider.contextProxy.setValue("mode", defaultModeSlug)
 				await provider.postStateToWebview()
 			}
 			break
@@ -2051,7 +2049,7 @@ export const webviewMessageHandler = async (
 
 				if (fileUri && fileUri[0]) {
 					// Save the directory for next time
-					await updateGlobalState("lastModeImportPath", fileUri[0].fsPath)
+					await provider.contextProxy.setValue("lastModeImportPath", fileUri[0].fsPath)
 
 					// Read the file content
 					const yamlContent = await fs.readFile(fileUri[0].fsPath, "utf-8")
@@ -2065,7 +2063,7 @@ export const webviewMessageHandler = async (
 					if (result.success) {
 						// Update state after importing
 						const customModes = await provider.customModesManager.getCustomModes()
-						await updateGlobalState("customModes", customModes)
+						await provider.contextProxy.setValue("customModes", customModes)
 						await provider.postStateToWebview()
 
 						// Send success message to webview, include the imported slug so UI can switch
@@ -2200,7 +2198,7 @@ export const webviewMessageHandler = async (
 				}
 
 				// Save global state first
-				await updateGlobalState("codebaseIndexConfig", globalStateConfig)
+				await provider.contextProxy.setValue("codebaseIndexConfig", globalStateConfig)
 
 				// Save secrets directly using context proxy
 				if (settings.codeIndexOpenAiKey !== undefined) {
@@ -2908,41 +2906,6 @@ export const webviewMessageHandler = async (
 				provider.getCurrentTask()?.messageQueueService.updateMessage(id, text, images)
 			}
 
-			break
-		}
-
-		case "dismissUpsell": {
-			if (message.upsellId) {
-				try {
-					// Get current list of dismissed upsells
-					const dismissedUpsells = getGlobalState("dismissedUpsells") || []
-
-					// Add the new upsell ID if not already present
-					let updatedList = dismissedUpsells
-					if (!dismissedUpsells.includes(message.upsellId)) {
-						updatedList = [...dismissedUpsells, message.upsellId]
-						await updateGlobalState("dismissedUpsells", updatedList)
-					}
-
-					// Send updated list back to webview (use the already computed updatedList)
-					await provider.postMessageToWebview({
-						type: "dismissedUpsells",
-						list: updatedList,
-					})
-				} catch (error) {
-					// Fail silently as per Bruno's comment - it's OK to fail silently in this case
-					provider.log(`Failed to dismiss upsell: ${error instanceof Error ? error.message : String(error)}`)
-				}
-			}
-			break
-		}
-		case "getDismissedUpsells": {
-			// Send the current list of dismissed upsells to the webview
-			const dismissedUpsells = getGlobalState("dismissedUpsells") || []
-			await provider.postMessageToWebview({
-				type: "dismissedUpsells",
-				list: dismissedUpsells,
-			})
 			break
 		}
 
