@@ -4,7 +4,6 @@ import type { GlobalSettings, RooCodeSettings } from "./global-settings.js"
 import type { ProviderSettings, ProviderSettingsEntry } from "./provider-settings.js"
 import type { HistoryItem } from "./history.js"
 import type { ModeConfig, PromptComponent } from "./mode.js"
-import type { Experiments } from "./experiment.js"
 import type { ClineMessage, QueuedMessage } from "./message.js"
 import {
 	type MarketplaceItem,
@@ -240,69 +239,11 @@ export interface OpenAiCodexRateLimitsMessage {
 }
 
 /**
- * Main state shape, shared betwen backend and webview
+ * IRuntimeState contains fields that are only relevant at runtime in the extension host.
+ * These fields are NOT persisted as user settings and should NOT be in GlobalSettings.
+ * Examples: message history, current task ID, API configuration snapshot.
  */
-export type ExtensionState = Pick<
-	GlobalSettings,
-	| "currentApiConfigName"
-	| "listApiConfigMeta"
-	| "pinnedApiConfigs"
-	| "customInstructions"
-	| "dismissedUpsells"
-	| "autoApprovalEnabled"
-	| "alwaysAllowReadOnly"
-	| "alwaysAllowReadOnlyOutsideWorkspace"
-	| "alwaysAllowWrite"
-	| "alwaysAllowWriteOutsideWorkspace"
-	| "alwaysAllowWriteProtected"
-	| "alwaysAllowMcp"
-	| "alwaysAllowModeSwitch"
-	| "alwaysAllowSubtasks"
-	| "alwaysAllowFollowupQuestions"
-	| "alwaysAllowExecute"
-	| "followupAutoApproveTimeoutMs"
-	| "allowedCommands"
-	| "deniedCommands"
-	| "allowedMaxRequests"
-	| "allowedMaxCost"
-	| "ttsEnabled"
-	| "ttsSpeed"
-	| "soundEnabled"
-	| "soundVolume"
-	| "terminalOutputPreviewSize"
-	| "terminalShellIntegrationTimeout"
-	| "terminalShellIntegrationDisabled"
-	| "terminalCommandDelay"
-	| "terminalPowershellCounter"
-	| "terminalZshClearEolMark"
-	| "terminalZshOhMy"
-	| "terminalZshP10k"
-	| "terminalZdotdir"
-	| "execaShellPath"
-	| "diagnosticsEnabled"
-	| "language"
-	| "modeApiConfigs"
-	| "customModePrompts"
-	| "customSupportPrompts"
-	| "enhancementApiConfigId"
-	| "customCondensingPrompt"
-	| "codebaseIndexConfig"
-	| "codebaseIndexModels"
-	| "profileThresholds"
-	| "includeDiagnosticMessages"
-	| "maxDiagnosticMessages"
-	| "imageGenerationProvider"
-	| "openRouterImageGenerationSelectedModel"
-	| "includeTaskHistoryInEnhance"
-	| "reasoningBlockCollapsed"
-	| "enterBehavior"
-	| "includeCurrentTime"
-	| "includeCurrentCost"
-	| "maxGitStatusFiles"
-	| "requestDelaySeconds"
-	| "showWorktreesInHomeScreen"
-	| "disabledTools"
-> & {
+export type IRuntimeState = {
 	lockApiConfigAcrossModes?: boolean
 	version: string
 	clineMessages: ClineMessage[]
@@ -314,43 +255,20 @@ export type ExtensionState = Pick<
 
 	taskHistory: HistoryItem[]
 
-	writeDelayMs: number
-
-	enableCheckpoints: boolean
-	checkpointTimeout: number // Timeout for checkpoint initialization in seconds (default: 15)
-	maxOpenTabsContext: number // Maximum number of VSCode open tabs to include in context (0-500)
-	maxWorkspaceFiles: number // Maximum number of files to include in current working directory details (0-500)
-	showRooIgnoredFiles: boolean // Whether to show .rooignore'd files in listings
-	enableSubfolderRules: boolean // Whether to load rules from subdirectories
-	maxReadFileLine?: number // Maximum line limit for read_file tool (-1 for default)
-	maxImageFileSize: number // Maximum size of image files to process in MB
-	maxTotalImageSize: number // Maximum total size for all images in a single read operation in MB
-
-	experiments: Experiments // Map of experiment IDs to their enabled state
-
-	mcpEnabled: boolean
-
-	mode: string
-	customModes: ModeConfig[]
 	toolRequirements?: Record<string, boolean> // Map of tool names to their requirements (e.g. {"apply_diff": true})
 
 	cwd?: string // Current working directory
 
 	renderContext: "sidebar" | "editor"
+	maxReadFileLine?: number // Maximum line limit for read_file tool (-1 for default)
 	settingsImportedAt?: number
-	historyPreviewCollapsed?: boolean
 
 	cloudAuthSkipModel?: boolean // Flag indicating auth completed without model selection (user should pick 3rd-party provider)
 	cloudApiUrl?: string
 
-	autoCondenseContext: boolean
-	autoCondenseContextPercent: number
 	marketplaceItems?: MarketplaceItem[]
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	marketplaceInstalledMetadata?: { project: Record<string, any>; global: Record<string, any> }
-	profileThresholds: Record<string, number>
-	hasOpenedModeSelector: boolean
-	openRouterImageApiKey?: string
 	messageQueue?: QueuedMessage[]
 	apiModelId?: string
 	mcpServers?: McpServer[]
@@ -365,6 +283,13 @@ export type ExtensionState = Pick<
 	 */
 	clineMessagesSeq?: number
 }
+
+/**
+ * ExtensionState represents the complete state shared between extension host and webview.
+ * It is composed of GlobalSettings (all persisted user settings) + IRuntimeState (runtime-only fields).
+ * This eliminates the need for Pick<GlobalSettings, ...> and manual field list maintenance.
+ */
+export type ExtensionState = GlobalSettings & IRuntimeState
 
 export interface Command {
 	name: string

@@ -9,7 +9,12 @@ import { experimentDefault } from "@roo/experiments"
 
 import { defaultModeSlug, defaultPrompts } from "@roo/modes"
 
-export interface IExtensionStoreData extends ExtensionState {
+/**
+ * IWebviewState contains fields that are only relevant in the webview UI.
+ * These fields are NOT persisted and should NOT be sent to the extension host.
+ * Examples: UI state, command list, current checkpoint, tab state.
+ */
+export interface IWebviewState {
 	commands: Command[]
 	currentCheckpoint?: string
 	didHydrateState: boolean
@@ -20,6 +25,12 @@ export interface IExtensionStoreData extends ExtensionState {
 	skills?: SkillMetadata[]
 	theme?: Record<string, string>
 }
+
+/**
+ * IExtensionStoreData represents the complete Zustand store data for the webview.
+ * It is composed of ExtensionState (all settings + runtime state) + IWebviewState (webview-only fields).
+ */
+export interface IExtensionStoreData extends ExtensionState, IWebviewState {}
 
 export const defaultEmptyExtensionState: ExtensionState = {
 	mcpServers: [],

@@ -1830,10 +1830,25 @@ export class ClineProvider
 		await this.postStateToWebview()
 	}
 
-	async postStateToWebview() {
+	async postStateToWebview(options?: {
+		omitKeys?: (keyof ExtensionState)[]
+		incrementClineMessagesSeq?: boolean // defaults to YES, INCREMENT
+	}) {
+		const { omitKeys, incrementClineMessagesSeq = true } = options || {}
 		const state = await this.getStateToPostToWebview()
-		this.clineMessagesSeq++
-		state.clineMessagesSeq = this.clineMessagesSeq
+
+		if (incrementClineMessagesSeq) {
+			this.clineMessagesSeq++
+			state.clineMessagesSeq = this.clineMessagesSeq
+		}
+
+		// removing given keys from message
+		if (omitKeys?.length) {
+			omitKeys.forEach((key) => {
+				delete state[key]
+			})
+		}
+
 		this.postMessageToWebview({ type: "state", state })
 	}
 
@@ -1846,11 +1861,7 @@ export class ClineProvider
 	 *   `taskHistoryUpdated` / `taskHistoryItemUpdated`.
 	 */
 	async postStateToWebviewWithoutTaskHistory(): Promise<void> {
-		const state = await this.getStateToPostToWebview()
-		this.clineMessagesSeq++
-		state.clineMessagesSeq = this.clineMessagesSeq
-		const { taskHistory: _omit, ...rest } = state
-		this.postMessageToWebview({ type: "state", state: rest })
+		await this.postStateToWebview({ omitKeys: ["taskHistory"] })
 	}
 
 	/**
@@ -1865,9 +1876,10 @@ export class ClineProvider
 	 *   (cloud auth, org settings, profiles, etc.) without interfering with task message streaming.
 	 */
 	async postStateToWebviewWithoutClineMessages(): Promise<void> {
-		const state = await this.getStateToPostToWebview()
-		const { clineMessages: _omitMessages, taskHistory: _omitHistory, ...rest } = state
-		this.postMessageToWebview({ type: "state", state: rest })
+		await this.postStateToWebview({
+			omitKeys: ["taskHistory", "clineMessages"],
+			incrementClineMessagesSeq: false,
+		})
 	}
 
 	/**
