@@ -2,7 +2,7 @@ import { memo, useEffect, useRef, useState } from "react"
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
 import { AlertTriangle } from "lucide-react"
 
-import type { ProviderSettingsEntry, OrganizationAllowList } from "@roo-code/types"
+import type { ProviderSettingsEntry } from "@roo-code/types"
 
 import { useAppTranslation } from "@/i18n/TranslationContext"
 import {
@@ -19,7 +19,6 @@ import {
 interface ApiConfigManagerProps {
 	currentApiConfigName?: string
 	listApiConfigMeta?: ProviderSettingsEntry[]
-	organizationAllowList?: OrganizationAllowList
 	onSelectConfig: (configName: string) => void
 	onDeleteConfig: (configName: string) => void
 	onRenameConfig: (oldName: string, newName: string) => void
@@ -29,7 +28,6 @@ interface ApiConfigManagerProps {
 const ApiConfigManager = ({
 	currentApiConfigName = "",
 	listApiConfigMeta = [],
-	organizationAllowList,
 	onSelectConfig,
 	onDeleteConfig,
 	onRenameConfig,
@@ -46,23 +44,9 @@ const ApiConfigManager = ({
 	const newProfileInputRef = useRef<any>(null)
 
 	// Check if a profile is valid based on the organization allow list
-	const isProfileValid = (profile: ProviderSettingsEntry): boolean => {
+	const isProfileValid = (_profile: ProviderSettingsEntry): boolean => {
 		// If no organization allow list or allowAll is true, all profiles are valid
-		if (!organizationAllowList || organizationAllowList.allowAll) {
-			return true
-		}
-
-		// Check if the provider is allowed
-		const provider = profile.apiProvider
-		if (!provider) return true
-
-		const providerConfig = organizationAllowList.providers[provider]
-		if (!providerConfig) {
-			return false
-		}
-
-		// If provider allows all models, profile is valid
-		return !!providerConfig.allowAll || !!(providerConfig.models && providerConfig.models.length > 0)
+		return true
 	}
 
 	const validateName = (name: string, isNewProfile: boolean): string | null => {

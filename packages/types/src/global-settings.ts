@@ -78,133 +78,137 @@ export const DEFAULT_CHECKPOINT_TIMEOUT_SECONDS = 15
  */
 
 export const globalSettingsSchema = z.object({
-	currentApiConfigName: z.string().optional(),
-	listApiConfigMeta: z.array(providerSettingsEntrySchema).optional(),
-	pinnedApiConfigs: z.record(z.string(), z.boolean()).optional(),
+	currentApiConfigName: z.string().default("default"),
+	listApiConfigMeta: z.array(providerSettingsEntrySchema).default([]),
+	pinnedApiConfigs: z.record(z.string(), z.boolean()).default({}),
 
-	customInstructions: z.string().optional(),
+	customInstructions: z.string().default(""),
 	taskHistory: z.array(historyItemSchema).optional(),
-	dismissedUpsells: z.array(z.string()).optional(),
 
 	// Image generation settings (experimental) - flattened for simplicity
-	imageGenerationProvider: z.enum(["openrouter", "roo"]).optional(),
-	openRouterImageApiKey: z.string().optional(),
-	openRouterImageGenerationSelectedModel: z.string().optional(),
+	imageGenerationProvider: z.enum(["openrouter"]).default("openrouter"),
+	openRouterImageApiKey: z.string().default(""),
+	openRouterImageGenerationSelectedModel: z.string().default(""),
 
-	customCondensingPrompt: z.string().optional(),
+	customCondensingPrompt: z.string().default(""),
 
-	autoApprovalEnabled: z.boolean().optional(),
-	alwaysAllowReadOnly: z.boolean().optional(),
-	alwaysAllowReadOnlyOutsideWorkspace: z.boolean().optional(),
-	alwaysAllowWrite: z.boolean().optional(),
-	alwaysAllowWriteOutsideWorkspace: z.boolean().optional(),
-	alwaysAllowWriteProtected: z.boolean().optional(),
-	writeDelayMs: z.number().min(0).optional(),
+	autoApprovalEnabled: z.boolean().default(false),
+	alwaysAllowReadOnly: z.boolean().default(false),
+	alwaysAllowReadOnlyOutsideWorkspace: z.boolean().default(false),
+	alwaysAllowWrite: z.boolean().default(false),
+	alwaysAllowWriteOutsideWorkspace: z.boolean().default(false),
+	alwaysAllowWriteProtected: z.boolean().default(false),
+	writeDelayMs: z.number().min(0).default(DEFAULT_WRITE_DELAY_MS),
 	requestDelaySeconds: z.number().optional(),
-	alwaysAllowMcp: z.boolean().optional(),
-	alwaysAllowModeSwitch: z.boolean().optional(),
-	alwaysAllowSubtasks: z.boolean().optional(),
-	alwaysAllowExecute: z.boolean().optional(),
-	alwaysAllowFollowupQuestions: z.boolean().optional(),
-	followupAutoApproveTimeoutMs: z.number().optional(),
-	allowedCommands: z.array(z.string()).optional(),
-	deniedCommands: z.array(z.string()).optional(),
+	alwaysAllowMcp: z.boolean().default(false),
+	alwaysAllowModeSwitch: z.boolean().default(false),
+	alwaysAllowSubtasks: z.boolean().default(false),
+	alwaysAllowExecute: z.boolean().default(false),
+	alwaysAllowFollowupQuestions: z.boolean().default(false),
+	followupAutoApproveTimeoutMs: z.number().default(60_000),
+	allowedCommands: z.array(z.string()).default([]),
+	deniedCommands: z.array(z.string()).default([]),
 	commandExecutionTimeout: z.number().optional(),
 	commandTimeoutAllowlist: z.array(z.string()).optional(),
 	preventCompletionWithOpenTodos: z.boolean().optional(),
-	allowedMaxRequests: z.number().nullish(),
-	allowedMaxCost: z.number().nullish(),
-	autoCondenseContext: z.boolean().optional(),
-	autoCondenseContextPercent: z.number().optional(),
+	allowedMaxRequests: z.number().nullable().default(null),
+	allowedMaxCost: z.number().nullable().default(null),
+	autoCondenseContext: z.boolean().default(true),
+	autoCondenseContextPercent: z.number().min(0).max(100).default(90),
 
 	/**
 	 * Whether to include current time in the environment details
 	 * @default true
 	 */
-	includeCurrentTime: z.boolean().optional(),
+	includeCurrentTime: z.boolean().default(true),
 	/**
 	 * Whether to include current cost in the environment details
 	 * @default true
 	 */
-	includeCurrentCost: z.boolean().optional(),
+	includeCurrentCost: z.boolean().default(false),
 	/**
 	 * Maximum number of git status file entries to include in the environment details.
 	 * Set to 0 to disable git status. The header (branch, commits) is always included when > 0.
 	 * @default 0
 	 */
-	maxGitStatusFiles: z.number().optional(),
+	maxGitStatusFiles: z.number().default(0),
 
 	/**
 	 * Whether to include diagnostic messages (errors, warnings) in tool outputs
 	 * @default true
 	 */
-	includeDiagnosticMessages: z.boolean().optional(),
+	includeDiagnosticMessages: z.boolean().default(true),
 	/**
 	 * Maximum number of diagnostic messages to include in tool outputs
 	 * @default 50
 	 */
-	maxDiagnosticMessages: z.number().optional(),
+	maxDiagnosticMessages: z.number().default(50),
 
-	enableCheckpoints: z.boolean().optional(),
+	enableCheckpoints: z.boolean().default(true),
 	checkpointTimeout: z
 		.number()
 		.int()
 		.min(MIN_CHECKPOINT_TIMEOUT_SECONDS)
 		.max(MAX_CHECKPOINT_TIMEOUT_SECONDS)
-		.optional(),
+		.default(DEFAULT_CHECKPOINT_TIMEOUT_SECONDS),
 
-	ttsEnabled: z.boolean().optional(),
-	ttsSpeed: z.number().optional(),
-	soundEnabled: z.boolean().optional(),
-	soundVolume: z.number().optional(),
+	ttsEnabled: z.boolean().default(false),
+	ttsSpeed: z.number().default(1.0),
+	soundEnabled: z.boolean().default(false),
+	soundVolume: z.number().default(0.5),
 
-	maxOpenTabsContext: z.number().optional(),
-	maxWorkspaceFiles: z.number().optional(),
-	showRooIgnoredFiles: z.boolean().optional(),
-	enableSubfolderRules: z.boolean().optional(),
-	maxImageFileSize: z.number().optional(),
-	maxTotalImageSize: z.number().optional(),
+	maxOpenTabsContext: z.number().default(20),
+	maxWorkspaceFiles: z.number().default(200),
+	showRooIgnoredFiles: z.boolean().default(false),
+	enableSubfolderRules: z.boolean().default(false),
+	maxImageFileSize: z.number().default(5),
+	maxTotalImageSize: z.number().default(20),
 
-	terminalOutputPreviewSize: z.enum(["small", "medium", "large"]).optional(),
-	terminalShellIntegrationTimeout: z.number().optional(),
-	terminalShellIntegrationDisabled: z.boolean().optional(),
-	terminalCommandDelay: z.number().optional(),
-	terminalPowershellCounter: z.boolean().optional(),
-	terminalZshClearEolMark: z.boolean().optional(),
-	terminalZshOhMy: z.boolean().optional(),
-	terminalZshP10k: z.boolean().optional(),
-	terminalZdotdir: z.boolean().optional(),
+	terminalOutputPreviewSize: z.enum(["small", "medium", "large"]).default("medium"),
+	terminalShellIntegrationTimeout: z.number().default(5_000),
+	terminalShellIntegrationDisabled: z.boolean().default(true),
+	terminalCommandDelay: z.number().default(0),
+	terminalPowershellCounter: z.boolean().default(false),
+	terminalZshClearEolMark: z.boolean().default(true),
+	terminalZshOhMy: z.boolean().default(false),
+	terminalZshP10k: z.boolean().default(false),
+	terminalZdotdir: z.boolean().default(false),
 	execaShellPath: z.string().optional(),
 
-	diagnosticsEnabled: z.boolean().optional(),
+	diagnosticsEnabled: z.boolean().default(true),
 
 	rateLimitSeconds: z.number().optional(),
-	experiments: experimentsSchema.optional(),
+	experiments: experimentsSchema.default({
+		customTools: false,
+		imageGeneration: false,
+		preventFocusDisruption: false,
+		runSlashCommand: false,
+	}),
 
 	codebaseIndexModels: codebaseIndexModelsSchema.optional(),
 	codebaseIndexConfig: codebaseIndexConfigSchema.optional(),
 
-	language: languagesSchema.optional(),
+	language: languagesSchema,
 
-	mcpEnabled: z.boolean().optional(),
+	mcpEnabled: z.boolean().default(true),
 
-	mode: z.string().optional(),
-	modeApiConfigs: z.record(z.string(), z.string()).optional(),
+	mode: z.string().default("ask"),
+	modeApiConfigs: z.record(z.string(), z.string()).optional(), // TODO sort this out! where it should be?
 	customModes: z.array(modeConfigSchema).optional(),
-	customModePrompts: customModePromptsSchema.optional(),
-	customSupportPrompts: customSupportPromptsSchema.optional(),
-	enhancementApiConfigId: z.string().optional(),
-	includeTaskHistoryInEnhance: z.boolean().optional(),
-	historyPreviewCollapsed: z.boolean().optional(),
-	reasoningBlockCollapsed: z.boolean().optional(),
+	customModePrompts: customModePromptsSchema.default({}),
+	customSupportPrompts: customSupportPromptsSchema.default({}),
+	enhancementApiConfigId: z.string().default(""),
+	includeTaskHistoryInEnhance: z.boolean().default(true),
+	historyPreviewCollapsed: z.boolean().default(false),
+	reasoningBlockCollapsed: z.boolean().default(true),
 	/**
 	 * Controls the keyboard behavior for sending messages in the chat input.
 	 * - "send": Enter sends message, Shift+Enter creates newline (default)
 	 * - "newline": Enter creates newline, Shift+Enter/Ctrl+Enter sends message
 	 * @default "send"
 	 */
-	enterBehavior: z.enum(["send", "newline"]).optional(),
-	profileThresholds: z.record(z.string(), z.number()).optional(),
+	enterBehavior: z.enum(["send", "newline"]).default("send"),
+	profileThresholds: z.record(z.string(), z.number()).default({}),
 	hasOpenedModeSelector: z.boolean().optional(),
 	lastModeExportPath: z.string().optional(),
 	lastModeImportPath: z.string().optional(),
@@ -227,7 +231,7 @@ export const globalSettingsSchema = z.object({
 	 * List of native tool names to globally disable.
 	 * Tools in this list will be excluded from prompt generation and rejected at execution time.
 	 */
-	disabledTools: z.array(toolNamesSchema).optional(),
+	disabledTools: z.array(toolNamesSchema).default([]),
 })
 
 export type GlobalSettings = z.infer<typeof globalSettingsSchema>
@@ -312,7 +316,7 @@ export const isGlobalStateKey = (key: string): key is Keys<GlobalState> =>
  */
 
 // Default settings when running evals (unless overridden).
-export const EVALS_SETTINGS: RooCodeSettings = {
+export const EVALS_SETTINGS: Partial<RooCodeSettings> = {
 	apiProvider: "openrouter",
 
 	pinnedApiConfigs: {},
@@ -341,7 +345,7 @@ export const EVALS_SETTINGS: RooCodeSettings = {
 	soundEnabled: false,
 	soundVolume: 0.5,
 
-	terminalShellIntegrationTimeout: 30000,
+	terminalShellIntegrationTimeout: 30_000,
 	terminalCommandDelay: 0,
 	terminalPowershellCounter: false,
 	terminalZshOhMy: true,

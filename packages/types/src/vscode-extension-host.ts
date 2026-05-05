@@ -4,7 +4,6 @@ import type { GlobalSettings, RooCodeSettings } from "./global-settings.js"
 import type { ProviderSettings, ProviderSettingsEntry } from "./provider-settings.js"
 import type { HistoryItem } from "./history.js"
 import type { ModeConfig, PromptComponent } from "./mode.js"
-import type { Experiments } from "./experiment.js"
 import type { ClineMessage, QueuedMessage } from "./message.js"
 import {
 	type MarketplaceItem,
@@ -13,7 +12,6 @@ import {
 	marketplaceItemSchema,
 } from "./marketplace.js"
 import type { TodoItem } from "./todo.js"
-import type { CloudUserInfo, CloudOrganizationMembership, OrganizationAllowList } from "./cloud.js"
 import type { SerializedCustomToolDefinition } from "./custom-tool.js"
 import type { GitCommit } from "./git.js"
 import type { McpServer } from "./mcp.js"
@@ -67,11 +65,9 @@ export interface ExtensionMessage {
 		| "commandExecutionStatus"
 		| "mcpExecutionStatus"
 		| "vsCodeSetting"
-		| "authenticatedUser"
 		| "condenseTaskContextStarted"
 		| "condenseTaskContextResponse"
 		| "singleRouterModelFetchResponse"
-		| "rooCreditBalance"
 		| "indexingStatusUpdate"
 		| "indexCleared"
 		| "codebaseIndexConfig"
@@ -84,8 +80,6 @@ export interface ExtensionMessage {
 		| "showEditMessageDialog"
 		| "commands"
 		| "insertTextIntoTextarea"
-		| "dismissedUpsells"
-		| "organizationSwitchResult"
 		| "interactionRequired"
 		| "customToolsResult"
 		| "modes"
@@ -158,11 +152,8 @@ export interface ExtensionMessage {
 	value?: any // eslint-disable-line @typescript-eslint/no-explicit-any
 	hasContent?: boolean
 	items?: MarketplaceItem[]
-	userInfo?: CloudUserInfo
-	organizationAllowList?: OrganizationAllowList
 	tab?: string
 	marketplaceItems?: MarketplaceItem[]
-	organizationMcps?: MarketplaceItem[]
 	marketplaceInstalledMetadata?: MarketplaceInstalledMetadata
 	errors?: string[]
 	rulesFolderPath?: string
@@ -172,8 +163,6 @@ export interface ExtensionMessage {
 	context?: string
 	commands?: Command[]
 	queuedMessages?: QueuedMessage[]
-	list?: string[] // For dismissedUpsells
-	organizationId?: string | null // For organizationSwitchResult
 	tools?: SerializedCustomToolDefinition[] // For customToolsResult
 	skills?: SkillMetadata[] // For skills response
 	modes?: { slug: string; name: string }[] // For modes response
@@ -242,67 +231,12 @@ export interface OpenAiCodexRateLimitsMessage {
 	error?: string
 }
 
-export type ExtensionState = Pick<
-	GlobalSettings,
-	| "currentApiConfigName"
-	| "listApiConfigMeta"
-	| "pinnedApiConfigs"
-	| "customInstructions"
-	| "dismissedUpsells"
-	| "autoApprovalEnabled"
-	| "alwaysAllowReadOnly"
-	| "alwaysAllowReadOnlyOutsideWorkspace"
-	| "alwaysAllowWrite"
-	| "alwaysAllowWriteOutsideWorkspace"
-	| "alwaysAllowWriteProtected"
-	| "alwaysAllowMcp"
-	| "alwaysAllowModeSwitch"
-	| "alwaysAllowSubtasks"
-	| "alwaysAllowFollowupQuestions"
-	| "alwaysAllowExecute"
-	| "followupAutoApproveTimeoutMs"
-	| "allowedCommands"
-	| "deniedCommands"
-	| "allowedMaxRequests"
-	| "allowedMaxCost"
-	| "ttsEnabled"
-	| "ttsSpeed"
-	| "soundEnabled"
-	| "soundVolume"
-	| "terminalOutputPreviewSize"
-	| "terminalShellIntegrationTimeout"
-	| "terminalShellIntegrationDisabled"
-	| "terminalCommandDelay"
-	| "terminalPowershellCounter"
-	| "terminalZshClearEolMark"
-	| "terminalZshOhMy"
-	| "terminalZshP10k"
-	| "terminalZdotdir"
-	| "execaShellPath"
-	| "diagnosticsEnabled"
-	| "language"
-	| "modeApiConfigs"
-	| "customModePrompts"
-	| "customSupportPrompts"
-	| "enhancementApiConfigId"
-	| "customCondensingPrompt"
-	| "codebaseIndexConfig"
-	| "codebaseIndexModels"
-	| "profileThresholds"
-	| "includeDiagnosticMessages"
-	| "maxDiagnosticMessages"
-	| "imageGenerationProvider"
-	| "openRouterImageGenerationSelectedModel"
-	| "includeTaskHistoryInEnhance"
-	| "reasoningBlockCollapsed"
-	| "enterBehavior"
-	| "includeCurrentTime"
-	| "includeCurrentCost"
-	| "maxGitStatusFiles"
-	| "requestDelaySeconds"
-	| "showWorktreesInHomeScreen"
-	| "disabledTools"
-> & {
+/**
+ * IRuntimeState contains fields that are only relevant at runtime in the extension host.
+ * These fields are NOT persisted as user settings and should NOT be in GlobalSettings.
+ * Examples: message history, current task ID, API configuration snapshot.
+ */
+export type IRuntimeState = {
 	lockApiConfigAcrossModes?: boolean
 	version: string
 	clineMessages: ClineMessage[]
@@ -314,54 +248,23 @@ export type ExtensionState = Pick<
 
 	taskHistory: HistoryItem[]
 
-	writeDelayMs: number
-
-	enableCheckpoints: boolean
-	checkpointTimeout: number // Timeout for checkpoint initialization in seconds (default: 15)
-	maxOpenTabsContext: number // Maximum number of VSCode open tabs to include in context (0-500)
-	maxWorkspaceFiles: number // Maximum number of files to include in current working directory details (0-500)
-	showRooIgnoredFiles: boolean // Whether to show .rooignore'd files in listings
-	enableSubfolderRules: boolean // Whether to load rules from subdirectories
-	maxReadFileLine?: number // Maximum line limit for read_file tool (-1 for default)
-	maxImageFileSize: number // Maximum size of image files to process in MB
-	maxTotalImageSize: number // Maximum total size for all images in a single read operation in MB
-
-	experiments: Experiments // Map of experiment IDs to their enabled state
-
-	mcpEnabled: boolean
-
-	mode: string
-	customModes: ModeConfig[]
 	toolRequirements?: Record<string, boolean> // Map of tool names to their requirements (e.g. {"apply_diff": true})
 
 	cwd?: string // Current working directory
 
 	renderContext: "sidebar" | "editor"
+	maxReadFileLine?: number // Maximum line limit for read_file tool (-1 for default)
 	settingsImportedAt?: number
-	historyPreviewCollapsed?: boolean
 
-	cloudUserInfo: CloudUserInfo | null
-	cloudIsAuthenticated: boolean
 	cloudAuthSkipModel?: boolean // Flag indicating auth completed without model selection (user should pick 3rd-party provider)
 	cloudApiUrl?: string
-	cloudOrganizations?: CloudOrganizationMembership[]
-	sharingEnabled: boolean
-	publicSharingEnabled: boolean
-	organizationAllowList: OrganizationAllowList
-	organizationSettingsVersion?: number
 
-	autoCondenseContext: boolean
-	autoCondenseContextPercent: number
 	marketplaceItems?: MarketplaceItem[]
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	marketplaceInstalledMetadata?: { project: Record<string, any>; global: Record<string, any> }
-	profileThresholds: Record<string, number>
-	hasOpenedModeSelector: boolean
-	openRouterImageApiKey?: string
 	messageQueue?: QueuedMessage[]
 	apiModelId?: string
 	mcpServers?: McpServer[]
-	taskSyncEnabled: boolean
 	openAiCodexIsAuthenticated?: boolean
 	debug?: boolean
 
@@ -373,6 +276,13 @@ export type ExtensionState = Pick<
 	 */
 	clineMessagesSeq?: number
 }
+
+/**
+ * ExtensionState represents the complete state shared between extension host and webview.
+ * It is composed of GlobalSettings (all persisted user settings) + IRuntimeState (runtime-only fields).
+ * This eliminates the need for Pick<GlobalSettings, ...> and manual field list maintenance.
+ */
+export type ExtensionState = GlobalSettings & IRuntimeState
 
 export interface Command {
 	name: string
@@ -430,8 +340,6 @@ export interface WebviewMessage {
 		| "requestOpenAiModels"
 		| "requestOllamaModels"
 		| "requestLmStudioModels"
-		| "requestRooModels"
-		| "requestRooCreditBalance"
 		| "requestVsCodeLmModels"
 		| "openImage"
 		| "saveImage"
@@ -465,7 +373,6 @@ export interface WebviewMessage {
 		| "deleteMessageConfirm"
 		| "submitEditedMessage"
 		| "editMessageConfirm"
-		| "taskSyncEnabled"
 		| "searchCommits"
 		| "setApiConfigPassword"
 		| "mode"
@@ -487,11 +394,7 @@ export interface WebviewMessage {
 		| "toggleApiConfigPin"
 		| "hasOpenedModeSelector"
 		| "lockApiConfigAcrossModes"
-		| "clearCloudAuthSkipModel"
-		| "rooCloudSignIn"
 		| "cloudLandingPageSignIn"
-		| "rooCloudSignOut"
-		| "rooCloudManualUrl"
 		| "openAiCodexSignIn"
 		| "openAiCodexSignOut"
 		| "switchOrganization"
@@ -532,8 +435,6 @@ export interface WebviewMessage {
 		| "queueMessage"
 		| "removeQueuedMessage"
 		| "editQueuedMessage"
-		| "dismissUpsell"
-		| "getDismissedUpsells"
 		| "openMarkdownPreview"
 		| "updateSettings"
 		| "allowedCommands"
@@ -569,7 +470,7 @@ export interface WebviewMessage {
 	text?: string
 	taskId?: string
 	editedMessageContent?: string
-	tab?: "settings" | "history" | "mcp" | "modes" | "chat" | "marketplace" | "cloud"
+	tab?: "settings" | "history" | "mcp" | "modes" | "chat" | "marketplace"
 	disabled?: boolean
 	context?: string
 	dataUri?: string
@@ -627,9 +528,6 @@ export interface WebviewMessage {
 	config?: Record<string, any> // Add config to the payload
 	hasContent?: boolean // For checkRulesDirectoryResult
 	checkOnly?: boolean // For deleteCustomMode check
-	upsellId?: string // For dismissUpsell
-	list?: string[] // For dismissedUpsells response
-	organizationId?: string | null // For organization switching
 	useProviderSignup?: boolean // For rooCloudSignIn to use provider signup flow
 	codeIndexSettings?: {
 		// Global state settings
@@ -663,9 +561,9 @@ export interface WebviewMessage {
 		codebaseIndexVercelAiGatewayApiKey?: string
 		codebaseIndexOpenRouterApiKey?: string
 	}
-	updatedSettings?: RooCodeSettings
+	updatedSettings?: Partial<RooCodeSettings>
 	/** Task configuration applied via `createTask()` when starting a cloud task. */
-	taskConfiguration?: RooCodeSettings
+	taskConfiguration?: Partial<RooCodeSettings>
 	// Worktree properties
 	worktreePath?: string
 	worktreeBranch?: string

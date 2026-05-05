@@ -38,7 +38,7 @@ const globalSettingsExportSchema = globalSettingsSchema.omit({
 export class ContextProxy {
 	private readonly originalContext: vscode.ExtensionContext
 
-	private stateCache: GlobalState
+	private stateCache: Partial<GlobalState>
 	private secretCache: SecretState
 	private _isInitialized = false
 
@@ -315,9 +315,9 @@ export class ContextProxy {
 	 * https://code.visualstudio.com/api/references/vscode-api#ExtensionContext.globalState
 	 */
 
-	getGlobalState<K extends GlobalStateKey>(key: K): GlobalState[K]
-	getGlobalState<K extends GlobalStateKey>(key: K, defaultValue: GlobalState[K]): GlobalState[K]
-	getGlobalState<K extends GlobalStateKey>(key: K, defaultValue?: GlobalState[K]): GlobalState[K] {
+	getGlobalState<K extends GlobalStateKey>(key: K): Partial<GlobalState>[K]
+	getGlobalState<K extends GlobalStateKey>(key: K, defaultValue: GlobalState[K]): Partial<GlobalState>[K]
+	getGlobalState<K extends GlobalStateKey>(key: K, defaultValue?: GlobalState[K]): Partial<GlobalState>[K] {
 		if (isPassThroughStateKey(key)) {
 			const value = this.originalContext.globalState.get<GlobalState[K]>(key)
 			return value === undefined || value === null ? defaultValue : value
@@ -336,7 +336,7 @@ export class ContextProxy {
 		return this.originalContext.globalState.update(key, value)
 	}
 
-	private getAllGlobalState(): GlobalState {
+	private getAllGlobalState(): Partial<GlobalState> {
 		return Object.fromEntries(GLOBAL_STATE_KEYS.map((key) => [key, this.getGlobalState(key)]))
 	}
 
@@ -435,7 +435,7 @@ export class ContextProxy {
 	 * Sanitizes provider values by resetting unknown apiProvider values.
 	 * Active and retired providers are preserved.
 	 */
-	private sanitizeProviderValues(values: RooCodeSettings): RooCodeSettings {
+	private sanitizeProviderValues(values: Partial<RooCodeSettings>): Partial<RooCodeSettings> {
 		// Remove legacy Claude Code CLI wrapper keys that may still exist in global state.
 		// These keys were used by a removed local CLI runner and are no longer part of ProviderSettings.
 		const legacyKeys = ["claudeCodePath", "claudeCodeMaxOutputTokens"] as const
@@ -502,7 +502,7 @@ export class ContextProxy {
 			: (this.getGlobalState(key as GlobalStateKey) as RooCodeSettings[K])
 	}
 
-	public getValues(): RooCodeSettings {
+	public getValues(): Partial<RooCodeSettings> {
 		const globalState = this.getAllGlobalState()
 		const secretState = this.getAllSecretState()
 
@@ -510,7 +510,7 @@ export class ContextProxy {
 		return { ...globalState, ...secretState }
 	}
 
-	public async setValues(values: RooCodeSettings) {
+	public async setValues(values: Partial<RooCodeSettings>) {
 		const entries = Object.entries(values) as [RooCodeSettingsKey, unknown][]
 		await Promise.all(entries.map(([key, value]) => this.setValue(key, value)))
 	}
@@ -519,7 +519,7 @@ export class ContextProxy {
 	 * Import / Export
 	 */
 
-	public async export(): Promise<GlobalSettings | undefined> {
+	public async export(): Promise<Partial<GlobalSettings> | undefined> {
 		try {
 			const globalSettings = globalSettingsExportSchema.parse(this.getValues())
 

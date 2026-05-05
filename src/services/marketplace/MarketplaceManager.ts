@@ -15,7 +15,6 @@ import { RemoteConfigLoader } from "./RemoteConfigLoader"
 import { SimpleInstaller } from "./SimpleInstaller"
 
 export interface MarketplaceItemsResponse {
-	organizationMcps: MarketplaceItem[]
 	marketplaceItems: MarketplaceItem[]
 	errors?: string[]
 }
@@ -37,11 +36,9 @@ export class MarketplaceManager {
 			const errors: string[] = []
 
 			const allMarketplaceItems = await this.configLoader.loadAllItems()
-			let organizationMcps: MarketplaceItem[] = []
 			let marketplaceItems = allMarketplaceItems
 
 			return {
-				organizationMcps,
 				marketplaceItems,
 				errors: errors.length > 0 ? errors : undefined,
 			}
@@ -50,7 +47,6 @@ export class MarketplaceManager {
 			console.error("Failed to load marketplace items:", error)
 
 			return {
-				organizationMcps: [],
 				marketplaceItems: [],
 				errors: [errorMessage],
 			}
@@ -59,7 +55,7 @@ export class MarketplaceManager {
 
 	async getCurrentItems(): Promise<MarketplaceItem[]> {
 		const result = await this.getMarketplaceItems()
-		return [...result.organizationMcps, ...result.marketplaceItems]
+		return [...result.marketplaceItems]
 	}
 
 	filterItems(

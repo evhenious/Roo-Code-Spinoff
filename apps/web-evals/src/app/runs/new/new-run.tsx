@@ -61,7 +61,6 @@ import {
 	FormItem,
 	FormLabel,
 	FormMessage,
-	Input,
 	Textarea,
 	Tabs,
 	TabsList,
@@ -108,7 +107,7 @@ export function NewRun() {
 	const modelSelectionsByProviderRef = useRef<Record<string, ModelSelection[]>>({})
 	const modelValueByProviderRef = useRef<Record<string, string>>({})
 
-	const [provider, setModelSource] = useState<"roo" | "openrouter" | "other">("other")
+	const [provider, setModelSource] = useState<"openrouter" | "other">("other")
 	const [executionMethod, setExecutionMethod] = useState<ExecutionMethod>("vscode")
 	const [commandExecutionTimeout, setCommandExecutionTimeout] = useState(20)
 	const [terminalShellIntegrationTimeout, setTerminalShellIntegrationTimeout] = useState(30) // seconds
@@ -276,7 +275,6 @@ export function NewRun() {
 
 	// When switching to Roo provider, restore last-used selection if current selection is empty
 	useEffect(() => {
-		if (provider !== "roo") return
 		if (selectedModelIds.length > 0) return
 
 		const last = loadRooLastModelSelection()
@@ -287,7 +285,6 @@ export function NewRun() {
 
 	// Persist last-used Roo provider model selection
 	useEffect(() => {
-		if (provider !== "roo") return
 		saveRooLastModelSelection(selectedModelIds)
 	}, [provider, selectedModelIds])
 
@@ -416,12 +413,6 @@ export function NewRun() {
 			try {
 				const baseValues = normalizeCreateRunForSubmit(values, selectedExercises, suite)
 
-				// Validate jobToken for Roo Code Cloud provider
-				if (provider === "roo" && !baseValues.jobToken?.trim()) {
-					toast.error("Roo Code Cloud Token is required")
-					return
-				}
-
 				const selectionsToLaunch: { model: string; configName?: string }[] = []
 
 				if (provider === "other") {
@@ -462,15 +453,6 @@ export function NewRun() {
 							...(runValues.settings || {}),
 							apiProvider: "openrouter",
 							openRouterModelId: selection.model,
-							commandExecutionTimeout,
-							terminalShellIntegrationTimeout: terminalShellIntegrationTimeout * 1000,
-						}
-					} else if (provider === "roo") {
-						runValues.model = selection.model
-						runValues.settings = {
-							...(runValues.settings || {}),
-							apiProvider: "roo",
-							apiModelId: selection.model,
 							commandExecutionTimeout,
 							terminalShellIntegrationTimeout: terminalShellIntegrationTimeout * 1000,
 						}
@@ -568,7 +550,7 @@ export function NewRun() {
 							<FormItem>
 								<Tabs
 									value={provider}
-									onValueChange={(value) => setModelSource(value as "roo" | "openrouter" | "other")}>
+									onValueChange={(value) => setModelSource(value as "openrouter" | "other")}>
 									<TabsList className="mb-2">
 										<TabsTrigger value="other">Import</TabsTrigger>
 										<TabsTrigger value="roo">Roo Code Cloud</TabsTrigger>
@@ -773,39 +755,6 @@ export function NewRun() {
 							</FormItem>
 						)}
 					/>
-
-					{provider === "roo" && (
-						<FormField
-							control={form.control}
-							name="jobToken"
-							render={({ field }) => (
-								<FormItem>
-									<div className="flex items-center gap-1">
-										<FormLabel>Roo Code Cloud Token</FormLabel>
-										<Tooltip>
-											<TooltipTrigger asChild>
-												<Info className="size-4 text-muted-foreground cursor-help" />
-											</TooltipTrigger>
-											<TooltipContent side="right" className="max-w-xs">
-												<p>
-													If you have access to the Roo Code Cloud repository and the
-													decryption key for the .env.* files, generate a token with:
-												</p>
-												<code className="text-xs block mt-1">
-													pnpm --filter @roo-code-cloud/auth production:create-auth-token
-													[email] [org] [ttl]
-												</code>
-											</TooltipContent>
-										</Tooltip>
-									</div>
-									<FormControl>
-										<Input type="password" placeholder="Required" {...field} />
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-					)}
 
 					<FormField
 						control={form.control}

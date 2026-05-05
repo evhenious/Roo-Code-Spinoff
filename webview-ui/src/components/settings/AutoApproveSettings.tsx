@@ -19,21 +19,21 @@ import { useAutoApprovalState } from "@/hooks/useAutoApprovalState"
 import { useAutoApprovalToggles } from "@/hooks/useAutoApprovalToggles"
 
 type AutoApproveSettingsProps = HTMLAttributes<HTMLDivElement> & {
-	alwaysAllowReadOnly?: boolean
-	alwaysAllowReadOnlyOutsideWorkspace?: boolean
-	alwaysAllowWrite?: boolean
-	alwaysAllowWriteOutsideWorkspace?: boolean
-	alwaysAllowWriteProtected?: boolean
-	alwaysAllowMcp?: boolean
-	alwaysAllowModeSwitch?: boolean
-	alwaysAllowSubtasks?: boolean
-	alwaysAllowExecute?: boolean
-	alwaysAllowFollowupQuestions?: boolean
-	followupAutoApproveTimeoutMs?: number
-	allowedCommands?: string[]
-	allowedMaxRequests?: number | undefined
-	allowedMaxCost?: number | undefined
-	deniedCommands?: string[]
+	alwaysAllowReadOnly: boolean
+	alwaysAllowReadOnlyOutsideWorkspace: boolean
+	alwaysAllowWrite: boolean
+	alwaysAllowWriteOutsideWorkspace: boolean
+	alwaysAllowWriteProtected: boolean
+	alwaysAllowMcp: boolean
+	alwaysAllowModeSwitch: boolean
+	alwaysAllowSubtasks: boolean
+	alwaysAllowExecute: boolean
+	alwaysAllowFollowupQuestions: boolean
+	followupAutoApproveTimeoutMs: number
+	allowedCommands: string[]
+	allowedMaxRequests: number | null
+	allowedMaxCost: number | null
+	deniedCommands: string[]
 	setCachedStateField: SetCachedStateField<
 		| "alwaysAllowReadOnly"
 		| "alwaysAllowReadOnlyOutsideWorkspace"
@@ -163,8 +163,8 @@ export const AutoApproveSettings = ({
 					<MaxLimitInputs
 						allowedMaxRequests={allowedMaxRequests}
 						allowedMaxCost={allowedMaxCost}
-						onMaxRequestsChange={(value) => setCachedStateField("allowedMaxRequests", value)}
-						onMaxCostChange={(value) => setCachedStateField("allowedMaxCost", value)}
+						onMaxRequestsChange={(value) => setCachedStateField("allowedMaxRequests", value ?? null)}
+						onMaxCostChange={(value) => setCachedStateField("allowedMaxCost", value ?? null)}
 					/>
 				</div>
 

@@ -99,7 +99,6 @@ const mockPostMessage = (state: any) => {
 				shouldShowAnnouncement: false,
 				allowedCommands: [],
 				alwaysAllowExecute: false,
-				cloudIsAuthenticated: false,
 				telemetrySetting: "enabled",
 				mode: "code",
 				customModes: [],

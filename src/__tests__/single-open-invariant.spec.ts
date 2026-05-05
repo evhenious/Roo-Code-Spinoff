@@ -4,6 +4,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest"
 import { ClineProvider } from "../core/webview/ClineProvider"
 import { API } from "../extension/api"
 import * as ProfileValidatorMod from "../shared/ProfileValidator"
+import { RooCodeSettings } from "@roo-code/types"
 
 // Mock Task class used by ClineProvider to avoid heavy startup
 vi.mock("../core/task/Task", () => {
@@ -45,7 +46,6 @@ describe("Single-open-task invariant", () => {
 			setValues: vi.fn(),
 			getState: vi.fn().mockResolvedValue({
 				apiConfiguration: { apiProvider: "anthropic", consecutiveMistakeLimit: 0 },
-				organizationAllowList: "*",
 				enableCheckpoints: true,
 				checkpointTimeout: 60,
 				cloudUserInfo: null,
@@ -95,7 +95,6 @@ describe("Single-open-task invariant", () => {
 				checkpointTimeout: 60,
 				experiments: {},
 				cloudUserInfo: null,
-				taskSyncEnabled: false,
 			}),
 			// Methods used by createTaskWithHistoryItem for pending edit cleanup
 			getPendingEditOperation: vi.fn().mockReturnValue(undefined),
@@ -151,7 +150,7 @@ describe("Single-open-task invariant", () => {
 		const api = new API(output, provider, undefined, false)
 
 		const taskId = await api.startNewTask({
-			configuration: {},
+			configuration: {} as RooCodeSettings,
 			text: "hello",
 			images: undefined,
 			newTab: false,

@@ -2,12 +2,10 @@ import i18next from "i18next"
 
 import {
 	type ProviderSettings,
-	type OrganizationAllowList,
 	type ProviderName,
 	type RouterModels,
 	modelIdKeysByProvider,
 	isProviderName,
-	isRetiredProvider,
 	isDynamicProvider,
 	isFauxProvider,
 	isCustomProvider,
@@ -16,21 +14,11 @@ import {
 export function validateApiConfiguration(
 	apiConfiguration: ProviderSettings,
 	routerModels?: RouterModels,
-	organizationAllowList?: OrganizationAllowList,
 ): string | undefined {
 	const keysAndIdsPresentErrorMessage = validateModelsAndKeysProvided(apiConfiguration)
 
 	if (keysAndIdsPresentErrorMessage) {
 		return keysAndIdsPresentErrorMessage
-	}
-
-	const organizationAllowListError = validateProviderAgainstOrganizationSettings(
-		apiConfiguration,
-		organizationAllowList,
-	)
-
-	if (organizationAllowListError) {
-		return organizationAllowListError.message
 	}
 
 	return validateDynamicProviderModelId(apiConfiguration, routerModels)
@@ -128,49 +116,6 @@ function validateModelsAndKeysProvided(apiConfiguration: ProviderSettings): stri
 	return undefined
 }
 
-type ValidationError = {
-	message: string
-	code: "PROVIDER_NOT_ALLOWED" | "MODEL_NOT_ALLOWED"
-}
-
-function validateProviderAgainstOrganizationSettings(
-	apiConfiguration: ProviderSettings,
-	organizationAllowList?: OrganizationAllowList,
-): ValidationError | undefined {
-	if (organizationAllowList && !organizationAllowList.allowAll) {
-		const provider = apiConfiguration.apiProvider
-
-		if (!provider) {
-			return undefined
-		}
-
-		const providerConfig = organizationAllowList.providers[provider]
-
-		if (!providerConfig) {
-			return {
-				message: i18next.t("settings:validation.providerNotAllowed", { provider }),
-				code: "PROVIDER_NOT_ALLOWED",
-			}
-		}
-
-		if (!providerConfig.allowAll) {
-			const activeProvider = isRetiredProvider(provider) ? undefined : provider
-			const modelId = activeProvider ? getModelIdForProvider(apiConfiguration, activeProvider) : undefined
-			const allowedModels = providerConfig.models || []
-
-			if (modelId && !allowedModels.includes(modelId)) {
-				return {
-					message: i18next.t("settings:validation.modelNotAllowed", {
-						model: modelId,
-						provider,
-					}),
-					code: "MODEL_NOT_ALLOWED",
-				}
-			}
-		}
-	}
-}
-
 function getModelIdForProvider(apiConfiguration: ProviderSettings, provider: ProviderName): string | undefined {
 	if (provider === "vscode-lm") {
 		return apiConfiguration.vsCodeLmModelSelector?.id
@@ -248,7 +193,6 @@ function validateDynamicProviderModelId(
 export function getModelValidationError(
 	apiConfiguration: ProviderSettings,
 	routerModels?: RouterModels,
-	organizationAllowList?: OrganizationAllowList,
 ): string | undefined {
 	const modelId = isProviderName(apiConfiguration.apiProvider)
 		? getModelIdForProvider(apiConfiguration, apiConfiguration.apiProvider)
@@ -257,12 +201,6 @@ export function getModelValidationError(
 	const configWithModelId = {
 		...apiConfiguration,
 		apiModelId: modelId || "",
-	}
-
-	const orgError = validateProviderAgainstOrganizationSettings(configWithModelId, organizationAllowList)
-
-	if (orgError && orgError.code === "MODEL_NOT_ALLOWED") {
-		return orgError.message
 	}
 
 	return validateDynamicProviderModelId(configWithModelId, routerModels)
@@ -276,22 +214,11 @@ export function getModelValidationError(
 export function validateApiConfigurationExcludingModelErrors(
 	apiConfiguration: ProviderSettings,
 	_routerModels?: RouterModels, // Keeping this for compatibility with the old function.
-	organizationAllowList?: OrganizationAllowList,
 ): string | undefined {
 	const keysAndIdsPresentErrorMessage = validateModelsAndKeysProvided(apiConfiguration)
 
 	if (keysAndIdsPresentErrorMessage) {
 		return keysAndIdsPresentErrorMessage
-	}
-
-	const organizationAllowListError = validateProviderAgainstOrganizationSettings(
-		apiConfiguration,
-		organizationAllowList,
-	)
-
-	// Only return organization errors if they're not model-specific.
-	if (organizationAllowListError && organizationAllowListError.code === "PROVIDER_NOT_ALLOWED") {
-		return organizationAllowListError.message
 	}
 
 	// Skip model validation errors as they'll be shown in the model selector.

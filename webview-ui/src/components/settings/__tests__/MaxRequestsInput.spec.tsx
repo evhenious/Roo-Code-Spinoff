@@ -24,7 +24,7 @@ describe("MaxRequestsInput", () => {
 	})
 
 	it("shows empty input when allowedMaxRequests is undefined", () => {
-		render(<MaxRequestsInput allowedMaxRequests={undefined} onValueChange={mockOnValueChange} />)
+		render(<MaxRequestsInput allowedMaxRequests={null} onValueChange={mockOnValueChange} />)
 
 		const input = screen.getByPlaceholderText("Unlimited")
 		expect(input).toHaveValue("")
@@ -38,7 +38,7 @@ describe("MaxRequestsInput", () => {
 	})
 
 	it("calls onValueChange when input changes", () => {
-		render(<MaxRequestsInput allowedMaxRequests={undefined} onValueChange={mockOnValueChange} />)
+		render(<MaxRequestsInput allowedMaxRequests={null} onValueChange={mockOnValueChange} />)
 
 		const input = screen.getByPlaceholderText("Unlimited")
 		fireEvent.input(input, { target: { value: "5" } })
@@ -56,7 +56,7 @@ describe("MaxRequestsInput", () => {
 	})
 
 	it("handles integer input correctly", () => {
-		render(<MaxRequestsInput allowedMaxRequests={undefined} onValueChange={mockOnValueChange} />)
+		render(<MaxRequestsInput allowedMaxRequests={null} onValueChange={mockOnValueChange} />)
 
 		const input = screen.getByPlaceholderText("Unlimited")
 		fireEvent.input(input, { target: { value: "25" } })
@@ -65,7 +65,7 @@ describe("MaxRequestsInput", () => {
 	})
 
 	it("rejects zero and negative values", () => {
-		render(<MaxRequestsInput allowedMaxRequests={undefined} onValueChange={mockOnValueChange} />)
+		render(<MaxRequestsInput allowedMaxRequests={null} onValueChange={mockOnValueChange} />)
 
 		const input = screen.getByPlaceholderText("Unlimited")
 
@@ -77,7 +77,7 @@ describe("MaxRequestsInput", () => {
 	})
 
 	it("filters non-numeric characters", () => {
-		render(<MaxRequestsInput allowedMaxRequests={undefined} onValueChange={mockOnValueChange} />)
+		render(<MaxRequestsInput allowedMaxRequests={null} onValueChange={mockOnValueChange} />)
 
 		const input = screen.getByPlaceholderText("Unlimited")
 		fireEvent.input(input, { target: { value: "123abc" } })

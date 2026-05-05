@@ -31,5 +31,6 @@ export const experimentDefault = Object.fromEntries(
 
 export const experiments = {
 	get: (id: ExperimentKey): ExperimentConfig | undefined => experimentConfigsMap[id],
-	isEnabled: (experimentsConfig: Experiments, id: ExperimentId) => experimentsConfig[id] ?? experimentDefault[id],
+	isEnabled: (experimentsConfig: Partial<Experiments>, id: ExperimentId) =>
+		experimentsConfig[id] ?? experimentDefault[id],
 } as const

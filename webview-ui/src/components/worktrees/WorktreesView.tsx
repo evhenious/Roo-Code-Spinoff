@@ -185,7 +185,7 @@ export const WorktreesView = () => {
 					<label
 						className="flex cursor-pointer items-center gap-2 text-sm text-vscode-descriptionForeground"
 						onClick={handleToggleShowInHomeScreen}>
-						<ToggleSwitch checked={showWorktreesInHomeScreen} onChange={handleToggleShowInHomeScreen} />
+						<ToggleSwitch checked={!!showWorktreesInHomeScreen} onChange={handleToggleShowInHomeScreen} />
 						<span>{t("worktrees:showInHomeScreen")}</span>
 					</label>
 

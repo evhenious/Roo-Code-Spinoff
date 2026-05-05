@@ -32,7 +32,7 @@ export interface TooManyToolsInfo {
  */
 export function useTooManyTools(): TooManyToolsInfo {
 	const { t } = useAppTranslation()
-	const { mcpServers } = useExtensionState()
+	const { mcpServers = [] } = useExtensionState()
 
 	const { enabledServerCount, enabledToolCount } = useMemo(() => countEnabledMcpTools(mcpServers), [mcpServers])
 

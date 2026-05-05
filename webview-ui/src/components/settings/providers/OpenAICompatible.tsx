@@ -7,7 +7,6 @@ import {
 	type ProviderSettings,
 	type ModelInfo,
 	type ReasoningEffort,
-	type OrganizationAllowList,
 	type ExtensionMessage,
 	azureOpenAiDefaultApiVersion,
 	openAiModelInfoSaneDefaults,
@@ -29,7 +28,6 @@ type OpenAICompatibleProps = {
 		value: ProviderSettings[K],
 		isUserAction?: boolean,
 	) => void
-	organizationAllowList: OrganizationAllowList
 	modelValidationError?: string
 	simplifySettings?: boolean
 }
@@ -37,7 +35,6 @@ type OpenAICompatibleProps = {
 export const OpenAICompatible = ({
 	apiConfiguration,
 	setApiConfigurationField,
-	organizationAllowList,
 	modelValidationError,
 	simplifySettings,
 }: OpenAICompatibleProps) => {
@@ -149,7 +146,6 @@ export const OpenAICompatible = ({
 				modelIdKey="openAiModelId"
 				serviceName="OpenAI"
 				serviceUrl="https://platform.openai.com"
-				organizationAllowList={organizationAllowList}
 				errorMessage={modelValidationError}
 				simplifySettings={simplifySettings}
 			/>

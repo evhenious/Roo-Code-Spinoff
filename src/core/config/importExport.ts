@@ -89,7 +89,7 @@ export async function importSettingsFromPath(
 		const previousProviderProfiles = await providerSettingsManager.export()
 
 		const rawData = JSON.parse(await fs.readFile(filePath, "utf-8"))
-		const { providerProfiles: rawProviderProfiles, globalSettings = {} } = lenientSchema.parse(rawData)
+		const { providerProfiles: rawProviderProfiles, globalSettings } = lenientSchema.parse(rawData)
 
 		// Track warnings for profiles that had issues
 		const warnings: string[] = []
@@ -153,14 +153,14 @@ export async function importSettingsFromPath(
 		}
 
 		await Promise.all(
-			(globalSettings.customModes ?? []).map((mode) => customModesManager.updateCustomMode(mode.slug, mode)),
+			(globalSettings?.customModes ?? []).map((mode) => customModesManager.updateCustomMode(mode.slug, mode)),
 		)
 
 		// OpenAI Compatible settings are now correctly stored in codebaseIndexConfig
 		// They will be imported automatically with the config - no special handling needed
 
 		await providerSettingsManager.import(providerProfiles)
-		await contextProxy.setValues(globalSettings)
+		await contextProxy.setValues(globalSettings ?? {})
 
 		// Set the current provider.
 		const currentProviderName = providerProfiles.currentApiConfigName

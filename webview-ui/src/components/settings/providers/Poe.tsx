@@ -2,13 +2,7 @@ import { useCallback, useState, useEffect, useRef } from "react"
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
 import { useQueryClient } from "@tanstack/react-query"
 
-import {
-	type ProviderSettings,
-	type OrganizationAllowList,
-	type ExtensionMessage,
-	poeDefaultModelId,
-	type ProviderName,
-} from "@roo-code/types"
+import { type ProviderSettings, type ExtensionMessage, poeDefaultModelId, type ProviderName } from "@roo-code/types"
 
 import { RouterName } from "@roo/api"
 
@@ -25,7 +19,6 @@ import { handleModelChangeSideEffects } from "../utils/providerModelConfig"
 type PoeProps = {
 	apiConfiguration: ProviderSettings
 	setApiConfigurationField: (field: keyof ProviderSettings, value: ProviderSettings[keyof ProviderSettings]) => void
-	organizationAllowList: OrganizationAllowList
 	modelValidationError?: string
 	simplifySettings?: boolean
 }
@@ -33,7 +26,6 @@ type PoeProps = {
 export const Poe = ({
 	apiConfiguration,
 	setApiConfigurationField,
-	organizationAllowList,
 	modelValidationError,
 	simplifySettings,
 }: PoeProps) => {
@@ -154,7 +146,6 @@ export const Poe = ({
 				modelIdKey="apiModelId"
 				serviceName="Poe"
 				serviceUrl="https://poe.com"
-				organizationAllowList={organizationAllowList}
 				errorMessage={modelValidationError}
 				simplifySettings={simplifySettings}
 				onModelChange={(modelId) =>

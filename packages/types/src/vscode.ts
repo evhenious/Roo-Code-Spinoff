@@ -56,7 +56,7 @@ export type CommandId = (typeof commandIds)[number]
 
 export const languages = ["en"] as const
 
-export const languagesSchema = z.enum(languages)
+export const languagesSchema = z.enum(languages).default("en")
 
 export type Language = z.infer<typeof languagesSchema>
 

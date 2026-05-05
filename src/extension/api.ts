@@ -134,20 +134,6 @@ export class API extends EventEmitter<RooCodeEvents> implements RooCodeAPI {
 						}
 
 						break
-					case TaskCommandName.GetModels:
-						try {
-							const models = await getModels({
-								provider: "roo" as const,
-								baseUrl: process.env.ROO_CODE_PROVIDER_URL ?? "https://api.roocode.com/proxy",
-								apiKey: undefined,
-							})
-
-							sendResponse(RooCodeEventName.ModelsResponse, [models])
-						} catch (error) {
-							sendResponse(RooCodeEventName.ModelsResponse, [{}])
-						}
-
-						break
 					case TaskCommandName.DeleteQueuedMessage:
 						this.log(`[API] DeleteQueuedMessage -> ${command.data}`)
 						try {
@@ -467,7 +453,7 @@ export class API extends EventEmitter<RooCodeEvents> implements RooCodeAPI {
 
 	// Global Settings Management
 
-	public getConfiguration(): RooCodeSettings {
+	public getConfiguration(): Partial<RooCodeSettings> {
 		return Object.fromEntries(
 			Object.entries(this.sidebarProvider.getValues()).filter(([key]) => !isSecretStateKey(key)),
 		)

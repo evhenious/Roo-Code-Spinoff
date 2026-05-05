@@ -5,7 +5,7 @@ import { fileURLToPath } from "url"
 import pWaitFor from "p-wait-for"
 
 import type { TaskSessionEntry } from "@roo-code/core/cli"
-import type { Command, ModelRecord, WebviewMessage } from "@roo-code/types"
+import type { Command, WebviewMessage } from "@roo-code/types"
 import { getProviderDefaultModelId } from "@roo-code/types"
 
 import { ExtensionHost, type ExtensionHostOptions } from "@/agent/index.js"
@@ -80,12 +80,6 @@ function outputModesText(modes: ModeLike[]): void {
 	}
 }
 
-function outputModelsText(models: ModelRecord): void {
-	for (const modelId of Object.keys(models).sort()) {
-		process.stdout.write(`${modelId}\n`)
-	}
-}
-
 function formatSessionTitle(task: string): string {
 	const compact = task.replace(/\s+/g, " ").trim()
 
@@ -106,14 +100,14 @@ function outputSessionsText(sessions: SessionLike[]): void {
 async function createListHost(options: BaseListOptions, hostOptions: ListHostOptions): Promise<ExtensionHost> {
 	const workspacePath = resolveWorkspacePath(options.workspace)
 	const extensionPath = resolveExtensionPath(options.extension)
-	const apiKey = options.apiKey || (await loadToken()) || getApiKeyFromEnv("roo")
+	const apiKey = options.apiKey || (await loadToken()) || getApiKeyFromEnv("openrouter")
 
 	const extensionHostOptions: ExtensionHostOptions = {
 		mode: "code",
 		reasoningEffort: undefined,
 		user: null,
-		provider: "roo",
-		model: getProviderDefaultModelId("roo"),
+		provider: "openrouter",
+		model: getProviderDefaultModelId("openrouter"),
 		apiKey,
 		workspacePath,
 		extensionPath,
@@ -215,29 +209,6 @@ function requestModes(host: ExtensionHost): Promise<ModeLike[]> {
 	})
 }
 
-function requestRooModels(host: ExtensionHost): Promise<ModelRecord> {
-	return requestFromExtension(host, "requestRooModels", (message) => {
-		if (message.type !== "singleRouterModelFetchResponse") {
-			return undefined
-		}
-
-		const values = isRecord(message.values) ? message.values : undefined
-		if (values?.provider !== "roo") {
-			return undefined
-		}
-
-		if (message.success === false) {
-			const errorMessage =
-				typeof message.error === "string" && message.error.length > 0
-					? message.error
-					: "Failed to fetch Roo models"
-			throw new Error(errorMessage)
-		}
-
-		return isRecord(values.models) ? (values.models as ModelRecord) : {}
-	})
-}
-
 async function withHostAndSignalHandlers<T>(
 	options: BaseListOptions,
 	hostOptions: ListHostOptions,
@@ -295,20 +266,7 @@ export async function listModes(options: BaseListOptions): Promise<void> {
 	})
 }
 
-export async function listModels(options: BaseListOptions): Promise<void> {
-	const format = parseFormat(options.format)
-
-	await withHostAndSignalHandlers(options, { ephemeral: true }, async (host) => {
-		const models = await requestRooModels(host)
-
-		if (format === "json") {
-			outputJson({ models })
-			return
-		}
-
-		outputModelsText(models)
-	})
-}
+export async function listModels(_options: BaseListOptions): Promise<void> {}
 
 export async function listSessions(options: BaseListOptions): Promise<void> {
 	const format = parseFormat(options.format)
