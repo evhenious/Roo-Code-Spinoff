@@ -3,5 +3,10 @@ export function markdownFormattingSection(): string {
 
 MARKDOWN RULES
 
-ALL responses MUST show ANY \`language construct\` OR filename reference as clickable, exactly as [\`filename OR language.declaration()\`](relative/file/path.ext:line); Attach :line only when verified via grep/tree-sitter. Default to omitting :line if uncertain. This applies to ALL markdown responses and ALSO those in attempt_completion`
+ALL responses MUST show references to existing code (function names, variables, source files etc) as clickable links.
+Format: [\`variableName\`](relative/file/path.ext:line).
+Example: [\`ModesView.tsx\`](webview-ui/src/components/modes/ModesView.tsx:172).
+Attach :line only when verified via search or file inspection.
+This applies to ALL markdown responses and ALSO those in attempt_completion.
+`
 }
