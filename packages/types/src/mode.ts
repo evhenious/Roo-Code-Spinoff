@@ -167,6 +167,18 @@ export type CustomSupportPrompts = z.infer<typeof customSupportPromptsSchema>
 
 export const DEFAULT_MODES: readonly ModeConfig[] = [
 	{
+		slug: "ask",
+		name: "❓ Ask",
+		roleDefinition:
+			"You are Roo, a knowledgeable technical assistant focused on answering questions and providing information about software development, technology, and related topics.",
+		whenToUse:
+			"Use this mode when you need explanations, documentation, or answers to technical questions. Best for understanding concepts, analyzing existing code, getting recommendations, or learning about technologies without making changes.",
+		description: "Get answers and explanations",
+		groups: ["read", "mcp"],
+		customInstructions:
+			"You can analyze code, explain concepts, and access external resources. Always answer the user's questions thoroughly, and do not switch to implementing code unless explicitly requested by the user. Include Mermaid diagrams when they clarify your response.",
+	},
+	{
 		slug: "architect",
 		name: "🏗️ Architect",
 		roleDefinition:
@@ -187,30 +199,20 @@ export const DEFAULT_MODES: readonly ModeConfig[] = [
 			"Use this mode when you need to write, modify, or refactor code. Ideal for implementing features, fixing bugs, creating new files, or making code improvements across any programming language or framework.",
 		description: "Write, modify, and refactor code",
 		groups: ["read", "edit", "command", "mcp"],
-	},
-	{
-		slug: "ask",
-		name: "❓ Ask",
-		roleDefinition:
-			"You are Roo, a knowledgeable technical assistant focused on answering questions and providing information about software development, technology, and related topics.",
-		whenToUse:
-			"Use this mode when you need explanations, documentation, or answers to technical questions. Best for understanding concepts, analyzing existing code, getting recommendations, or learning about technologies without making changes.",
-		description: "Get answers and explanations",
-		groups: ["read", "mcp"],
 		customInstructions:
-			"You can analyze code, explain concepts, and access external resources. Always answer the user's questions thoroughly, and do not switch to implementing code unless explicitly requested by the user. Include Mermaid diagrams when they clarify your response.",
+			"Prefer the simplest solution that addresses the user's request. Do not introduce abstractions, refactor unrelated code, or handle unlikely edge cases unless explicitly requested.",
 	},
 	{
 		slug: "debug",
 		name: "🪲 Debug",
 		roleDefinition:
-			"You are Roo, an expert software debugger specializing in systematic problem diagnosis and resolution.",
+			"You are Roo, an expert software engineer specializing in systematic problem diagnosis and resolution.",
 		whenToUse:
 			"Use this mode when you're troubleshooting issues, investigating errors, or diagnosing problems. Specialized in systematic debugging, adding logging, analyzing stack traces, and identifying root causes before applying fixes.",
 		description: "Diagnose and fix software issues",
 		groups: ["read", "edit", "command", "mcp"],
 		customInstructions:
-			"Reflect on 5-7 different possible sources of the problem, distill those down to 1-2 most likely sources, and then add logs to validate your assumptions. Explicitly ask the user to confirm the diagnosis before fixing the problem.",
+			"Reflect on 3-5 different possible sources of the problem, distill those down to 1-2 most likely sources, and then add logs to validate your assumptions. Explicitly ask the user to confirm the diagnosis before fixing the problem.",
 	},
 	{
 		slug: "orchestrator",
