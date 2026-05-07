@@ -451,11 +451,6 @@ export async function addCustomInstructions(
 		sections.push(`Global Instructions:\n${globalCustomInstructions.trim()}`)
 	}
 
-	// Add mode-specific instructions after
-	if (typeof modeCustomInstructions === "string" && modeCustomInstructions.trim()) {
-		sections.push(`Mode-specific Instructions:\n${modeCustomInstructions.trim()}`)
-	}
-
 	// Add rules - include both mode-specific and generic rules if they exist
 	const rules = []
 
@@ -489,6 +484,11 @@ export async function addCustomInstructions(
 
 	if (rules.length > 0) {
 		sections.push(`Rules:\n\n${rules.join("\n\n")}`)
+	}
+
+	// Add mode-specific instructions the last part - preferrable by LLM
+	if (typeof modeCustomInstructions === "string" && modeCustomInstructions.trim()) {
+		sections.push(`====\n\nMODE-SPECIFIC INSTRUCTIONS:\n\n${modeCustomInstructions.trim()}`)
 	}
 
 	const joinedSections = sections.join("\n\n")

@@ -62,7 +62,11 @@ async function generatePrompt(
 
 	// Get the full mode config to ensure we have the role definition (used for groups, etc.)
 	const modeConfig = getModeBySlug(mode, customModeConfigs) || modes.find((m) => m.slug === mode) || modes[0]
-	const { roleDefinition, baseInstructions } = getModeSelection(mode, promptComponent, customModeConfigs)
+	const {
+		roleDefinition,
+		baseInstructions,
+		isCodeEditor = false,
+	} = getModeSelection(mode, promptComponent, customModeConfigs)
 
 	// Check if MCP functionality should be included
 	const hasMcpGroup = modeConfig.groups.some((groupEntry) => getGroupName(groupEntry) === "mcp")
@@ -75,34 +79,32 @@ async function generatePrompt(
 	const effectiveProtocol = "native"
 
 	const [modesSection, skillsSection] = await Promise.all([
-		getModesSection(context),
+		getModesSection(context, mode),
 		getSkillsSection(skillsManager, mode as string),
 	])
 
 	// Tools catalog is not included in the system prompt.
 	const toolsCatalog = ""
 
-	const basePrompt = `${roleDefinition}
+	// SYSTEM prompt constructed here
+	const basePrompt = `====
 
-${markdownFormattingSection()}
-
-${getSharedToolUseSection()}${toolsCatalog}
-
+IDENTITY
+${roleDefinition}
+${getRulesSection(cwd, isCodeEditor, settings)}
 ${getCapabilitiesSection(cwd, shouldIncludeMcp ? mcpHub : undefined)}
-
-${modesSection}
+${getSharedToolUseSection()}${toolsCatalog}
+${markdownFormattingSection()}
 ${skillsSection ? `\n${skillsSection}` : ""}
-${getRulesSection(cwd, settings)}
-
 ${getSystemInfoSection(cwd)}
-
 ${getObjectiveSection()}
-
+${modesSection}
 ${await addCustomInstructions(baseInstructions, globalCustomInstructions || "", cwd, mode, {
 	language: language ?? formatLanguage(vscode.env.language),
 	rooIgnoreInstructions,
 	settings,
-})}`
+})}
+`
 
 	return basePrompt
 }

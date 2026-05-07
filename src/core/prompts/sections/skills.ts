@@ -47,51 +47,25 @@ ${skillsXml}
 </available_skills>
 
 <mandatory_skill_check>
-REQUIRED PRECONDITION
+REQUIRED PRECONDITION — Before producing ANY user-facing response, perform a skill applicability check.
 
-Before producing ANY user-facing response, you MUST perform a skill applicability check.
-
-Step 1: Skill Evaluation
-- Evaluate the user's request against ALL available skill <description> entries in <available_skills>.
-- Determine whether at least one skill clearly and unambiguously applies.
+Step 1: Evaluate the user's request against ALL skill <description> entries. Determine whether at least one skill clearly applies.
 
 Step 2: Branching Decision
+- <if_skill_applies> Select EXACTLY ONE skill (prefer the most specific). Load it via the skill tool, read its instructions fully, then follow them precisely. Do NOT respond outside the skill-defined flow.
+- <if_no_skill_applies> Do NOT load any SKILL.md files. Proceed normally with available data.
 
-<if_skill_applies>
-- Select EXACTLY ONE skill.
-- Prefer the most specific skill when multiple skills match.
-- Use the skill tool to load the skill by name.
-- Load the skill's instructions fully into context BEFORE continuing.
-- Follow the skill instructions precisely.
-- Do NOT respond outside the skill-defined flow.
-</if_skill_applies>
-
-<if_no_skill_applies>
-- Do NOT load any SKILL.md files.
-- Proceed with your response based on data and information you currently have.
-</if_no_skill_applies>
-
-CONSTRAINTS:
-- Do NOT load every skill up front.
-- Load skills ONLY after a skill is selected.
-- Do NOT reload a skill whose instructions already appear in this conversation.
-- Do NOT skip this check.
-- FAILURE to perform this check is an error.
+CONSTRAINTS: Do NOT load every skill up front. Load skills ONLY after selection. Do NOT reload a skill already loaded. Do NOT skip this check. FAILURE to perform this check is an error.
 </mandatory_skill_check>
 
 <linked_file_handling>
-- When a skill is loaded, ONLY the skill instructions are present.
-- Files linked from the skill are NOT loaded automatically.
-- You MUST explicitly decide to read a linked file based on task relevance.
-- Do NOT assume the contents of linked files unless they have been explicitly read.
-- Prefer reading the minimum necessary linked files.
-- Avoid reading multiple linked files unless required.
+- When a skill is loaded, ONLY its instructions are present. Linked files are NOT loaded automatically.
+- Explicitly decide to read linked files based on task relevance. Prefer minimum necessary files.
 - Treat linked files as progressive disclosure, not mandatory context.
 </linked_file_handling>
 
 <context_notes>
 - The skill list is already filtered for the current mode: "${currentMode}".
 - Mode-specific skills may come from skills-${currentMode}/ with project-level overrides taking precedence over global skills.
-</context_notes>
-`
+</context_notes>`
 }
