@@ -4,7 +4,7 @@
 	"description": "%extension.description%",
 	"publisher": "RooVeterinaryInc",
 	"version": "3.53.0",
-	"distilled": "1.1",
+	"distilled": "1.2",
 	"icon": "assets/icons/icon.png",
 	"galleryBanner": {
 		"color": "#617A91",
