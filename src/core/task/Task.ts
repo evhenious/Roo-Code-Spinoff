@@ -374,10 +374,12 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 		this.userMessageContent.push(toolResult)
 		return true
 	}
+
 	didRejectTool = false
 	didAlreadyUseTool = false
 	didToolFailInCurrentTurn = false
 	didCompleteReadingStream = false
+
 	private _started = false
 	// No streaming parser is required.
 	assistantMessageParser?: undefined
@@ -555,13 +557,18 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 
 		if (startTask) {
 			this._started = true
+
 			if (task || images) {
 				this.startTask(task, images)
-			} else if (historyItem) {
-				this.resumeTaskFromHistory()
-			} else {
-				throw new Error("Either historyItem or task/images must be provided")
+				return
 			}
+
+			if (historyItem) {
+				this.resumeTaskFromHistory()
+				return
+			}
+
+			throw new Error("Either historyItem or task/images must be provided")
 		}
 	}
 
@@ -829,6 +836,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 	static create(options: TaskOptions): [Task, Promise<void>] {
 		const instance = new Task({ ...options, startTask: false })
 		const { images, task, historyItem } = options
+
 		let promise
 
 		if (images || task) {

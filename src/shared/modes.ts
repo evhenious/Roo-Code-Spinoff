@@ -118,6 +118,7 @@ export function getModeSelection(mode: string, promptComponent?: PromptComponent
 			roleDefinition: customMode.roleDefinition || "",
 			baseInstructions: customMode.customInstructions || "",
 			description: customMode.description || "",
+			isCodeEditor: customMode.isCodeEditor || false,
 		}
 	}
 
@@ -128,6 +129,7 @@ export function getModeSelection(mode: string, promptComponent?: PromptComponent
 		roleDefinition: promptComponent?.roleDefinition || baseMode.roleDefinition || "",
 		baseInstructions: promptComponent?.customInstructions || baseMode.customInstructions || "",
 		description: baseMode.description || "",
+		isCodeEditor: baseMode.isCodeEditor || false,
 	}
 }
 

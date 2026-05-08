@@ -102,6 +102,8 @@ export const modeConfigSchema = z.object({
 	customInstructions: z.string().optional(),
 	groups: groupEntryArraySchema,
 	source: z.enum(["global", "project"]).optional(),
+	hidden: z.boolean().optional(), // whether to add mode to system prompt or not
+	isCodeEditor: z.boolean().optional(),
 })
 
 export type ModeConfig = z.infer<typeof modeConfigSchema>
@@ -201,6 +203,7 @@ export const DEFAULT_MODES: readonly ModeConfig[] = [
 		groups: ["read", "edit", "command", "mcp"],
 		customInstructions:
 			"Prefer the simplest solution that addresses the user's request. Do not introduce abstractions, refactor unrelated code, or handle unlikely edge cases unless explicitly requested.",
+		isCodeEditor: true,
 	},
 	{
 		slug: "debug",
@@ -213,6 +216,7 @@ export const DEFAULT_MODES: readonly ModeConfig[] = [
 		groups: ["read", "edit", "command", "mcp"],
 		customInstructions:
 			"Reflect on 3-5 different possible sources of the problem, distill those down to 1-2 most likely sources, and then add logs to validate your assumptions. Explicitly ask the user to confirm the diagnosis before fixing the problem.",
+		isCodeEditor: true,
 	},
 	{
 		slug: "orchestrator",

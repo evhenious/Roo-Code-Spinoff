@@ -117,7 +117,7 @@ export const FollowUpSuggest = ({
 						<Button
 							variant="outline"
 							className={cn(
-								"text-left whitespace-normal break-words w-full h-auto px-3 py-2 justify-start pr-8 rounded-xl",
+								"text-left whitespace-normal break-words w-full h-auto px-3 py-2 justify-start pr-8 rounded-lg border-amber-500/70 hover:bg-orange-100",
 								isFirstSuggestion &&
 									countdown !== null &&
 									!suggestionSelected &&
@@ -142,7 +142,7 @@ export const FollowUpSuggest = ({
 						)}
 						<StandardTooltip content={t("chat:followUpSuggest.copyToInput")}>
 							<div
-								className="absolute cursor-pointer top-1.5 right-1.5 opacity-0 group-hover:opacity-100 transition-opacity bg-vscode-input-background px-0.5 rounded"
+								className="absolute cursor-pointer top-1.5 right-1.5 opacity-0 group-hover:opacity-100 transition-opacity bg-orange-100 px-0.5 rounded"
 								onClick={(e) => {
 									e.stopPropagation()
 									// Cancel the auto-approve timer when edit button is clicked
