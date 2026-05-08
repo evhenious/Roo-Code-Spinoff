@@ -12,6 +12,6 @@ Attach :line only after confirming the line number via read_file or search_files
 If you cannot confirm the exact line number, use the best available path without a line number e.g., [\`variableName\`](relative/file/path.ext).
 
 This rule applies to ALL markdown responses, and CRITICALLY important for:
- - saving \`*.md\` file with task plan or documentation
+ - creating or editing \`*.md\` files containing task plans or documentation
  - attempt_completion tool call.`
 }
