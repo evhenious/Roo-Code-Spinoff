@@ -1,4 +1,1 @@
-export const addToContextTemplate = `\${filePath}:\${startLine}-\${endLine}
-\`\`\`
-\${selectedText}
-\`\`\``
+export const addToContextTemplate = `@/\${filePath}:\${startLine}-\${endLine}`

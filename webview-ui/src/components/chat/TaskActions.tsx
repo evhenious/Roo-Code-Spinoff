@@ -43,6 +43,7 @@ export const TaskActions = ({ item, buttonsDisabled }: TaskActionsProps) => {
 						icon={Trash2Icon}
 						title={t("chat:task.delete")}
 						disabled={buttonsDisabled}
+						className="hover:text-red-500"
 						onClick={(e) => {
 							e.stopPropagation()
 							if (e.shiftKey) {
@@ -63,6 +64,7 @@ export const TaskActions = ({ item, buttonsDisabled }: TaskActionsProps) => {
 			)}
 			{debug && item?.id && (
 				<>
+					<span className="px-5 text-gray-300">|</span>
 					<LucideIconButton
 						icon={FileJsonIcon}
 						title={t("chat:task.openApiHistory")}
