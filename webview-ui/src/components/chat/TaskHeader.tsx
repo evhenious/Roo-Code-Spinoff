@@ -116,8 +116,8 @@ const TaskHeader = ({
 				className={cn(
 					"px-3 pt-2.5 pb-2 flex flex-col gap-1.5 relative z-1 cursor-pointer",
 					"bg-vscode-input-background hover:bg-vscode-input-background/90",
-					"text-vscode-foreground/80 hover:text-vscode-foreground",
-					"shadow-lg shadow-vscode-sideBar-background/50 rounded-xl",
+					"text-vscode-foreground/95 hover:text-vscode-foreground",
+					"shadow-md shadow-vscode-foreground/30 rounded-md",
 					hasTodos && "border-b-0",
 				)}
 				onClick={(e) => {
@@ -157,24 +157,20 @@ const TaskHeader = ({
 							)}
 						</div>
 						<div className="flex items-center shrink-0 ml-2" onClick={(e) => e.stopPropagation()}>
-							<StandardTooltip content={isTaskExpanded ? t("chat:task.collapse") : t("chat:task.expand")}>
-								<button
-									onClick={() => setIsTaskExpanded(!isTaskExpanded)}
-									className="shrink-0 min-h-[20px] min-w-[20px] p-[2px] cursor-pointer opacity-85 hover:opacity-100 bg-transparent border-none rounded-md">
-									{isTaskExpanded ? (
-										<ChevronUp size={16} />
-									) : (
-										<ChevronDown size={16} className="opacity-0 group-hover:opacity-100" />
-									)}
-								</button>
-							</StandardTooltip>
+							<button
+								onClick={() => setIsTaskExpanded(!isTaskExpanded)}
+								className="shrink-0 min-h-[20px] min-w-[20px] p-[2px] cursor-pointer bg-transparent border-none rounded-sm">
+								{isTaskExpanded ? (
+									<ChevronUp size={16} />
+								) : (
+									<ChevronDown size={16} className="opacity-85 group-hover:opacity-100" />
+								)}
+							</button>
 						</div>
 					</div>
 				</div>
 				{!isTaskExpanded && contextWindow > 0 && (
-					<div
-						className="flex items-center justify-between text-sm text-muted-foreground/70"
-						onClick={(e) => e.stopPropagation()}>
+					<div className="flex items-center justify-between text-sm" onClick={(e) => e.stopPropagation()}>
 						<div className="flex items-center gap-2">
 							<StandardTooltip
 								content={(() => {

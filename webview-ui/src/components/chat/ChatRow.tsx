@@ -1220,7 +1220,7 @@ export const ChatRowContent = ({
 									"ml-6 border rounded-sm overflow-hidden whitespace-pre-wrap",
 									isEditing
 										? "bg-vscode-editor-background text-vscode-editor-foreground"
-										: "cursor-text p-1 bg-vscode-editor-foreground/70 text-vscode-editor-background",
+										: "cursor-text p-1 bg-vscode-input-background/80 text-vscode-foreground shadow-md shadow-vscode-foreground/40 rounded-md",
 								)}>
 								{isEditing ? (
 									<div className="flex flex-col gap-2">

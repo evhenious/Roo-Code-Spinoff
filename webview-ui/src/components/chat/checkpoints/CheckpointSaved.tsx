@@ -87,7 +87,7 @@ export const CheckpointSaved = ({
 			className="flex items-center justify-between gap-2 pt-2 pb-3"
 			onMouseEnter={handleMouseEnter}
 			onMouseLeave={handleMouseLeave}>
-			<div className="flex items-center gap-2 text-blue-400 whitespace-nowrap">
+			<div className="flex items-center gap-2 text-orange-600/80 whitespace-nowrap">
 				<GitCommitVertical className="w-4" />
 				<span className="font-semibold">{t("chat:checkpoint.regular")}</span>
 				{isCurrent && <span className="text-muted">({t("chat:checkpoint.current")})</span>}
@@ -96,7 +96,7 @@ export const CheckpointSaved = ({
 				className="block w-full h-[2px] mt-[2px] text-xs"
 				style={{
 					backgroundImage:
-						"linear-gradient(90deg, rgba(0, 188, 255, .65), rgba(0, 188, 255, .65) 80%, rgba(0, 188, 255, 0) 99%)",
+						"linear-gradient(90deg,rgba(218, 109, 71, .60) 1%, rgba(218, 109, 71, .60) 51%, rgba(199, 100, 51, .30) 100%)",
 				}}></span>
 
 			{/* Keep menu visible while hovering, popover is open, or briefly after close to prevent jump */}
