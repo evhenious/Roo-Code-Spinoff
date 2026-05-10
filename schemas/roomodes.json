@@ -80,6 +80,12 @@
 							"required": ["relativePath"],
 							"additionalProperties": false
 						}
+					},
+					"hidden": {
+						"type": "boolean"
+					},
+					"isCodeEditor": {
+						"type": "boolean"
 					}
 				},
 				"required": ["slug", "name", "roleDefinition", "groups"],

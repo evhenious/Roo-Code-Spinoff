@@ -199,7 +199,9 @@ describe("importExport", () => {
 				modeApiConfigs: {},
 			})
 
-			expect(mockContextProxy.setValues).toHaveBeenCalledWith({ mode: "code", autoApprovalEnabled: true })
+			expect(mockContextProxy.setValues).toHaveBeenCalledWith(
+				expect.objectContaining({ mode: "code", autoApprovalEnabled: true }),
+			)
 			expect(mockContextProxy.setValue).toHaveBeenCalledWith("currentApiConfigName", "test")
 
 			expect(mockContextProxy.setValue).toHaveBeenCalledWith("listApiConfigMeta", [
@@ -275,7 +277,7 @@ describe("importExport", () => {
 				modeApiConfigs: {},
 			})
 
-			// Should call setValues with an empty object since globalSettings is missing.
+			// Should call setValues with all schema defaults since globalSettings is missing.
 			expect(mockContextProxy.setValues).toHaveBeenCalledWith({})
 			expect(mockContextProxy.setValue).toHaveBeenCalledWith("currentApiConfigName", "test")
 			expect(mockContextProxy.setValue).toHaveBeenCalledWith("listApiConfigMeta", [
@@ -434,7 +436,9 @@ describe("importExport", () => {
 				},
 				modeApiConfigs: {},
 			})
-			expect(mockContextProxy.setValues).toHaveBeenCalledWith({ mode: "code", autoApprovalEnabled: true })
+			expect(mockContextProxy.setValues).toHaveBeenCalledWith(
+				expect.objectContaining({ mode: "code", autoApprovalEnabled: true }),
+			)
 		})
 
 		it("should return error when provided file path does not exist", async () => {
@@ -531,7 +535,9 @@ describe("importExport", () => {
 				modeApiConfigs: {},
 			})
 
-			expect(mockContextProxy.setValues).toHaveBeenCalledWith({ mode: "code", autoApprovalEnabled: true })
+			expect(mockContextProxy.setValues).toHaveBeenCalledWith(
+				expect.objectContaining({ mode: "code", autoApprovalEnabled: true }),
+			)
 			expect(mockContextProxy.setValue).toHaveBeenCalledWith("currentApiConfigName", "openai-provider")
 		})
 

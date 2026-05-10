@@ -139,6 +139,7 @@ describe("ClineProvider - API Handler Rebuild Guard", () => {
 	let mockPostMessage: any
 	let defaultTaskOptions: TaskOptions
 	let buildApiHandlerMock: any
+	let contextProxySpy: any
 
 	beforeEach(async () => {
 		vi.clearAllMocks()
@@ -200,6 +201,12 @@ describe("ClineProvider - API Handler Rebuild Guard", () => {
 			}),
 			onDidChangeVisibility: vi.fn().mockImplementation(() => ({ dispose: vi.fn() })),
 		} as unknown as vscode.WebviewView
+
+		// Mock getValues to return the expected state so that getState() returns mode: "code"
+		contextProxySpy = vi.spyOn(ContextProxy.prototype, "getValues").mockReturnValue({
+			mode: "code",
+			currentApiConfigName: "test-config",
+		})
 
 		provider = new ClineProvider(mockContext, mockOutputChannel, "sidebar", new ContextProxy(mockContext))
 
