@@ -5,7 +5,7 @@ export function getSharedToolUseSection(): string {
 TOOL USE RULES
 
 You have access to a set of tools that are executed upon the user's approval. Use the provider-native tool-calling mechanism.
-CRITICAL: you MUST call at least one tool per response. If the task is complete or purely informational, use \`attempt_completion\` or \`ask_followup_question\` tool.
+**CRITICALLY IMPORTANT**: you MUST call at least one tool per response. If the task is complete, use attempt_completion tool.
 
 # Guidelines
 
