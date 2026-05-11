@@ -51,6 +51,14 @@ export class TaskWorkflow {
 
 		const stack: StackItem[] = [{ userContent, includeFileDetails, retryAttempt: 0 }]
 
+		// Cache API protocol once per iteration (optimization)
+		const modelId = getModelId(this.deps.apiConfiguration)
+		const apiProvider = this.deps.apiConfiguration.apiProvider
+		const apiProtocol = getApiProtocol(
+			apiProvider && !isRetiredProvider(apiProvider) ? apiProvider : undefined,
+			modelId,
+		)
+
 		while (stack.length > 0) {
 			const currentItem = stack.pop()!
 			const currentUserContent = currentItem.userContent
@@ -85,14 +93,6 @@ export class TaskWorkflow {
 				this.deps.setConsecutiveMistakeCount(0)
 			}
 
-			// Determine API protocol based on provider and model
-			const modelId = getModelId(this.deps.apiConfiguration)
-			const apiProvider = this.deps.apiConfiguration.apiProvider
-			const apiProtocol = getApiProtocol(
-				apiProvider && !isRetiredProvider(apiProvider) ? apiProvider : undefined,
-				modelId,
-			)
-
 			// Respect user-configured provider rate limiting BEFORE we emit api_req_started.
 			await this.deps.backoffAndAnnounce(currentItem.retryAttempt ?? 0, null)
 			this.deps.setLastGlobalApiRequestTime(performance.now())
@@ -109,6 +109,7 @@ export class TaskWorkflow {
 			const state = await this.deps.getState()
 
 			const showRooIgnoredFiles = state?.showRooIgnoredFiles ?? false
+			// Fetch state once per iteration (optimization - consolidate state fetches)
 			const includeDiagnosticMessages = state?.includeDiagnosticMessages ?? true
 			const maxDiagnosticMessages = state?.maxDiagnosticMessages ?? 50
 			const currentMode = state?.mode ?? "default"
@@ -126,10 +127,10 @@ export class TaskWorkflow {
 			})
 
 			// Switch mode if specified in a slash command's frontmatter
+			const customModes = state?.customModes
 			if (slashCommandMode) {
-				const st = await this.deps.getState()
 				const { getModeBySlug } = await import("../../shared/modes")
-				const targetMode = getModeBySlug(slashCommandMode, st?.customModes)
+				const targetMode = getModeBySlug(slashCommandMode, customModes)
 				if (targetMode) {
 					await provider.handleModeSwitch(slashCommandMode)
 				}
@@ -176,8 +177,12 @@ export class TaskWorkflow {
 			await this.deps.postStateToWebviewWithoutTaskHistory()
 
 			try {
+				// Track if assistant message was saved for conditional state update
+				let assistantMessageSaved = false
+
 				let cacheWriteTokens = 0
 				let cacheReadTokens = 0
+
 				let inputTokens = 0
 				let outputTokens = 0
 				let totalCost: number | undefined
@@ -189,13 +194,7 @@ export class TaskWorkflow {
 
 					const existingData = JSON.parse(this.deps.clineMessages[lastApiReqIndex].text || "{}")
 
-					const modelId = getModelId(this.deps.apiConfiguration)
-					const apiProvider = this.deps.apiConfiguration.apiProvider
-					const apiProtocol = getApiProtocol(
-						apiProvider && !isRetiredProvider(apiProvider) ? apiProvider : undefined,
-						modelId,
-					)
-
+					// Use cached apiProtocol from outer scope (optimization)
 					const modelInfo = this.deps.cachedStreamingModel?.info
 					const costResult =
 						modelInfo && apiProtocol === "anthropic"
@@ -704,7 +703,11 @@ export class TaskWorkflow {
 				}
 
 				await this.deps.saveClineMessages()
-				await this.deps.postStateToWebviewWithoutTaskHistory()
+
+				// Conditional state update - only update if assistant message was saved (optimization)
+				if (assistantMessageSaved) {
+					await this.deps.postStateToWebviewWithoutTaskHistory()
+				}
 
 				// CRITICAL: Save assistant message to API history BEFORE executing tools.
 				const hasTextContent = assistantMessage.length > 0
@@ -819,6 +822,7 @@ export class TaskWorkflow {
 				}
 
 				if (partialBlocks.length > 0) {
+					assistantMessageSaved = true
 					await this.deps.presentAssistantMessage()
 				}
 
