@@ -829,16 +829,16 @@ export class TaskWorkflow {
 				if (hasTextContent || hasToolUses) {
 					await pWaitFor(() => this.deps.userMessageContentReady)
 
-					const didToolUse = this.deps.assistantMessageContent.some(
+					const usedSomeTools = this.deps.assistantMessageContent.some(
 						(block) => block.type === "tool_use" || block.type === "mcp_tool_use",
 					)
 
-					if (!didToolUse) {
+					if (!usedSomeTools) {
 						this.deps.setConsecutiveNoToolUseCount(this.deps.consecutiveNoToolUseCount + 1)
+						this.deps.setConsecutiveMistakeCount(this.deps.consecutiveMistakeCount + 1)
 
-						if (this.deps.consecutiveNoToolUseCount >= 1) {
+						if (this.deps.consecutiveNoToolUseCount >= 3) {
 							await this.deps.say("error", "MODEL_NO_TOOLS_USED")
-							this.deps.setConsecutiveMistakeCount(this.deps.consecutiveMistakeCount + 1)
 						}
 
 						this.deps.setUserMessageContent([
@@ -858,6 +858,7 @@ export class TaskWorkflow {
 							includeFileDetails: false,
 						})
 
+						// ensures the UI can render messages and the extension remains responsive while the loop continues processing.
 						await new Promise((resolve) => setImmediate(resolve))
 					}
 

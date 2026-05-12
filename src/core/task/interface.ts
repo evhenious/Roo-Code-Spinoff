@@ -123,6 +123,10 @@ export interface TaskWorkflowPausedState {
  * ─── Methods ────────────────────────────────────────────────────────────────
  */
 export interface TaskWorkflowMethods {
+	/**
+	 * Show something in user-faced UI and wait for confirmation (__task BLOCKING__).
+	 * Request user input/decision
+	 */
 	ask(
 		type: ClineAsk,
 		text?: string,
@@ -134,6 +138,10 @@ export interface TaskWorkflowMethods {
 		text?: string
 		images?: string[]
 	}>
+	/**
+	 * Show something in user-faced UI (__non-blocking__).
+	 * Display messages, notifications, errors
+	 */
 	say(
 		type: ClineSay,
 		text?: string,

@@ -1727,6 +1727,13 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 		this.processQueuedMessages()
 	}
 
+	/**
+	 * This method is used for rendering user-facing UI messages. LLM model does not get any of these.
+	 * The model only receives:
+	 * - System prompt (via API handler)
+	 * - User messages (via userMessageContent array)
+	 * - API conversation history (via addToApiConversationHistory)
+	 */
 	async say(
 		type: ClineSay,
 		text?: string,
