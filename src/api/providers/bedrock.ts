@@ -30,7 +30,6 @@ import {
 	BEDROCK_GLOBAL_INFERENCE_MODEL_IDS,
 	BEDROCK_SERVICE_TIER_MODEL_IDS,
 	BEDROCK_SERVICE_TIER_PRICING,
-	ApiProviderError,
 } from "@roo-code/types"
 
 import { ApiStream } from "../transform/stream"

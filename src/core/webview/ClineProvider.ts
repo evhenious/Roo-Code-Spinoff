@@ -1,78 +1,66 @@
+import EventEmitter from "events"
+import fs from "fs/promises"
 import os from "os"
 import * as path from "path"
-import fs from "fs/promises"
-import EventEmitter from "events"
 
 import { Anthropic } from "@anthropic-ai/sdk"
-import delay from "delay"
 import axios from "axios"
+import delay from "delay"
 import pWaitFor from "p-wait-for"
 import * as vscode from "vscode"
 
 import {
-	type TaskProviderLike,
-	type TaskProviderEvents,
-	type GlobalState,
-	type ProviderName,
-	type ProviderSettings,
-	type RooCodeSettings,
-	type ProviderSettingsEntry,
-	type StaticAppProperties,
-	type DynamicAppProperties,
-	type TaskProperties,
-	type GitProperties,
-	type TelemetryProperties,
+	DEFAULT_MODES,
+	RooCodeEventName,
+	getModelId,
+	globalSettingsSchema,
+	isRetiredProvider,
+	openRouterDefaultModelId,
+	requestyDefaultModelId,
 	type CodeActionId,
 	type CodeActionName,
-	type TerminalActionId,
-	type TerminalActionPromptType,
-	type HistoryItem,
 	type CreateTaskOptions,
-	type TokenUsage,
-	type ToolUsage,
 	type ExtensionMessage,
 	type ExtensionState,
+	type HistoryItem,
 	type MarketplaceInstalledMetadata,
-	RooCodeEventName,
-	requestyDefaultModelId,
-	openRouterDefaultModelId,
-	DEFAULT_WRITE_DELAY_MS,
-	DEFAULT_MODES,
-	DEFAULT_CHECKPOINT_TIMEOUT_SECONDS,
-	getModelId,
-	isRetiredProvider,
-	globalSettingsSchema,
+	type ProviderName,
+	type ProviderSettings,
+	type ProviderSettingsEntry,
+	type RooCodeSettings,
+	type TaskProviderEvents,
+	type TaskProviderLike,
+	type TerminalActionId,
+	type TerminalActionPromptType,
+	type TokenUsage,
+	type ToolUsage,
 } from "@roo-code/types"
 import { aggregateTaskCostsRecursive, type AggregatedCosts } from "./aggregateTaskCosts"
-import { getRooCodeApiUrl } from "@roo-code/cloud"
 
-import { Package } from "../../shared/package"
-import { supportPrompt } from "../../shared/support-prompt"
+import { EMBEDDING_MODEL_PROFILES } from "../../shared/embeddingModels"
 import { GlobalFileNames } from "../../shared/globalFileNames"
 import { Mode, defaultModeSlug, getModeBySlug } from "../../shared/modes"
-import { experimentDefault } from "../../shared/experiments"
-import { formatLanguage } from "../../shared/language"
+import { Package } from "../../shared/package"
+import { supportPrompt } from "../../shared/support-prompt"
 import { WebviewMessage } from "../../shared/WebviewMessage"
-import { EMBEDDING_MODEL_PROFILES } from "../../shared/embeddingModels"
 
-import { Terminal } from "../../integrations/terminal/Terminal"
 import { downloadTask, getTaskFileName } from "../../integrations/misc/export-markdown"
-import { resolveDefaultSaveUri, saveLastExportPath } from "../../utils/export"
+import { Terminal } from "../../integrations/terminal/Terminal"
 import { getTheme } from "../../integrations/theme/getTheme"
 import WorkspaceTracker from "../../integrations/workspace/WorkspaceTracker"
+import { resolveDefaultSaveUri, saveLastExportPath } from "../../utils/export"
 
+import { ShadowCheckpointService } from "../../services/checkpoints/ShadowCheckpointService"
+import type { IndexProgressUpdate } from "../../services/code-index/interfaces/manager"
+import { CodeIndexManager } from "../../services/code-index/manager"
+import { MarketplaceManager } from "../../services/marketplace"
 import { McpHub } from "../../services/mcp/McpHub"
 import { McpServerManager } from "../../services/mcp/McpServerManager"
-import { MarketplaceManager } from "../../services/marketplace"
-import { ShadowCheckpointService } from "../../services/checkpoints/ShadowCheckpointService"
-import { CodeIndexManager } from "../../services/code-index/manager"
-import type { IndexProgressUpdate } from "../../services/code-index/interfaces/manager"
 import { SkillsManager } from "../../services/skills/SkillsManager"
 
 import { fileExistsAtPath } from "../../utils/fs"
-import { setTtsEnabled, setTtsSpeed } from "../../utils/tts"
-import { getWorkspaceGitInfo } from "../../utils/git"
 import { getWorkspacePath } from "../../utils/path"
+import { setTtsEnabled, setTtsSpeed } from "../../utils/tts"
 
 import { setPanel } from "../../activate/registerCommands"
 
@@ -81,18 +69,18 @@ import { t } from "../../i18n"
 import { forceFullModelDetailsLoad, hasLoadedFullDetails } from "../../api/providers/fetchers/lmstudio"
 
 import { ContextProxy } from "../config/ContextProxy"
-import { ProviderSettingsManager } from "../config/ProviderSettingsManager"
 import { CustomModesManager } from "../config/CustomModesManager"
+import { ProviderSettingsManager } from "../config/ProviderSettingsManager"
 import { Task } from "../task/Task"
 
-import { webviewMessageHandler } from "./webviewMessageHandler"
 import type { ClineMessage, TodoItem } from "@roo-code/types"
-import { readApiMessages, saveApiMessages, saveTaskMessages, TaskHistoryStore } from "../task-persistence"
+import { REQUESTY_BASE_URL } from "../../shared/utils/requesty"
+import { TaskHistoryStore, readApiMessages, saveApiMessages, saveTaskMessages } from "../task-persistence"
 import { readTaskMessages } from "../task-persistence/taskMessages"
+import { validateAndFixToolResultIds } from "../task/validateToolResultIds"
 import { getNonce } from "./getNonce"
 import { getUri } from "./getUri"
-import { REQUESTY_BASE_URL } from "../../shared/utils/requesty"
-import { validateAndFixToolResultIds } from "../task/validateToolResultIds"
+import { webviewMessageHandler } from "./webviewMessageHandler"
 
 /**
  * https://github.com/microsoft/vscode-webview-ui-toolkit-samples/blob/main/default/weather-webview/src/providers/WeatherViewProvider.ts
@@ -2036,7 +2024,7 @@ export class ClineProvider
 				codebaseIndexBedrockProfile: codebaseIndexConfig?.codebaseIndexBedrockProfile,
 				codebaseIndexOpenRouterSpecificProvider: codebaseIndexConfig?.codebaseIndexOpenRouterSpecificProvider,
 			},
-			cloudApiUrl: getRooCodeApiUrl(),
+			cloudApiUrl: "https://app.roocode.com", // TODO cleanup
 			hasOpenedModeSelector: this.contextProxy.getValue("hasOpenedModeSelector") ?? false,
 			openAiCodexIsAuthenticated: await (async () => {
 				try {
@@ -2612,82 +2600,6 @@ export class ClineProvider
 
 	public async setProviderProfile(name: string): Promise<void> {
 		await this.activateProviderProfile({ name })
-	}
-
-	// Telemetry
-
-	private _appProperties?: StaticAppProperties
-	private _gitProperties?: GitProperties
-
-	private getAppProperties(): StaticAppProperties {
-		if (!this._appProperties) {
-			const packageJSON = this.context.extension?.packageJSON
-
-			this._appProperties = {
-				appName: packageJSON?.name ?? Package.name,
-				appVersion: packageJSON?.version ?? Package.version,
-				vscodeVersion: vscode.version,
-				platform: process.platform,
-				editorName: vscode.env.appName,
-			}
-		}
-
-		return this._appProperties
-	}
-
-	public get appProperties(): StaticAppProperties {
-		return this._appProperties ?? this.getAppProperties()
-	}
-
-	private async getTaskProperties(): Promise<DynamicAppProperties & TaskProperties> {
-		const { language, mode, apiConfiguration } = await this.getState()
-
-		const task = this.getCurrentTask()
-		const todoList = task?.todoList
-		let todos: { total: number; completed: number; inProgress: number; pending: number } | undefined
-
-		if (todoList && todoList.length > 0) {
-			todos = {
-				total: todoList.length,
-				completed: todoList.filter((todo) => todo.status === "completed").length,
-				inProgress: todoList.filter((todo) => todo.status === "in_progress").length,
-				pending: todoList.filter((todo) => todo.status === "pending").length,
-			}
-		}
-
-		const apiProvider = apiConfiguration?.apiProvider
-
-		return {
-			language,
-			mode,
-			taskId: task?.taskId,
-			parentTaskId: task?.parentTaskId,
-			apiProvider: apiProvider && !isRetiredProvider(apiProvider) ? apiProvider : undefined,
-			modelId: task?.api?.getModel().id,
-			diffStrategy: task?.diffStrategy?.getName(),
-			isSubtask: task ? !!task.parentTaskId : undefined,
-			...(todos && { todos }),
-		}
-	}
-
-	private async getGitProperties(): Promise<GitProperties> {
-		if (!this._gitProperties) {
-			this._gitProperties = await getWorkspaceGitInfo()
-		}
-
-		return this._gitProperties
-	}
-
-	public get gitProperties(): GitProperties | undefined {
-		return this._gitProperties
-	}
-
-	public async getTelemetryProperties(): Promise<TelemetryProperties> {
-		return {
-			...this.getAppProperties(),
-			...(await this.getTaskProperties()),
-			...(await this.getGitProperties()),
-		}
 	}
 
 	public get cwd() {

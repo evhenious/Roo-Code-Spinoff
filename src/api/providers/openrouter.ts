@@ -4,7 +4,6 @@ import { z } from "zod"
 
 import {
 	type ModelRecord,
-	ApiProviderError,
 	openRouterDefaultModelId,
 	openRouterDefaultModelInfo,
 	OPENROUTER_DEFAULT_PROVIDER_NAME,

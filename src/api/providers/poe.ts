@@ -8,7 +8,6 @@ import {
 	getPoeDefaultModelInfo,
 	type ModelInfo,
 	type ReasoningEffortExtended,
-	ApiProviderError,
 } from "@roo-code/types"
 
 import { shouldUseReasoningBudget, shouldUseReasoningEffort, type ApiHandlerOptions } from "../../shared/api"

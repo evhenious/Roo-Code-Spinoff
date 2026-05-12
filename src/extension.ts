@@ -173,15 +173,6 @@ export async function activate(context: vscode.ExtensionContext) {
 	// Initialize the provider *before* the Roo Code Cloud service.
 	const provider = new ClineProvider(context, outputChannel, "sidebar", contextProxy)
 
-	// Trigger initial cloud profile sync now that CloudService is ready.
-	// try {
-	// 	await provider.initializeCloudProfileSyncWhenReady()
-	// } catch (error) {
-	// 	outputChannel.appendLine(
-	// 		`[CloudService] Failed to initialize cloud profile sync: ${error instanceof Error ? error.message : String(error)}`,
-	// 	)
-	// }
-
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider(ClineProvider.sideBarId, provider, {
 			webviewOptions: { retainContextWhenHidden: true },
@@ -256,7 +247,6 @@ export async function activate(context: vscode.ExtensionContext) {
 		const watchPaths = [
 			{ path: context.extensionPath, pattern: "**/*.ts" },
 			{ path: path.join(context.extensionPath, "../packages/types"), pattern: "**/*.ts" },
-			{ path: path.join(context.extensionPath, "node_modules/@roo-code/cloud"), pattern: "**/*" },
 		]
 
 		console.log(

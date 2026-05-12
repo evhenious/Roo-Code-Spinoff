@@ -9,7 +9,6 @@ import {
 	OpenAiCodexModelId,
 	openAiCodexModels,
 	type ReasoningEffortExtended,
-	ApiProviderError,
 } from "@roo-code/types"
 
 import { Package } from "../../shared/package"
