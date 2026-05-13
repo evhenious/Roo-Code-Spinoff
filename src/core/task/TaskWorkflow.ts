@@ -480,118 +480,14 @@ export class TaskWorkflow {
 						}
 					}
 
-					// Create a copy of current token values to avoid race conditions
-					const currentTokens = {
-						input: inputTokens,
-						output: outputTokens,
-						cacheWrite: cacheWriteTokens,
-						cacheRead: cacheReadTokens,
-						total: totalCost,
+					// update gathered token counts
+					updateApiReqMsg()
+					await this.deps.saveClineMessages()
+
+					const apiReqMessage = this.deps.clineMessages[lastApiReqIndex]
+					if (apiReqMessage) {
+						await this.deps.updateClineMessage(apiReqMessage)
 					}
-
-					const drainStreamInBackgroundToFindAllUsage = async (apiReqIndex: number) => {
-						const timeoutMs = DEFAULT_USAGE_COLLECTION_TIMEOUT_MS
-						const startTime = performance.now()
-
-						let bgInputTokens = currentTokens.input
-						let bgOutputTokens = currentTokens.output
-						let bgCacheWriteTokens = currentTokens.cacheWrite
-						let bgCacheReadTokens = currentTokens.cacheRead
-						let bgTotalCost = currentTokens.total
-
-						const captureUsageData = async (
-							tokens: {
-								input: number
-								output: number
-								cacheWrite: number
-								cacheRead: number
-								total?: number
-							},
-							messageIndex: number = apiReqIndex,
-						) => {
-							if (
-								tokens.input > 0 ||
-								tokens.output > 0 ||
-								tokens.cacheWrite > 0 ||
-								tokens.cacheRead > 0
-							) {
-								inputTokens = tokens.input
-								outputTokens = tokens.output
-								cacheWriteTokens = tokens.cacheWrite
-								cacheReadTokens = tokens.cacheRead
-								totalCost = tokens.total
-
-								updateApiReqMsg()
-								await this.deps.saveClineMessages()
-
-								const apiReqMessage = this.deps.clineMessages[messageIndex]
-								if (apiReqMessage) {
-									await this.deps.updateClineMessage(apiReqMessage)
-								}
-							}
-						}
-
-						try {
-							let usageFound = false
-							let chunkCount = 0
-
-							while (!item.done) {
-								if (performance.now() - startTime > timeoutMs) {
-									console.warn(`[Background Usage Collection] Timed out after ${timeoutMs}ms`)
-									if (iterator.return) {
-										await iterator.return(undefined)
-									}
-									break
-								}
-
-								const chunk = item.value
-								item = await iterator.next()
-								chunkCount++
-
-								if (chunk && chunk.type === "usage") {
-									usageFound = true
-									bgInputTokens += chunk.inputTokens
-									bgOutputTokens += chunk.outputTokens
-									bgCacheWriteTokens += chunk.cacheWriteTokens ?? 0
-									bgCacheReadTokens += chunk.cacheReadTokens ?? 0
-									bgTotalCost = chunk.totalCost
-								}
-							}
-
-							if (usageFound) {
-								await captureUsageData(
-									{
-										input: bgInputTokens,
-										output: bgOutputTokens,
-										cacheWrite: bgCacheWriteTokens,
-										cacheRead: bgCacheReadTokens,
-										total: bgTotalCost,
-									},
-									lastApiReqIndex,
-								)
-							} else {
-								console.warn(
-									`[Background Usage Collection] Suspicious: request ${apiReqIndex} is complete, but no usage info was found.`,
-								)
-							}
-						} catch (error) {
-							console.error("Error draining stream for usage data:", error)
-							await captureUsageData(
-								{
-									input: bgInputTokens,
-									output: bgOutputTokens,
-									cacheWrite: bgCacheWriteTokens,
-									cacheRead: bgCacheReadTokens,
-									total: bgTotalCost,
-								},
-								lastApiReqIndex,
-							)
-						}
-					}
-
-					drainStreamInBackgroundToFindAllUsage(lastApiReqIndex).catch((error) => {
-						console.error("Background usage collection failed:", error)
-					})
 				} catch (error) {
 					if (!this.deps.abandoned) {
 						const cancelReason: ClineApiReqCancelReason = this.deps.abort
