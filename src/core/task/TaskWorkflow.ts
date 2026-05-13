@@ -495,6 +495,14 @@ export class TaskWorkflow {
 						let bgCacheReadTokens = currentTokens.cacheRead
 						let bgTotalCost = currentTokens.total
 
+						const getCurrentUsageData = () => ({
+							input: bgInputTokens,
+							output: bgOutputTokens,
+							cacheWrite: bgCacheWriteTokens,
+							cacheRead: bgCacheReadTokens,
+							total: bgTotalCost,
+						})
+
 						const captureUsageData = async (
 							tokens: {
 								input: number
@@ -554,23 +562,8 @@ export class TaskWorkflow {
 								}
 							}
 
-							if (
-								usageFound ||
-								bgInputTokens > 0 ||
-								bgOutputTokens > 0 ||
-								bgCacheWriteTokens > 0 ||
-								bgCacheReadTokens > 0
-							) {
-								await captureUsageData(
-									{
-										input: bgInputTokens,
-										output: bgOutputTokens,
-										cacheWrite: bgCacheWriteTokens,
-										cacheRead: bgCacheReadTokens,
-										total: bgTotalCost,
-									},
-									lastApiReqIndex,
-								)
+							if (usageFound) {
+								await captureUsageData(getCurrentUsageData(), lastApiReqIndex)
 							} else {
 								console.warn(
 									`[Background Usage Collection] Suspicious: request ${apiReqIndex} is complete, but no usage info was found.`,
@@ -578,23 +571,7 @@ export class TaskWorkflow {
 							}
 						} catch (error) {
 							console.error("Error draining stream for usage data:", error)
-							if (
-								bgInputTokens > 0 ||
-								bgOutputTokens > 0 ||
-								bgCacheWriteTokens > 0 ||
-								bgCacheReadTokens > 0
-							) {
-								await captureUsageData(
-									{
-										input: bgInputTokens,
-										output: bgOutputTokens,
-										cacheWrite: bgCacheWriteTokens,
-										cacheRead: bgCacheReadTokens,
-										total: bgTotalCost,
-									},
-									lastApiReqIndex,
-								)
-							}
+							await captureUsageData(getCurrentUsageData(), lastApiReqIndex)
 						}
 					}
 
