@@ -18,7 +18,6 @@ export interface IWebviewState {
 	filePaths: string[]
 	openedTabs: Array<{ label: string; isActive: boolean; path?: string }>
 	routerModels?: RouterModels
-	showWelcome: boolean
 	skills?: SkillMetadata[]
 	theme?: Record<string, string>
 }
