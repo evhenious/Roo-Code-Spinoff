@@ -321,6 +321,7 @@ export class TaskWorkflow {
 								await this.deps.say("reasoning", formattedReasoning, undefined, true)
 								break
 							}
+
 							case "usage":
 								inputTokens += chunk.inputTokens
 								outputTokens += chunk.outputTokens
@@ -328,11 +329,13 @@ export class TaskWorkflow {
 								cacheReadTokens += chunk.cacheReadTokens ?? 0
 								totalCost = chunk.totalCost
 								break
+
 							case "grounding":
 								if (chunk.sources && chunk.sources.length > 0) {
 									pendingGroundingSources.push(...chunk.sources)
 								}
 								break
+
 							case "tool_call_partial": {
 								const events = NativeToolCallParser.processRawChunk({
 									index: chunk.index,
@@ -434,6 +437,7 @@ export class TaskWorkflow {
 								await this.deps.presentAssistantMessage()
 								break
 							}
+
 							case "text": {
 								assistantMessage += chunk.text
 
@@ -495,14 +499,6 @@ export class TaskWorkflow {
 						let bgCacheReadTokens = currentTokens.cacheRead
 						let bgTotalCost = currentTokens.total
 
-						const getCurrentUsageData = () => ({
-							input: bgInputTokens,
-							output: bgOutputTokens,
-							cacheWrite: bgCacheWriteTokens,
-							cacheRead: bgCacheReadTokens,
-							total: bgTotalCost,
-						})
-
 						const captureUsageData = async (
 							tokens: {
 								input: number
@@ -563,7 +559,16 @@ export class TaskWorkflow {
 							}
 
 							if (usageFound) {
-								await captureUsageData(getCurrentUsageData(), lastApiReqIndex)
+								await captureUsageData(
+									{
+										input: bgInputTokens,
+										output: bgOutputTokens,
+										cacheWrite: bgCacheWriteTokens,
+										cacheRead: bgCacheReadTokens,
+										total: bgTotalCost,
+									},
+									lastApiReqIndex,
+								)
 							} else {
 								console.warn(
 									`[Background Usage Collection] Suspicious: request ${apiReqIndex} is complete, but no usage info was found.`,
@@ -571,7 +576,16 @@ export class TaskWorkflow {
 							}
 						} catch (error) {
 							console.error("Error draining stream for usage data:", error)
-							await captureUsageData(getCurrentUsageData(), lastApiReqIndex)
+							await captureUsageData(
+								{
+									input: bgInputTokens,
+									output: bgOutputTokens,
+									cacheWrite: bgCacheWriteTokens,
+									cacheRead: bgCacheReadTokens,
+									total: bgTotalCost,
+								},
+								lastApiReqIndex,
+							)
 						}
 					}
 
