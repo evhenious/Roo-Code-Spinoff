@@ -201,7 +201,7 @@ describe("getEnvironmentDetails", () => {
 		const result = await getEnvironmentDetails(mockCline as Task, true)
 
 		expect(listFiles).not.toHaveBeenCalled()
-		expect(result).toContain("Workspace files context disabled")
+		expect(result).toContain("(Use the list_files tool to explore workspace files if needed.)")
 		expect(formatResponse.formatFilesList).not.toHaveBeenCalled()
 	})
 

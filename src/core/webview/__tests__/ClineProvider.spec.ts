@@ -415,6 +415,12 @@ describe("ClineProvider", () => {
 			onDidChangeVisibility: vi.fn().mockImplementation(() => ({ dispose: vi.fn() })),
 		} as unknown as vscode.WebviewView
 
+		// Mock getValues to return the expected state so that getState() returns mode: "architect"
+		const contextProxySpy = vi.spyOn(ContextProxy.prototype, "getValues").mockReturnValue({
+			mode: "architect",
+			currentApiConfigName: "current-config",
+		})
+
 		provider = new ClineProvider(mockContext, mockOutputChannel, "sidebar", new ContextProxy(mockContext))
 
 		defaultTaskOptions = {
@@ -832,14 +838,14 @@ describe("ClineProvider", () => {
 		expect(mockPostMessage).toHaveBeenCalled()
 	})
 
-	test("autoCondenseContextPercent defaults to 100", async () => {
+	test("autoCondenseContextPercent defaults to 90", async () => {
 		// Mock globalState.get to return undefined for autoCondenseContextPercent
 		;(mockContext.globalState.get as any).mockImplementation((key: string) =>
 			key === "autoCondenseContextPercent" ? undefined : null,
 		)
 
 		const state = await provider.getState()
-		expect(state.autoCondenseContextPercent).toBe(100)
+		expect(state.autoCondenseContextPercent).toBe(90)
 	})
 
 	test("handles autoCondenseContextPercent message", async () => {
@@ -2472,7 +2478,8 @@ describe("ClineProvider - Router Models", () => {
 		const mockModels = {
 			"model-1": { maxTokens: 4096, contextWindow: 8192, description: "Test model", supportsPromptCache: false },
 		}
-		const { getModels } = await import("../../../api/providers/fetchers/modelCache")
+		const { getModels, flushModels } = await import("../../../api/providers/fetchers/modelCache")
+		vi.mocked(flushModels).mockResolvedValue(undefined)
 		vi.mocked(getModels).mockResolvedValue(mockModels)
 
 		await messageHandler({

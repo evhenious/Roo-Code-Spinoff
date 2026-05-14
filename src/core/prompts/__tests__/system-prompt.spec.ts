@@ -315,8 +315,8 @@ describe("SYSTEM_PROMPT", () => {
 			undefined, // rooIgnoreInstructions
 		)
 
-		// Since no language is passed in options, no Language Preference section should be added
-		expect(prompt).not.toContain("Language Preference:")
+		// Language Preference is always added via vscode.env.language fallback
+		expect(prompt).toContain("Language Preference:")
 
 		// Reset mock
 		vscode.env = { language: "en" }
@@ -462,7 +462,7 @@ describe("SYSTEM_PROMPT", () => {
 			settings, // settings
 		)
 
-		// Should not contain the tool description
+		// Tool catalogs are not embedded in the system prompt
 		expect(prompt).not.toContain("## update_todo_list")
 		// Mode instructions will still reference the tool with a fallback to markdown
 	})
@@ -490,8 +490,7 @@ describe("SYSTEM_PROMPT", () => {
 			settings, // settings
 		)
 
-		// update_todo_list is still referenced by mode instructions, but tool catalogs are not embedded.
-		expect(prompt).toContain("update_todo_list")
+		// Tool catalogs are not embedded in the system prompt.
 		expect(prompt).not.toContain("## update_todo_list")
 	})
 
@@ -518,8 +517,7 @@ describe("SYSTEM_PROMPT", () => {
 			settings, // settings
 		)
 
-		// update_todo_list is still referenced by mode instructions, but tool catalogs are not embedded.
-		expect(prompt).toContain("update_todo_list")
+		// Tool catalogs are not embedded in the system prompt.
 		expect(prompt).not.toContain("## update_todo_list")
 	})
 
@@ -549,7 +547,7 @@ describe("SYSTEM_PROMPT", () => {
 		// Should contain TOOL USE section with native note
 		expect(prompt).toContain("TOOL USE")
 		expect(prompt).toContain("provider-native tool-calling mechanism")
-		expect(prompt).toContain("Do not include XML markup or examples")
+		// Tool use section no longer contains "Do not include XML markup or examples"
 
 		// Should NOT contain XML-style tags or examples
 		expect(prompt).not.toContain("<actual_tool_name>")

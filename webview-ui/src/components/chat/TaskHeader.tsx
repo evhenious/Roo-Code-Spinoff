@@ -227,9 +227,24 @@ const TaskHeader = ({
 											<>
 												<CircularProgress
 													percentage={percentage}
-													className={percentage > 50 ? "text-orange-500" : ""}
+													className={
+														percentage > 50
+															? "text-yellow-500"
+															: percentage > 75
+																? "text-orange-500"
+																: ""
+													}
 												/>
-												<span>{percentage}%</span>
+												<span
+													className={
+														percentage > 50
+															? "text-yellow-600"
+															: percentage > 75
+																? "text-orange-600"
+																: ""
+													}>
+													{percentage}%
+												</span>
 											</>
 										)
 									})()}

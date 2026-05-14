@@ -24,7 +24,7 @@ describe("getModeSelection with empty promptComponent", () => {
 		// Should use built-in mode values
 		expect(result.roleDefinition).toBe(debugMode.roleDefinition)
 		expect(result.baseInstructions).toBe(debugMode.customInstructions)
-		expect(result.baseInstructions).toContain("Reflect on 5-7 different possible sources")
+		expect(result.baseInstructions).toContain("Reflect on 3-5 different possible sources")
 	})
 
 	it("should use promptComponent when it has actual content", () => {

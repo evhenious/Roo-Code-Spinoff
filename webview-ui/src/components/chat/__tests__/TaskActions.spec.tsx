@@ -39,23 +39,10 @@ vi.mock("react-i18next", () => ({
 	useTranslation: () => ({
 		t: (key: string) => {
 			const translations: Record<string, string> = {
-				"chat:task.share": "Share task",
 				"chat:task.export": "Export task history",
 				"chat:task.delete": "Delete Task (Shift + Click to skip confirmation)",
-				"chat:task.shareWithOrganization": "Share with Organization",
-				"chat:task.shareWithOrganizationDescription": "Only members of your organization can access",
-				"chat:task.sharePublicly": "Share Publicly",
-				"chat:task.sharePubliclyDescription": "Anyone with the link can access",
-				"chat:task.connectToCloud": "Connect to Cloud",
-				"chat:task.connectToCloudDescription": "Sign in to Roo Code Cloud to share tasks",
-				"chat:task.sharingDisabledByOrganization": "Sharing disabled by organization",
 				"chat:task.openApiHistory": "Open API History",
 				"chat:task.openUiHistory": "Open UI History",
-				"cloud:cloudBenefitsTitle": "Connect to Roo Code Cloud",
-				"cloud:cloudBenefitHistory": "Access your task history from anywhere",
-				"cloud:cloudBenefitSharing": "Share tasks with your team",
-				"cloud:cloudBenefitMetrics": "Track usage and costs",
-				"cloud:connect": "Connect",
 				"history:copyPrompt": "Copy",
 			}
 			return translations[key] || key
@@ -159,16 +146,14 @@ describe("TaskActions", () => {
 	})
 
 	describe("Button States", () => {
-		it("share, export, and copy buttons are always enabled while delete button respects buttonsDisabled state", () => {
+		it("export, copy buttons are always enabled while delete button respects buttonsDisabled state", () => {
 			// Test with buttonsDisabled = false
 			const { rerender } = render(<TaskActions item={mockItem} buttonsDisabled={false} />)
 
-			let shareButton = screen.getByTestId("share-button")
 			let exportButton = screen.getByLabelText("Export task history")
 			let copyButton = screen.getByLabelText("Copy")
 			let deleteButton = screen.getByLabelText("Delete Task (Shift + Click to skip confirmation)")
 
-			expect(shareButton).not.toBeDisabled()
 			expect(exportButton).not.toBeDisabled()
 			expect(copyButton).not.toBeDisabled()
 			expect(deleteButton).not.toBeDisabled()
@@ -176,13 +161,11 @@ describe("TaskActions", () => {
 			// Test with buttonsDisabled = true
 			rerender(<TaskActions item={mockItem} buttonsDisabled={true} />)
 
-			shareButton = screen.getByTestId("share-button")
 			exportButton = screen.getByLabelText("Export task history")
 			copyButton = screen.getByLabelText("Copy")
 			deleteButton = screen.getByLabelText("Delete Task (Shift + Click to skip confirmation)")
 
-			// Share, export, and copy remain enabled
-			expect(shareButton).not.toBeDisabled()
+			// Export, copy remain enabled
 			expect(exportButton).not.toBeDisabled()
 			expect(copyButton).not.toBeDisabled()
 			// Delete button is disabled

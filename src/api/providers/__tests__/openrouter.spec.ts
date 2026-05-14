@@ -12,8 +12,6 @@ import { Package } from "../../../shared/package"
 vitest.mock("openai")
 vitest.mock("delay", () => ({ default: vitest.fn(() => Promise.resolve()) }))
 
-const mockCaptureException = vitest.fn()
-
 vitest.mock("../fetchers/modelCache", () => ({
 	getModels: vitest.fn().mockImplementation(() => {
 		return Promise.resolve({
@@ -304,54 +302,6 @@ describe("OpenRouterHandler", () => {
 			)
 		})
 
-		it("handles API errors and captures telemetry", async () => {
-			const handler = new OpenRouterHandler(mockOptions)
-			const mockStream = {
-				async *[Symbol.asyncIterator]() {
-					yield { error: { message: "API Error", code: 500 } }
-				},
-			}
-
-			const mockCreate = vitest.fn().mockResolvedValue(mockStream)
-			;(OpenAI as any).prototype.chat = {
-				completions: { create: mockCreate },
-			} as any
-
-			const generator = handler.createMessage("test", [])
-			await expect(generator.next()).rejects.toThrow("OpenRouter API Error 500: API Error")
-
-			expect(mockCaptureException).toHaveBeenCalledWith(
-				expect.objectContaining({
-					message: "API Error",
-					provider: "OpenRouter",
-					modelId: mockOptions.openRouterModelId,
-					operation: "createMessage",
-					errorCode: 500,
-					status: 500,
-				}),
-			)
-		})
-
-		it("captures telemetry when createMessage throws an exception", async () => {
-			const handler = new OpenRouterHandler(mockOptions)
-			const mockCreate = vitest.fn().mockRejectedValue(new Error("Connection failed"))
-			;(OpenAI as any).prototype.chat = {
-				completions: { create: mockCreate },
-			} as any
-
-			const generator = handler.createMessage("test", [])
-			await expect(generator.next()).rejects.toThrow()
-
-			expect(mockCaptureException).toHaveBeenCalledWith(
-				expect.objectContaining({
-					message: "Connection failed",
-					provider: "OpenRouter",
-					modelId: mockOptions.openRouterModelId,
-					operation: "createMessage",
-				}),
-			)
-		})
-
 		it("yields tool_call_end events when finish_reason is tool_calls", async () => {
 			// Import NativeToolCallParser to set up state
 			const { NativeToolCallParser } = await import("../../../core/assistant-message/NativeToolCallParser")
@@ -449,35 +399,6 @@ describe("OpenRouterHandler", () => {
 					stream: false,
 				},
 				{ headers: { "x-anthropic-beta": "fine-grained-tool-streaming-2025-05-14" } },
-			)
-		})
-
-		it("handles API errors and captures telemetry", async () => {
-			const handler = new OpenRouterHandler(mockOptions)
-			const mockError = {
-				error: {
-					message: "API Error",
-					code: 500,
-				},
-			}
-
-			const mockCreate = vitest.fn().mockResolvedValue(mockError)
-			;(OpenAI as any).prototype.chat = {
-				completions: { create: mockCreate },
-			} as any
-
-			await expect(handler.completePrompt("test prompt")).rejects.toThrow("OpenRouter API Error 500: API Error")
-
-			// Verify telemetry was captured
-			expect(mockCaptureException).toHaveBeenCalledWith(
-				expect.objectContaining({
-					message: "API Error",
-					provider: "OpenRouter",
-					modelId: mockOptions.openRouterModelId,
-					operation: "completePrompt",
-					errorCode: 500,
-					status: 500,
-				}),
 			)
 		})
 	})

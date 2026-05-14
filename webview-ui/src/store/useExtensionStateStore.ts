@@ -9,7 +9,6 @@ import {
 	type ExtensionMessage,
 } from "@roo-code/types"
 
-import { checkExistKey } from "@roo/checkExistApiConfig"
 import { Mode } from "@roo/modes"
 import { CustomSupportPrompts } from "@roo/support-prompt"
 
@@ -92,9 +91,6 @@ export const useExtensionStateStore = create<IExtensionStoreWithMethods>((set, g
 		filePaths: [],
 		openedTabs: [],
 		skills: [],
-		//
-		showWelcome: true,
-
 		// Message handler
 		handleMessage: (event: MessageEvent) => {
 			const message: ExtensionMessage = event.data
@@ -107,7 +103,6 @@ export const useExtensionStateStore = create<IExtensionStoreWithMethods>((set, g
 
 					set({
 						...mergedState,
-						showWelcome: !checkExistKey(newState.apiConfiguration),
 						didHydrateState: true,
 					})
 

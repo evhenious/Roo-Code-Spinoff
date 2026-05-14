@@ -9,7 +9,6 @@ import {
 	anthropicDefaultModelId,
 	anthropicModels,
 	ANTHROPIC_DEFAULT_MAX_TOKENS,
-	ApiProviderError,
 } from "@roo-code/types"
 
 import type { ApiHandlerOptions } from "../../shared/api"

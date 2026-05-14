@@ -2,13 +2,7 @@ import { Anthropic } from "@anthropic-ai/sdk"
 import { Mistral } from "@mistralai/mistralai"
 import OpenAI from "openai"
 
-import {
-	type MistralModelId,
-	mistralDefaultModelId,
-	mistralModels,
-	MISTRAL_DEFAULT_TEMPERATURE,
-	ApiProviderError,
-} from "@roo-code/types"
+import { type MistralModelId, mistralDefaultModelId, mistralModels, MISTRAL_DEFAULT_TEMPERATURE } from "@roo-code/types"
 
 import { ApiHandlerOptions } from "../../shared/api"
 
@@ -212,7 +206,6 @@ export class MistralHandler extends BaseProvider implements SingleCompletionHand
 			return content || ""
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : String(error)
-			const apiError = new ApiProviderError(errorMessage, this.providerName, model, "completePrompt")
 			throw new Error(`Mistral completion error: ${errorMessage}`)
 		}
 	}
