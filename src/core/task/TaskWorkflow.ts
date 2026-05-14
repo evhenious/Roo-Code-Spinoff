@@ -24,7 +24,7 @@ import type { McpToolUse, ToolUse } from "../../shared/tools"
 import { processUserContentMentions } from "../mentions/processUserContentMentions"
 import { TaskWorkflowDependencies } from "./interface"
 
-// Constants
+// Constants TODO cleanup?
 const MAX_EXPONENTIAL_BACKOFF_SECONDS = 600
 const DEFAULT_USAGE_COLLECTION_TIMEOUT_MS = 5000
 const FORCED_CONTEXT_REDUCTION_PERCENT = 75

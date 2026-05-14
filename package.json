@@ -5,10 +5,7 @@
 		"node": "22.22.1"
 	},
 	"scripts": {
-		"preinstall": "node scripts/bootstrap.mjs",
 		"prepare": "husky",
-		"install": "node scripts/bootstrap.mjs",
-		"install:all": "node scripts/bootstrap.mjs",
 		"lint": "turbo lint --log-order grouped --output-logs new-only",
 		"check-types": "turbo check-types --log-order grouped --output-logs new-only",
 		"test": "turbo test --log-order grouped --output-logs new-only",
@@ -40,7 +37,6 @@
 		"knip": "^5.44.4",
 		"lint-staged": "^16.0.0",
 		"mkdirp": "^3.0.1",
-		"only-allow": "^1.2.1",
 		"ovsx": "0.10.4",
 		"prettier": "^3.4.2",
 		"rimraf": "^6.0.1",
