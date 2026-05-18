@@ -10,5 +10,11 @@
 	},
 	// Turn off tsc task auto detection since we have the necessary tasks as npm scripts
 	"typescript.tsc.autoDetect": "off",
-	"vitest.disableWorkspaceWarning": true
+	"vitest.disableWorkspaceWarning": true,
+	"workbench.colorCustomizations": {
+		"titleBar.activeBackground": "#ab872486",
+		"titleBar.activeForeground": "#000000",
+		"statusBar.background": "#ab872486",
+		"statusBar.foreground": "#000000"
+	}
 }
