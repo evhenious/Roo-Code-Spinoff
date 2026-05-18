@@ -1,4 +1,4 @@
-// pnpm --filter roo-cline test core/webview/__tests__/ClineProvider.taskHistory.spec.ts
+// pnpm --filter roo-distilled test core/webview/__tests__/ClineProvider.taskHistory.spec.ts
 
 import * as vscode from "vscode"
 import type { HistoryItem } from "@roo-code/types"
