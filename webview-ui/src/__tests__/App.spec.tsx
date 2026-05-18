@@ -64,16 +64,6 @@ vi.mock("@src/components/modes/ModesView", () => ({
 	},
 }))
 
-vi.mock("@src/components/marketplace/MarketplaceView", () => ({
-	MarketplaceView: function MarketplaceView({ onDone }: { onDone: () => void }) {
-		return (
-			<div data-testid="marketplace-view" onClick={onDone}>
-				Marketplace View
-			</div>
-		)
-	},
-}))
-
 const mockUseExtensionState = vi.fn()
 
 // Mock i18next and react-i18next
@@ -242,37 +232,5 @@ describe("App", () => {
 		const chatView = screen.getByTestId("chat-view")
 		expect(chatView.getAttribute("data-hidden")).toBe("false")
 		expect(screen.queryByTestId(`${view}-view`)).not.toBeInTheDocument()
-	})
-
-	it("switches to marketplace view when receiving marketplaceButtonClicked action", async () => {
-		render(<AppWithProviders />)
-
-		act(() => {
-			triggerMessage("marketplaceButtonClicked")
-		})
-
-		const marketplaceView = await screen.findByTestId("marketplace-view")
-		expect(marketplaceView).toBeInTheDocument()
-
-		const chatView = screen.getByTestId("chat-view")
-		expect(chatView.getAttribute("data-hidden")).toBe("true")
-	})
-
-	it("returns to chat view when clicking done in marketplace view", async () => {
-		render(<AppWithProviders />)
-
-		act(() => {
-			triggerMessage("marketplaceButtonClicked")
-		})
-
-		const marketplaceView = await screen.findByTestId("marketplace-view")
-
-		act(() => {
-			marketplaceView.click()
-		})
-
-		const chatView = screen.getByTestId("chat-view")
-		expect(chatView.getAttribute("data-hidden")).toBe("false")
-		expect(screen.queryByTestId("marketplace-view")).not.toBeInTheDocument()
 	})
 })

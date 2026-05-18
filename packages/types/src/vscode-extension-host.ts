@@ -5,12 +5,6 @@ import type { ProviderSettings, ProviderSettingsEntry } from "./provider-setting
 import type { HistoryItem } from "./history.js"
 import type { ModeConfig, PromptComponent } from "./mode.js"
 import type { ClineMessage, QueuedMessage } from "./message.js"
-import {
-	type MarketplaceItem,
-	type MarketplaceInstalledMetadata,
-	type InstallMarketplaceItemOptions,
-	marketplaceItemSchema,
-} from "./marketplace.js"
 import type { TodoItem } from "./todo.js"
 import type { SerializedCustomToolDefinition } from "./custom-tool.js"
 import type { GitCommit } from "./git.js"
@@ -71,9 +65,6 @@ export interface ExtensionMessage {
 		| "indexingStatusUpdate"
 		| "indexCleared"
 		| "codebaseIndexConfig"
-		| "marketplaceInstallResult"
-		| "marketplaceRemoveResult"
-		| "marketplaceData"
 		| "codeIndexSettingsSaved"
 		| "codeIndexSecretStatus"
 		| "showDeleteMessageDialog"
@@ -108,7 +99,6 @@ export interface ExtensionMessage {
 		| "chatButtonClicked"
 		| "settingsButtonClicked"
 		| "historyButtonClicked"
-		| "marketplaceButtonClicked"
 		| "didBecomeVisible"
 		| "focusInput"
 		| "switchTab"
@@ -151,10 +141,7 @@ export interface ExtensionMessage {
 	setting?: string
 	value?: any // eslint-disable-line @typescript-eslint/no-explicit-any
 	hasContent?: boolean
-	items?: MarketplaceItem[]
 	tab?: string
-	marketplaceItems?: MarketplaceItem[]
-	marketplaceInstalledMetadata?: MarketplaceInstalledMetadata
 	errors?: string[]
 	rulesFolderPath?: string
 	settings?: any // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -259,9 +246,6 @@ export type IRuntimeState = {
 	cloudAuthSkipModel?: boolean // Flag indicating auth completed without model selection (user should pick 3rd-party provider)
 	cloudApiUrl?: string
 
-	marketplaceItems?: MarketplaceItem[]
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	marketplaceInstalledMetadata?: { project: Record<string, any>; global: Record<string, any> }
 	messageQueue?: QueuedMessage[]
 	apiModelId?: string
 	mcpServers?: McpServer[]
@@ -409,14 +393,6 @@ export interface WebviewMessage {
 		| "setAutoEnableDefault"
 		| "focusPanelRequest"
 		| "openExternal"
-		| "filterMarketplaceItems"
-		| "marketplaceButtonClicked"
-		| "installMarketplaceItem"
-		| "installMarketplaceItemWithParameters"
-		| "cancelMarketplaceInstall"
-		| "removeInstalledMarketplaceItem"
-		| "marketplaceInstallResult"
-		| "fetchMarketplaceData"
 		| "switchTab"
 		| "exportMode"
 		| "exportModeResult"
@@ -470,7 +446,7 @@ export interface WebviewMessage {
 	text?: string
 	taskId?: string
 	editedMessageContent?: string
-	tab?: "settings" | "history" | "mcp" | "modes" | "chat" | "marketplace"
+	tab?: "settings" | "history" | "mcp" | "modes" | "chat"
 	disabled?: boolean
 	context?: string
 	dataUri?: string
@@ -522,8 +498,6 @@ export interface WebviewMessage {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	settings?: any
 	url?: string // For openExternal
-	mpItem?: MarketplaceItem
-	mpInstallOptions?: InstallMarketplaceItemOptions
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	config?: Record<string, any> // Add config to the payload
 	hasContent?: boolean // For checkRulesDirectoryResult
@@ -605,21 +579,11 @@ export interface IndexClearedPayload {
 	error?: string
 }
 
-export const installMarketplaceItemWithParametersPayloadSchema = z.object({
-	item: marketplaceItemSchema,
-	parameters: z.record(z.string(), z.any()),
-})
-
-export type InstallMarketplaceItemWithParametersPayload = z.infer<
-	typeof installMarketplaceItemWithParametersPayloadSchema
->
-
 export type WebViewMessagePayload =
 	| CheckpointDiffPayload
 	| CheckpointRestorePayload
 	| IndexingStatusPayload
 	| IndexClearedPayload
-	| InstallMarketplaceItemWithParametersPayload
 	| UpdateTodoListPayload
 	| EditQueuedMessagePayload
 

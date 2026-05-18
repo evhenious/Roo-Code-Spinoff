@@ -79,11 +79,6 @@
 				"icon": "$(history)"
 			},
 			{
-				"command": "roo-distilled.marketplaceButtonClicked",
-				"title": "%command.marketplace.title%",
-				"icon": "$(extensions)"
-			},
-			{
 				"command": "roo-distilled.popoutButtonClicked",
 				"title": "%command.openInEditor.title%",
 				"icon": "$(link-external)"
@@ -217,11 +212,6 @@
 					"when": "view == roo-distilled.SidebarProvider"
 				},
 				{
-					"command": "roo-distilled.marketplaceButtonClicked",
-					"group": "navigation@4",
-					"when": "view == roo-distilled.SidebarProvider"
-				},
-				{
 					"command": "roo-distilled.historyButtonClicked",
 					"group": "overflow@1",
 					"when": "view == roo-distilled.SidebarProvider"
@@ -241,11 +231,6 @@
 				{
 					"command": "roo-distilled.settingsButtonClicked",
 					"group": "navigation@2",
-					"when": "activeWebviewPanelId == roo-distilled.TabPanelProvider"
-				},
-				{
-					"command": "roo-distilled.marketplaceButtonClicked",
-					"group": "navigation@4",
 					"when": "activeWebviewPanelId == roo-distilled.TabPanelProvider"
 				},
 				{
