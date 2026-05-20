@@ -288,8 +288,8 @@ importers:
         specifier: ^1.29.1
         version: 1.29.1(@modelcontextprotocol/sdk@1.29.0(zod@3.25.76))
       '@lmstudio/sdk':
-        specifier: ^1.1.1
-        version: 1.2.0
+        specifier: ^1.5.0
+        version: 1.5.0
       '@mistralai/mistralai':
         specifier: ^1.9.18
         version: 1.9.18(zod@3.25.76)
@@ -517,8 +517,8 @@ importers:
         version: 3.25.76
     devDependencies:
       '@ai-sdk/openai-compatible':
-        specifier: ^2.0.28
-        version: 2.0.28(zod@3.25.76)
+        specifier: ^2.0.47
+        version: 2.0.47(zod@3.25.76)
       '@openrouter/ai-sdk-provider':
         specifier: ^2.1.1
         version: 2.1.1(ai@6.0.77(zod@3.25.76))(zod@3.25.76)
@@ -988,6 +988,12 @@ packages:
     peerDependencies:
       zod: 3.25.76
 
+  '@ai-sdk/openai-compatible@2.0.47':
+    resolution: {integrity: sha512-Enm5UlL0zUCrW3792opk5h7hRWxZOZzDe6eQYVFqX9LUOGGCe1h8MZWAGim765nwzgnjlpeYOsuzZmLtRsTPlg==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: 3.25.76
+
   '@ai-sdk/openai@3.0.27':
     resolution: {integrity: sha512-pLMxWOypwroXiK9dxNpn60/HGhWWWDEOJ3lo9vZLoxvpJNtKnLKojwVIvlW3yEjlD7ll1+jUO2uzsABNTaP5Yg==}
     engines: {node: '>=18'}
@@ -1012,8 +1018,18 @@ packages:
     peerDependencies:
       zod: 3.25.76
 
+  '@ai-sdk/provider-utils@4.0.27':
+    resolution: {integrity: sha512-ubkAJ+xODouwtmN1tYlvTPphH1hPOBfZaEQe8U7skGvFAnIRs9PPpsq57bC2+Ky/MB4yzhd6YOsxTAx9sGpazw==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: 3.25.76
+
   '@ai-sdk/provider@2.0.0':
     resolution: {integrity: sha512-6o7Y2SeO9vFKB8lArHXehNuusnpddKPk7xqL7T2/b+OvXMRIXUO1rR4wcv1hAFUAT9avGZshty3Wlua/XA7TvA==}
+    engines: {node: '>=18'}
+
+  '@ai-sdk/provider@3.0.10':
+    resolution: {integrity: sha512-Q3BZ27qfpYqnCYGvE3vt+Qi6LGOF9R5Nmzn+9JoM1lCRsD9mYaIhfJLkSunN48nfGXJ6n+XNV0J/XVpqGQl7Dw==}
     engines: {node: '>=18'}
 
   '@ai-sdk/provider@3.0.8':
@@ -1884,11 +1900,11 @@ packages:
   '@kwsites/promise-deferred@1.1.1':
     resolution: {integrity: sha512-GaHYm+c0O9MjZRu0ongGBRbinu8gVAMd2UZjji6jVmqKtZluZnptXGWhz1E8j8D2HJ3f/yMxKAUC0b+57wncIw==}
 
-  '@lmstudio/lms-isomorphic@0.4.5':
-    resolution: {integrity: sha512-Or9KS1Iz3LC7D7WMe4zbqAqKOlDsVcrvMoQFBhmydzzxOg+eYBM5gtfgMMjcwjM0BuUVPhYOjTWEyfXpqfVJzg==}
+  '@lmstudio/lms-isomorphic@0.4.6':
+    resolution: {integrity: sha512-v0LIjXKnDe3Ff3XZO5eQjlVxTjleUHXaom14MV7QU9bvwaoo3l5p71+xJ3mmSaqZq370CQ6pTKCn1Bb7Jf+VwQ==}
 
-  '@lmstudio/sdk@1.2.0':
-    resolution: {integrity: sha512-Eoolmi1cSuGXmLYwtn6pD9eOwjMTb+bQ4iv+i/EYz/hCc+HtbfJamoKfyyw4FogRc03RHsXHe1X18voR40D+2g==}
+  '@lmstudio/sdk@1.5.0':
+    resolution: {integrity: sha512-fdY12x4hb14PEjYijh7YeCqT1ZDY5Ok6VR4l4+E/dI+F6NW8oB+P83Sxed5vqE4XgTzbgyPuSR2ZbMNxxF+6jA==}
 
   '@manypkg/find-root@1.1.0':
     resolution: {integrity: sha512-mki5uBvhHzO8kYYix/WRy2WX8S3B5wdVSc9D6KcU5lQNglP2yt58/VfLuAK49glRXChosY8ap2oJ1qgma3GUVA==}
@@ -4976,6 +4992,10 @@ packages:
 
   eventsource-parser@3.0.6:
     resolution: {integrity: sha512-Vo1ab+QXPzZ4tCa8SwIHJFaSzy4R6SHf7BY79rFBDf0idraZWAkYrDjDj8uWaSm3S2TK+hJ7/t1CEmZ7jXw+pg==}
+    engines: {node: '>=18.0.0'}
+
+  eventsource-parser@3.0.8:
+    resolution: {integrity: sha512-70QWGkr4snxr0OXLRWsFLeRBIRPuQOvt4s8QYjmUlmlkyTZkRqS7EDVRZtzU3TiyDbXSzaOeF0XUKy8PchzukQ==}
     engines: {node: '>=18.0.0'}
 
   eventsource@3.0.7:
@@ -9226,6 +9246,12 @@ snapshots:
       '@ai-sdk/provider-utils': 4.0.21(zod@3.25.76)
       zod: 3.25.76
 
+  '@ai-sdk/openai-compatible@2.0.47(zod@3.25.76)':
+    dependencies:
+      '@ai-sdk/provider': 3.0.10
+      '@ai-sdk/provider-utils': 4.0.27(zod@3.25.76)
+      zod: 3.25.76
+
   '@ai-sdk/openai@3.0.27(zod@3.25.76)':
     dependencies:
       '@ai-sdk/provider': 3.0.8
@@ -9254,7 +9280,18 @@ snapshots:
       eventsource-parser: 3.0.6
       zod: 3.25.76
 
+  '@ai-sdk/provider-utils@4.0.27(zod@3.25.76)':
+    dependencies:
+      '@ai-sdk/provider': 3.0.10
+      '@standard-schema/spec': 1.1.0
+      eventsource-parser: 3.0.8
+      zod: 3.25.76
+
   '@ai-sdk/provider@2.0.0':
+    dependencies:
+      json-schema: 0.4.0
+
+  '@ai-sdk/provider@3.0.10':
     dependencies:
       json-schema: 0.4.0
 
@@ -10564,20 +10601,20 @@ snapshots:
 
   '@kwsites/promise-deferred@1.1.1': {}
 
-  '@lmstudio/lms-isomorphic@0.4.5':
+  '@lmstudio/lms-isomorphic@0.4.6':
     dependencies:
-      ws: 8.18.2
+      ws: 8.20.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
 
-  '@lmstudio/sdk@1.2.0':
+  '@lmstudio/sdk@1.5.0':
     dependencies:
-      '@lmstudio/lms-isomorphic': 0.4.5
+      '@lmstudio/lms-isomorphic': 0.4.6
       chalk: 4.1.2
       jsonschema: 1.5.0
       zod: 3.25.76
-      zod-to-json-schema: 3.24.5(zod@3.25.76)
+      zod-to-json-schema: 3.25.1(zod@3.25.76)
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -14070,6 +14107,8 @@ snapshots:
   eventemitter3@5.0.1: {}
 
   eventsource-parser@3.0.6: {}
+
+  eventsource-parser@3.0.8: {}
 
   eventsource@3.0.7:
     dependencies:
@@ -18929,8 +18968,7 @@ snapshots:
 
   ws@8.18.3: {}
 
-  ws@8.20.0:
-    optional: true
+  ws@8.20.0: {}
 
   xml-name-validator@5.0.0: {}
 
