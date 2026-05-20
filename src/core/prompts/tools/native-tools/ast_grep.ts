@@ -11,11 +11,11 @@ CRITICAL:
 - If ast-grep is not installed or fails, fall back to using codebase_search or search_files instead.
   
 Parameters:
-- query: (required) The ast-grep pattern to search for. Use simple text matches or import patterns. Examples:
+- query: (required) The ast-grep pattern to search for. Use simple text matches or import patterns. CRITICAL: meta variables should be in capitals: $NAME, $X, $VAR etc. Examples:
   - "useEffect" - finds all occurrences of useEffect (text match)
   - "useState" - finds all occurrences of useState (text match)
   - 'import $X from "react"' - finds all React imports with any variable name
-  - 'import $Name from "$Module"' - finds all imports from any module
+  - 'import $NAME from "$Module"' - finds all imports from any module
 - path: (optional) Limit search to a specific directory. Leave empty for entire workspace.
 - file_pattern: (optional) Glob pattern to filter files. MUST use proper glob syntax with brace expansion for multiple extensions, e.g., "*.{js,jsx,ts,tsx}" NOT "*.js,jsx,ts,tsx". Single patterns like "*.ts" or directory globs like "src/**/*.js" are also valid.
 
@@ -26,7 +26,7 @@ Example: Finding all React imports
 { "query": "import $X from \"react\"" }
 
 Example: Searching for imports from a specific module in a directory
-{ "query": "import $Name from \"lodash\"", "path": "src/utils" }`
+{ "query": "import $NAME from \"lodash\"", "path": "src/utils" }`
 
 const QUERY_PARAMETER_DESCRIPTION = `The ast-grep pattern to search for (SgPattern syntax)`
 
