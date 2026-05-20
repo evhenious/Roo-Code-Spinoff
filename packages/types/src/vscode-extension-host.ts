@@ -630,6 +630,7 @@ export interface ClineSayTool {
 		| "runSlashCommand"
 		| "updateTodoList"
 		| "skill"
+		| "unknown"
 	path?: string
 	// For readCommandOutput
 	readStart?: number
