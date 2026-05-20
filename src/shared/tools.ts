@@ -29,6 +29,7 @@ export const toolParamNames = [
 	"content",
 	"regex",
 	"file_pattern",
+	"lang",
 	"recursive",
 	"action",
 	"url",
@@ -116,6 +117,7 @@ export type NativeToolArgs = {
 	update_todo_list: { todos: string }
 	use_mcp_tool: { server_name: string; tool_name: string; arguments?: Record<string, unknown> }
 	write_to_file: { path: string; content: string }
+	ast_grep: { query: string; path?: string; file_pattern?: string; lang?: string }
 	// Add more tools as they are migrated to native protocol
 }
 
@@ -267,35 +269,41 @@ export type ToolGroupConfig = {
 
 export const TOOL_DISPLAY_NAMES: Record<ToolName, string> = {
 	execute_command: "run commands",
+	search_and_replace: "apply changes using search and replace",
+	search_replace: "apply single search and replace",
+	search_files: "search files",
+	list_files: "list files",
+	codebase_search: "codebase search",
+	ast_grep: "search code using AST patterns",
+	//
 	read_file: "read files",
 	read_command_output: "read command output",
+	//
 	write_to_file: "write files",
 	apply_diff: "apply changes",
 	edit: "edit files",
-	search_and_replace: "apply changes using search and replace",
-	search_replace: "apply single search and replace",
 	edit_file: "edit files using search and replace",
 	apply_patch: "apply patches using codex format",
-	search_files: "search files",
-	list_files: "list files",
+	//
 	use_mcp_tool: "use mcp tools",
 	access_mcp_resource: "access mcp resources",
+	//
 	ask_followup_question: "ask questions",
 	attempt_completion: "complete tasks",
 	switch_mode: "switch modes",
 	new_task: "create new task",
-	codebase_search: "codebase search",
 	update_todo_list: "update todo list",
 	run_slash_command: "run slash command",
 	skill: "load skill",
 	generate_image: "generate images",
+	//
 	custom_tool: "use custom tools",
 } as const
 
 // Define available tool groups.
 export const TOOL_GROUPS: Record<ToolGroup, ToolGroupConfig> = {
 	read: {
-		tools: ["read_file", "search_files", "list_files", "codebase_search"],
+		tools: ["read_file", "search_files", "list_files", "codebase_search", "ast_grep"],
 	},
 	edit: {
 		tools: ["apply_diff", "write_to_file", "generate_image"],

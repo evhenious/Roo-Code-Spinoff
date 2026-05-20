@@ -267,6 +267,11 @@
 		"didSearch_other": "Found {{count}} results",
 		"resultTooltip": "Similarity score: {{score}} (click to open file)"
 	},
+	"astGrep": {
+		"wantsToSearch": "Roo wants to use ast-grep search <code>{{query}}</code>",
+		"didSearch_one": "Found 1 match",
+		"didSearch_other": "Found {{count}} matches"
+	},
 	"commandOutput": "Command Output",
 	"commandExecution": {
 		"abort": "Abort",

@@ -616,6 +616,7 @@ export interface ClineSayTool {
 		| "appliedDiff"
 		| "newFileCreated"
 		| "codebaseSearch"
+		| "astGrep"
 		| "readFile"
 		| "readCommandOutput"
 		| "listFilesTopLevel"

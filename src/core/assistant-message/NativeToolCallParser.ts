@@ -500,6 +500,17 @@ export class NativeToolCallParser {
 				}
 				break
 
+			case "ast_grep":
+				if (partialArgs.query !== undefined) {
+					nativeArgs = {
+						query: partialArgs.query,
+						path: partialArgs.path,
+						file_pattern: partialArgs.file_pattern,
+						lang: partialArgs.lang,
+					}
+				}
+				break
+
 			case "generate_image":
 				if (partialArgs.prompt !== undefined || partialArgs.path !== undefined) {
 					nativeArgs = {
@@ -832,6 +843,17 @@ export class NativeToolCallParser {
 						nativeArgs = {
 							query: args.query,
 							path: args.path,
+						} as NativeArgsFor<TName>
+					}
+					break
+
+				case "ast_grep":
+					if (args.query !== undefined) {
+						nativeArgs = {
+							query: args.query,
+							path: args.path,
+							file_pattern: args.file_pattern,
+							lang: args.lang,
 						} as NativeArgsFor<TName>
 					}
 					break

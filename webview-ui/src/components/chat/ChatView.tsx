@@ -276,7 +276,13 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 							setSendingDisabled(isPartial)
 							setClineAsk("tool")
 							setEnableButtons(!isPartial)
-							const tool = JSON.parse(lastMessage.text || "{}") as ClineSayTool
+							let tool: ClineSayTool
+							try {
+								tool = JSON.parse(lastMessage.text || "{}") as ClineSayTool
+							} catch {
+								// Handle legacy non-JSON tool messages (e.g., old ast_grep command strings)
+								tool = { tool: "unknown" }
+							}
 							switch (tool.tool) {
 								case "editedExistingFile":
 								case "appliedDiff":
