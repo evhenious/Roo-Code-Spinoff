@@ -9,4 +9,4 @@ DISTILLED=$(node -p "require('./package.json').distilled")
 mkdir -p ../bin
 
 # Generate VSIX with custom filename including both version numbers
-vsce package --no-dependencies --out ../bin/roo-cline-${VERSION}-distilled-${DISTILLED}.vsix
+vsce package --no-dependencies --out ../bin/roo-distilled-${VERSION}-distilled-${DISTILLED}.vsix

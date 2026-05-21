@@ -558,6 +558,20 @@ export const ChatRowContent = ({
 					</div>
 				)
 			}
+			case "astGrep": {
+				return (
+					<div style={headerStyle}>
+						{toolIcon("search")}
+						<span style={{ fontWeight: "bold" }}>
+							<Trans
+								i18nKey="chat:astGrep.wantsToSearch"
+								components={{ code: <code></code> }}
+								values={{ query: tool.query }}
+							/>
+						</span>
+					</div>
+				)
+			}
 			case "updateTodoList" as any: {
 				const todos = (tool as any).todos || []
 				// Get previous todos from the latest todos in the task context

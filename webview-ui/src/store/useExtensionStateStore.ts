@@ -122,12 +122,6 @@ export const useExtensionStateStore = create<IExtensionStoreWithMethods>((set, g
 					if (newState.includeCurrentCost !== undefined) {
 						set({ includeCurrentCost: newState.includeCurrentCost })
 					}
-					if (newState.marketplaceItems !== undefined) {
-						set({ marketplaceItems: newState.marketplaceItems })
-					}
-					if (newState.marketplaceInstalledMetadata !== undefined) {
-						set({ marketplaceInstalledMetadata: newState.marketplaceInstalledMetadata })
-					}
 					break
 				}
 				case "action": {
@@ -190,15 +184,6 @@ export const useExtensionStateStore = create<IExtensionStoreWithMethods>((set, g
 				}
 				case "routerModels": {
 					set({ routerModels: message.routerModels })
-					break
-				}
-				case "marketplaceData": {
-					if (message.marketplaceItems !== undefined) {
-						set({ marketplaceItems: message.marketplaceItems })
-					}
-					if (message.marketplaceInstalledMetadata !== undefined) {
-						set({ marketplaceInstalledMetadata: message.marketplaceInstalledMetadata })
-					}
 					break
 				}
 				case "taskHistoryUpdated": {

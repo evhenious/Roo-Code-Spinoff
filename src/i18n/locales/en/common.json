@@ -204,11 +204,6 @@
 			"global": "global"
 		}
 	},
-	"marketplace": {
-		"mode": {
-			"rulesCleanupFailed": "Mode removed successfully, but failed to delete rules folder at {{rulesFolderPath}}. You may need to delete it manually."
-		}
-	},
 	"mdm": {
 		"errors": {
 			"cloud_auth_required": "Your organization requires Roo Code Cloud authentication. Please sign in to continue.",

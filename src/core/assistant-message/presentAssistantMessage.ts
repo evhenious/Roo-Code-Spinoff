@@ -35,6 +35,7 @@ import { generateImageTool } from "../tools/GenerateImageTool"
 import { applyDiffTool as applyDiffToolClass } from "../tools/ApplyDiffTool"
 import { isValidToolName, validateToolUse } from "../tools/validateToolUse"
 import { codebaseSearchTool } from "../tools/CodebaseSearchTool"
+import { astGrepTool } from "../tools/AstGrepTool"
 
 import { formatResponse } from "../prompts/responses"
 import { sanitizeToolUseId } from "../../utils/tool-id"
@@ -364,6 +365,8 @@ export async function presentAssistantMessage(cline: Task) {
 						return `[${block.name} to '${block.params.mode_slug}'${block.params.reason ? ` because: ${block.params.reason}` : ""}]`
 					case "codebase_search":
 						return `[${block.name} for '${block.params.query}']`
+					case "ast_grep":
+						return `[${block.name} for '${block.params.query}'${block.params.lang ? ` in '${block.params.lang}'` : ""}]`
 					case "read_command_output":
 						return `[${block.name} for '${block.params.artifact_id}']`
 					case "update_todo_list":
@@ -722,6 +725,13 @@ export async function presentAssistantMessage(cline: Task) {
 					break
 				case "codebase_search":
 					await codebaseSearchTool.handle(cline, block as ToolUse<"codebase_search">, {
+						askApproval,
+						handleError,
+						pushToolResult,
+					})
+					break
+				case "ast_grep":
+					await astGrepTool.handle(cline, block as ToolUse<"ast_grep">, {
 						askApproval,
 						handleError,
 						pushToolResult,
