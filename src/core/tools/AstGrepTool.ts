@@ -7,185 +7,165 @@ import type { ToolUse } from "../../shared/tools"
 import { BaseTool, ToolCallbacks } from "./BaseTool"
 
 interface AstGrepParams {
-	query: string
-	path?: string
-	file_pattern?: string
-	lang?: string
+  query: string
+  path?: string
+  file_pattern?: string
 }
 
 export class AstGrepTool extends BaseTool<"ast_grep"> {
-	readonly name = "ast_grep" as const
+  readonly name = "ast_grep" as const
 
-	async execute(params: AstGrepParams, task: Task, callbacks: ToolCallbacks): Promise<void> {
-		const { askApproval, handleError, pushToolResult } = callbacks
-		const { query, path: directoryPrefix, file_pattern, lang } = params
+  async execute(params: AstGrepParams, task: Task, callbacks: ToolCallbacks): Promise<void> {
+    const { askApproval, handleError, pushToolResult } = callbacks
+    const { query, path: directoryPrefix, file_pattern } = params
 
-		if (!query) {
-			task.consecutiveMistakeCount++
-			task.didToolFailInCurrentTurn = true
-			pushToolResult(await task.sayAndCreateMissingParamError("ast_grep", "query"))
-			return
-		}
+    if (!query) {
+      task.consecutiveMistakeCount++
+      task.didToolFailInCurrentTurn = true
+      pushToolResult(await task.sayAndCreateMissingParamError("ast_grep", "query"))
+      return
+    }
 
-		const sharedMessageProps = {
-			tool: "astGrep",
-			query: query,
-			path: directoryPrefix,
-		}
+    const sharedMessageProps = {
+      tool: "astGrep",
+      query: query,
+      path: directoryPrefix,
+    }
 
-		const didApprove = await askApproval("tool", JSON.stringify(sharedMessageProps))
-		if (!didApprove) {
-			pushToolResult(formatResponse.toolDenied())
-			return
-		}
+    const didApprove = await askApproval("tool", JSON.stringify(sharedMessageProps))
+    if (!didApprove) {
+      pushToolResult(formatResponse.toolDenied())
+      return
+    }
 
-		task.consecutiveMistakeCount = 0
+    task.consecutiveMistakeCount = 0
 
-		try {
-			const workspacePath = task.cwd && task.cwd.trim() !== "" ? task.cwd : process.cwd()
+    try {
+      const workspacePath = task.cwd && task.cwd.trim() !== "" ? task.cwd : process.cwd()
 
-			// Run sg with optional file_pattern, falling back to no filter if it fails
-			// (e.g., LLM may generate invalid glob like "*.js,jsx,ts,tsx" instead of "*.{js,jsx,ts,tsx}")
-			let stderr = ""
-			let result: { stdout: string } | null = null
+      // Run sg with inline YAML rule definition
+      let stderr = ""
+      let result: { stdout: string } | null = null
 
-			const buildArgs = (useGlobs: boolean) => {
-				const args = ["run", "--pattern", query]
-				if (useGlobs && file_pattern) args.push("--globs", file_pattern)
-				if (lang) args.push("--lang", lang) // does not really work 0.42
-				args.push("--json=stream")
-				if (directoryPrefix && directoryPrefix !== ".") args.push(directoryPrefix)
-				return args
-			}
+      const buildArgs = () => {
+        const args = ["scan", "--inline-rules", query, "--json=stream"]
+        if (file_pattern) args.push("--globs", file_pattern)
+        if (directoryPrefix && directoryPrefix !== ".") args.push(directoryPrefix)
+        return args
+      }
 
-			for (const useGlobs of [true, false]) {
-				stderr = ""
-				const sgExecArgs = buildArgs(useGlobs)
+      result = await new Promise<{ stdout: string }>((resolve, reject) => {
+        console.debug("=== SG CALL ====", buildArgs().toString())
+        const proc = spawn("sg", buildArgs(), {
+          cwd: workspacePath,
+          timeout: 30000,
+          env: process.env,
+        })
 
-				try {
-					result = await new Promise<{ stdout: string }>((resolve, reject) => {
-						console.log("=== SG CALL ====", sgExecArgs)
-						const proc = spawn("sg", sgExecArgs, {
-							cwd: workspacePath,
-							timeout: 30000,
-							env: process.env,
-						})
+        let stdout = ""
 
-						let stdout = ""
+        proc.stdout.on("data", (data: Buffer) => {
+          stdout += data.toString()
+        })
 
-						proc.stdout.on("data", (data: Buffer) => {
-							stdout += data.toString()
-						})
+        proc.stderr.on("data", (data: Buffer) => {
+          stderr += data.toString()
+        })
 
-						proc.stderr.on("data", (data: Buffer) => {
-							stderr += data.toString()
-						})
+        proc.on("close", (code: number | null) => {
+          if (code === 0 || code === null) {
+            resolve({ stdout })
+          } else {
+            reject(new Error(`ast-grep exited with code ${code}: ${stderr}`))
+          }
+        })
 
-						proc.on("close", (code: number | null) => {
-							if (code === 0 || code === null) {
-								resolve({ stdout })
-							} else {
-								reject(new Error(`ast-grep exited with code ${code}: ${stderr}`))
-							}
-						})
+        proc.on("error", reject)
+      })
 
-						proc.on("error", reject)
-					})
+      if (!result?.stdout?.trim()) {
+        pushToolResult(`No matches found for pattern: "${query}"`)
+        return
+      }
 
-					break // Success - exit the loop
-				} catch (iterationError: any) {
-					// First iteration failed (likely invalid glob pattern), retry without --globs
-					if (useGlobs) {
-						continue
-					}
-					// Second iteration also failed, re-throw
-					throw iterationError
-				}
-			}
+      // Parse JSON output from sg
+      const matches = this.parseSgOutput(result.stdout)
 
-			if (!result?.stdout?.trim()) {
-				pushToolResult(`No matches found for pattern: "${query}"`)
-				return
-			}
+      if (matches.length === 0) {
+        pushToolResult(`No matches found for pattern: "${query}"`)
+        return
+      }
 
-			// Parse JSON output from sg
-			const matches = this.parseSgOutput(result.stdout)
+      const output = this.formatResults(matches, query)
+      pushToolResult(output)
+    } catch (error: any) {
+      const message = error?.message ?? String(error)
+      const code = error?.code
+      if (code === "ENOENT" || message.includes("spawn sg")) {
+        await handleError(
+          "ast_grep",
+          new Error(
+            "ast-grep (sg) is not installed or not in PATH. Please install it via: npm install -g @ast-grep/cli",
+          ),
+        )
+      } else if (message.includes("timed out") || message.includes("TimeoutError")) {
+        await handleError("ast_grep", new Error("ast-grep search timed out after 30 seconds"))
+      } else {
+        await handleError("ast_grep", error)
+      }
+    }
+  }
 
-			if (matches.length === 0) {
-				pushToolResult(`No matches found for pattern: "${query}"`)
-				return
-			}
+  private parseSgOutput(output: string): Array<{ path: string; text: string }> {
+    const results: Array<{ path: string; text: string }> = []
 
-			const output = this.formatResults(matches, query)
-			pushToolResult(output)
-		} catch (error: any) {
-			const message = error?.message ?? String(error)
-			const code = error?.code
-			if (code === "ENOENT" || message.includes("spawn sg")) {
-				await handleError(
-					"ast_grep",
-					new Error(
-						"ast-grep (sg) is not installed or not in PATH. Please install it via: npm install -g @ast-grep/cli",
-					),
-				)
-			} else if (message.includes("timed out") || message.includes("TimeoutError")) {
-				await handleError("ast_grep", new Error("ast-grep search timed out after 30 seconds"))
-			} else {
-				await handleError("ast_grep", error)
-			}
-		}
-	}
+    try {
+      // sg --json=stream outputs one JSON object per line
+      // Fields: file (path), lines (source text), text (matched snippet)
+      const lines = output.trim().split("\n")
+      for (const line of lines) {
+        if (!line.trim()) continue
+        const match = JSON.parse(line)
+        if (match?.file && match?.lines) {
+          results.push({
+            path: match.file,
+            text: match.lines,
+          })
+        }
+      }
+    } catch {
+      // Fallback: treat output as plain text
+      return [{ path: "unknown", text: output.trim() }]
+    }
 
-	private parseSgOutput(output: string): Array<{ path: string; text: string }> {
-		const results: Array<{ path: string; text: string }> = []
+    return results
+  }
 
-		try {
-			// sg --json=stream outputs one JSON object per line
-			// Fields: file (path), lines (source text), text (matched snippet)
-			const lines = output.trim().split("\n")
-			for (const line of lines) {
-				if (!line.trim()) continue
-				const match = JSON.parse(line)
-				if (match?.file && match?.lines) {
-					results.push({
-						path: match.file,
-						text: match.lines,
-					})
-				}
-			}
-		} catch {
-			// Fallback: treat output as plain text
-			return [{ path: "unknown", text: output.trim() }]
-		}
-
-		return results
-	}
-
-	private formatResults(matches: Array<{ path: string; text: string }>, query: string): string {
-		const header = `AST Grep Results for pattern: "${query}"
+  private formatResults(matches: Array<{ path: string; text: string }>, query: string): string {
+    const header = `AST Grep Results for pattern: "${query}"
 Total matches: ${matches.length}
 
 `
 
-		const body = matches
-			.map(
-				(match) => `File: ${match.path}
+    const body = matches
+      .map(
+        (match) => `File: ${match.path}
 Code: ${match.text}
 `,
-			)
-			.join("\n")
+      )
+      .join("\n")
 
-		return header + body
-	}
+    return header + body
+  }
 
-	override async handlePartial(task: Task, block: ToolUse<"ast_grep">): Promise<void> {
-		const query: string | undefined = block.params.query
-		const directoryPrefix: string | undefined = block.params.path
+  override async handlePartial(task: Task, block: ToolUse<"ast_grep">): Promise<void> {
+    const query: string | undefined = block.params.query
+    const directoryPrefix: string | undefined = block.params.path
 
-		await task
-			.ask("tool", JSON.stringify({ tool: "astGrep", query, path: directoryPrefix }), block.partial)
-			.catch(() => {})
-	}
+    await task
+      .ask("tool", JSON.stringify({ tool: "astGrep", query, path: directoryPrefix }), block.partial)
+      .catch(() => {})
+  }
 }
 
 export const astGrepTool = new AstGrepTool()
