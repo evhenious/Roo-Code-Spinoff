@@ -88,6 +88,7 @@ export class LmStudioHandler extends BaseProvider implements SingleCompletionHan
         messages: openAiMessages,
         temperature: this.options.modelTemperature ?? LMSTUDIO_DEFAULT_TEMPERATURE,
         stream: true,
+        stream_options: { include_usage: true },
         tools: this.convertToolsForOpenAI(metadata?.tools),
         tool_choice: metadata?.tool_choice,
         parallel_tool_calls: metadata?.parallelToolCalls ?? true,
@@ -97,6 +98,7 @@ export class LmStudioHandler extends BaseProvider implements SingleCompletionHan
         params.draft_model = this.options.lmStudioDraftModelId
       }
 
+      let lastUsage: OpenAI.CompletionUsage | undefined
       let results
       try {
         results = await this.client.chat.completions.create(params)
@@ -157,24 +159,37 @@ export class LmStudioHandler extends BaseProvider implements SingleCompletionHan
             yield event
           }
         }
+
+        // Capture actual usage from API response
+        if (chunk.usage) {
+          lastUsage = chunk.usage
+        }
       }
 
       for (const processedChunk of matcher.final()) {
         yield processedChunk
       }
 
-      let outputTokens = 0
-      try {
-        outputTokens = await this.countTokens([{ type: "text", text: assistantText }])
-      } catch (err) {
-        console.error("[LmStudio] Failed to count output tokens:", err)
-        outputTokens = 0
+      // Use actual usage from API when available, fall back to local counting
+      let finalInputTokens = inputTokens
+      let finalOutputTokens = 0
+
+      if (lastUsage) {
+        finalInputTokens = lastUsage.prompt_tokens || inputTokens
+        finalOutputTokens = lastUsage.completion_tokens || 0
+      } else {
+        try {
+          finalOutputTokens = await this.countTokens([{ type: "text", text: assistantText }])
+        } catch (err) {
+          console.error("[LmStudio] Failed to count output tokens:", err)
+          finalOutputTokens = 0
+        }
       }
 
       yield {
         type: "usage",
-        inputTokens,
-        outputTokens,
+        inputTokens: finalInputTokens,
+        outputTokens: finalOutputTokens,
       } as const
     } catch (error) {
       throw new Error(

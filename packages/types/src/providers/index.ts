@@ -2,7 +2,6 @@ export * from "./anthropic.js"
 export * from "./baseten.js"
 export * from "./bedrock.js"
 export * from "./deepseek.js"
-export * from "./fireworks.js"
 export * from "./gemini.js"
 export * from "./lite-llm.js"
 export * from "./lm-studio.js"
@@ -16,19 +15,15 @@ export * from "./openrouter.js"
 export * from "./poe.js"
 export * from "./qwen-code.js"
 export * from "./requesty.js"
-export * from "./sambanova.js"
 export * from "./vertex.js"
 export * from "./vscode-llm.js"
-export * from "./xai.js"
 export * from "./vercel-ai-gateway.js"
-export * from "./zai.js"
 export * from "./minimax.js"
 
 import { anthropicDefaultModelId } from "./anthropic.js"
 import { basetenDefaultModelId } from "./baseten.js"
 import { bedrockDefaultModelId } from "./bedrock.js"
 import { deepSeekDefaultModelId } from "./deepseek.js"
-import { fireworksDefaultModelId } from "./fireworks.js"
 import { geminiDefaultModelId } from "./gemini.js"
 import { litellmDefaultModelId } from "./lite-llm.js"
 import { mistralDefaultModelId } from "./mistral.js"
@@ -38,12 +33,9 @@ import { openRouterDefaultModelId } from "./openrouter.js"
 import { poeDefaultModelId } from "./poe.js"
 import { qwenCodeDefaultModelId } from "./qwen-code.js"
 import { requestyDefaultModelId } from "./requesty.js"
-import { sambaNovaDefaultModelId } from "./sambanova.js"
 import { vertexDefaultModelId } from "./vertex.js"
 import { vscodeLlmDefaultModelId } from "./vscode-llm.js"
-import { xaiDefaultModelId } from "./xai.js"
 import { vercelAiGatewayDefaultModelId } from "./vercel-ai-gateway.js"
-import { internationalZAiDefaultModelId, mainlandZAiDefaultModelId } from "./zai.js"
 import { minimaxDefaultModelId } from "./minimax.js"
 
 // Import the ProviderName type from provider-settings to avoid duplication
@@ -54,63 +46,52 @@ import type { ProviderName } from "../provider-settings.js"
  * This function returns only the provider's default model ID, without considering user configuration.
  * Used as a fallback when provider models are still loading.
  */
-export function getProviderDefaultModelId(
-	provider: ProviderName,
-	options: { isChina?: boolean } = { isChina: false },
-): string {
-	switch (provider) {
-		case "openrouter":
-			return openRouterDefaultModelId
-		case "requesty":
-			return requestyDefaultModelId
-		case "litellm":
-			return litellmDefaultModelId
-		case "xai":
-			return xaiDefaultModelId
-		case "baseten":
-			return basetenDefaultModelId
-		case "bedrock":
-			return bedrockDefaultModelId
-		case "vertex":
-			return vertexDefaultModelId
-		case "gemini":
-			return geminiDefaultModelId
-		case "deepseek":
-			return deepSeekDefaultModelId
-		case "moonshot":
-			return moonshotDefaultModelId
-		case "minimax":
-			return minimaxDefaultModelId
-		case "zai":
-			return options?.isChina ? mainlandZAiDefaultModelId : internationalZAiDefaultModelId
-		case "openai-native":
-			return "gpt-4o" // Based on openai-native patterns
-		case "openai-codex":
-			return openAiCodexDefaultModelId
-		case "mistral":
-			return mistralDefaultModelId
-		case "openai":
-			return "" // OpenAI provider uses custom model configuration
-		case "ollama":
-			return "" // Ollama uses dynamic model selection
-		case "lmstudio":
-			return "" // LMStudio uses dynamic model selection
-		case "vscode-lm":
-			return vscodeLlmDefaultModelId
-		case "sambanova":
-			return sambaNovaDefaultModelId
-		case "fireworks":
-			return fireworksDefaultModelId
-		case "qwen-code":
-			return qwenCodeDefaultModelId
-		case "poe":
-			return poeDefaultModelId
-		case "vercel-ai-gateway":
-			return vercelAiGatewayDefaultModelId
-		case "anthropic":
-		case "gemini-cli":
-		case "fake-ai":
-		default:
-			return anthropicDefaultModelId
-	}
+export function getProviderDefaultModelId(provider: ProviderName): string {
+  switch (provider) {
+    case "openrouter":
+      return openRouterDefaultModelId
+    case "requesty":
+      return requestyDefaultModelId
+    case "litellm":
+      return litellmDefaultModelId
+    case "baseten":
+      return basetenDefaultModelId
+    case "bedrock":
+      return bedrockDefaultModelId
+    case "vertex":
+      return vertexDefaultModelId
+    case "gemini":
+      return geminiDefaultModelId
+    case "deepseek":
+      return deepSeekDefaultModelId
+    case "moonshot":
+      return moonshotDefaultModelId
+    case "minimax":
+      return minimaxDefaultModelId
+    case "openai-native":
+      return "gpt-4o" // Based on openai-native patterns
+    case "openai-codex":
+      return openAiCodexDefaultModelId
+    case "mistral":
+      return mistralDefaultModelId
+    case "openai":
+      return "" // OpenAI provider uses custom model configuration
+    case "ollama":
+      return "" // Ollama uses dynamic model selection
+    case "lmstudio":
+      return "" // LMStudio uses dynamic model selection
+    case "vscode-lm":
+      return vscodeLlmDefaultModelId
+    case "qwen-code":
+      return qwenCodeDefaultModelId
+    case "poe":
+      return poeDefaultModelId
+    case "vercel-ai-gateway":
+      return vercelAiGatewayDefaultModelId
+    case "anthropic":
+    case "gemini-cli":
+    case "fake-ai":
+    default:
+      return anthropicDefaultModelId
+  }
 }
