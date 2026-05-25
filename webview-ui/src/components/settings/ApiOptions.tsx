@@ -624,7 +624,7 @@ const ApiOptions = ({
               <ModelPicker
                 apiConfiguration={apiConfiguration}
                 setApiConfigurationField={setApiConfigurationField}
-                defaultModelId={getDefaultModelIdForProvider(activeSelectedProvider, apiConfiguration)}
+                defaultModelId={getDefaultModelIdForProvider(activeSelectedProvider)}
                 models={getStaticModelsForProvider(activeSelectedProvider, t("settings:labels.useCustomArn"))}
                 modelIdKey="apiModelId"
                 serviceName={getProviderServiceConfig(activeSelectedProvider).serviceName}
