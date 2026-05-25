@@ -9,15 +9,14 @@ Produce a summary with these sections:
 1. Primary Request and Intent: What the user asked for and their goal.
 2. Key Technical Concepts: Technologies, frameworks, libraries, and architectural decisions discussed.
 3. Files and Code Sections: Files examined or modified. Include only changed lines and key function signatures — never entire files.
-4. Errors and Fixes: Key errors encountered and how they were resolved. Include notable user feedback that changed direction.
-5. Problem Solving: Problems solved and any ongoing troubleshooting.
-6. Key User Messages: Important user messages that changed intent or provided critical feedback (exclude tool-use turns).
-7. Key Tool Outputs: Critical revelations from file reads, command outputs, or search results.
-8. Pending Tasks: Explicitly assigned tasks NOT currently in progress. Write "None" if none.
-9. Current Work: What was being worked on immediately before this summary. Where exactly you left off.
-10. Optional Next Step: The single next action to take. Write "None" if the task is complete.
+4. Problem Solving: Key errors and problems encountered and how they were resolved.
+5. Key User Messages: Important user messages that changed intent or provided critical feedback (exclude tool-use turns).
+6. Key Tool Outputs: Critical revelations from file reads, command outputs, or search results. 
+7. Pending Tasks: Explicitly assigned tasks NOT currently in progress. Write "None" if none.
+8. Current Work: What was being worked on immediately before this summary. Where exactly you left off. 
+9. Optional Next Step: The single next action to take. Write "None" if the task is complete.
 
-If section 9 has active work, include a direct quote from the most recent conversation showing exactly where you left off.
+If section 8 has active work, include a direct quote from the most recent conversation showing exactly where you left off.
 
 Format your response as:
 
@@ -35,29 +34,26 @@ Format your response as:
      - [Key code snippet]
    - [...]
 
-4. Errors and Fixes:
-   - [Error]: [Fix]
+4. Problem Solving:
+   - [Problem]: [Troubleshooting key steps, solution (if resolved)]
    - [...]
 
-5. Problem Solving:
-   [content]
-
-6. Key User Messages:
+5. Key User Messages:
    - [message]
    - [...]
 
-7. Key Tool Outputs:
+6. Key Tool Outputs:
    - [output]
    - [...]
 
-8. Pending Tasks:
+7. Pending Tasks:
    - [task]
    - [...]
 
-9. Current Work:
+8. Current Work:
    [content]
 
-10. Optional Next Step:
+9. Optional Next Step:
     [content]
 </summary>
 
