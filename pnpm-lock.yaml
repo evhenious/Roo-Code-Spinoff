@@ -15,6 +15,8 @@ overrides:
   '@types/react': ^18.3.23
   '@types/react-dom': ^18.3.5
   zod: 3.25.76
+  strip-bom: workspace:@roo-code/strip-bom@*
+  strip-bom-string: workspace:@roo-code/strip-bom-string@*
 
 importers:
 
@@ -188,6 +190,24 @@ importers:
         specifier: ^3.2.3
         version: 3.2.4(@types/debug@4.1.12)(@types/node@20.17.57)(@vitest/ui@3.2.4)(jiti@2.4.2)(jsdom@26.1.0)(lightningcss@1.30.1)(tsx@4.21.0)(yaml@2.8.0)
 
+  packages/strip-bom:
+    devDependencies:
+      '@roo-code/config-eslint':
+        specifier: workspace:^
+        version: link:../config-eslint
+      '@roo-code/config-typescript':
+        specifier: workspace:^
+        version: link:../config-typescript
+
+  packages/strip-bom-string:
+    devDependencies:
+      '@roo-code/config-eslint':
+        specifier: workspace:^
+        version: link:../config-eslint
+      '@roo-code/config-typescript':
+        specifier: workspace:^
+        version: link:../config-typescript
+
   packages/types:
     dependencies:
       ai-sdk-provider-poe:
@@ -330,8 +350,8 @@ importers:
         specifier: ^3.1.3
         version: 3.1.3
       fast-xml-parser:
-        specifier: ^5.0.0
-        version: 5.2.3
+        specifier: ^5.8.0
+        version: 5.8.0
       fastest-levenshtein:
         specifier: ^1.0.16
         version: 1.0.16
@@ -405,8 +425,8 @@ importers:
         specifier: ^5.0.0
         version: 5.0.0
       pretty-bytes:
-        specifier: ^7.0.0
-        version: 7.0.0
+        specifier: ^7.1.0
+        version: 7.1.0
       proper-lockfile:
         specifier: ^4.1.2
         version: 4.1.2
@@ -420,20 +440,17 @@ importers:
         specifier: ^23.4.0
         version: 23.11.1
       reconnecting-eventsource:
-        specifier: ^1.6.4
-        version: 1.6.4
+        specifier: ^1.6.5
+        version: 1.6.5
       safe-stable-stringify:
         specifier: ^2.5.0
         version: 2.5.0
       sanitize-filename:
-        specifier: ^1.6.3
-        version: 1.6.3
+        specifier: ^1.6.4
+        version: 1.6.4
       say:
         specifier: ^0.16.0
         version: 0.16.0
-      semver-compare:
-        specifier: ^1.0.0
-        version: 1.0.0
       serialize-error:
         specifier: ^12.0.0
         version: 12.0.0
@@ -441,20 +458,17 @@ importers:
         specifier: ^1.8.2
         version: 1.8.3
       simple-git:
-        specifier: ^3.27.0
-        version: 3.27.0
+        specifier: ^3.36.0
+        version: 3.36.0
       sound-play:
         specifier: ^1.1.0
         version: 1.1.0
-      stream-json:
-        specifier: ^1.8.0
-        version: 1.9.1
       strip-ansi:
         specifier: ^7.1.0
         version: 7.1.0
       strip-bom:
-        specifier: ^5.0.0
-        version: 5.0.0
+        specifier: workspace:@roo-code/strip-bom@*
+        version: link:../packages/strip-bom
       tiktoken:
         specifier: ^1.0.21
         version: 1.0.21
@@ -537,15 +551,9 @@ importers:
       '@types/ps-tree':
         specifier: ^1.1.6
         version: 1.1.6
-      '@types/semver-compare':
-        specifier: ^1.0.3
-        version: 1.0.3
       '@types/shell-quote':
         specifier: ^1.7.5
         version: 1.7.5
-      '@types/stream-json':
-        specifier: ^1.7.8
-        version: 1.7.8
       '@types/tmp':
         specifier: ^0.2.6
         version: 0.2.6
@@ -1912,6 +1920,9 @@ packages:
     resolution: {integrity: sha512-jCs9ldd7NwzpgXDIf6P3+NrHh9/sD6CQdxHyjQI+h/6rDNo88ypBxxz45UDuZHz9r3tNz7N/VInSVoVdtXEI4A==}
     engines: {node: ^14.21.3 || >=16}
 
+  '@nodable/entities@2.1.0':
+    resolution: {integrity: sha512-nyT7T3nbMyBI/lvr6L5TyWbFJAI9FTgVRakNoBqCD+PmID8DzFrrNdLLtHMwMszOtqZa8PAOV24ZqDnQrhQINA==}
+
   '@node-rs/crc32-android-arm-eabi@1.10.6':
     resolution: {integrity: sha512-vZAMuJXm3TpWPOkkhxdrofWDv+Q+I2oO7ucLRbXyAPmXFNDhHtBxbO1rk9Qzz+M3eep8ieS4/+jCL1Q0zacNMQ==}
     engines: {node: '>= 10'}
@@ -2794,6 +2805,12 @@ packages:
   '@shikijs/vscode-textmate@10.0.2':
     resolution: {integrity: sha512-83yeghZ2xxin3Nj8z1NMd/NCuca+gsYXswywDy5bHvwlWL8tpTQmzGeUuHd9FC3E/SBEMvzJRwWEOz5gGes9Qg==}
 
+  '@simple-git/args-pathspec@1.0.3':
+    resolution: {integrity: sha512-ngJMaHlsWDTfjyq9F3VIQ8b7NXbBLq5j9i5bJ6XLYtD6qlDXT7fdKY2KscWWUF8t18xx052Y/PUO1K1TRc9yKA==}
+
+  '@simple-git/argv-parser@1.1.1':
+    resolution: {integrity: sha512-Q9lBcfQ+VQCpQqGJFHe5yooOS5hGdLFFbJ5R+R5aDsnkPCahtn1hSkMcORX65J2Z5lxSkD0lQorMsncuBQxYUw==}
+
   '@sinclair/typebox@0.27.8':
     resolution: {integrity: sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==}
 
@@ -3389,9 +3406,6 @@ packages:
   '@types/sarif@2.1.7':
     resolution: {integrity: sha512-kRz0VEkJqWLf1LLVN4pT1cg1Z9wAuvI6L97V3m2f5B76Tg8d413ddvLBPTEHAZJlnn4XSvu0FkZtViCQGVyrXQ==}
 
-  '@types/semver-compare@1.0.3':
-    resolution: {integrity: sha512-mVZkB2QjXmZhh+MrtwMlJ8BqUnmbiSkpd88uOWskfwB8yitBT0tBRAKt+41VRgZD9zr9Sc+Xs02qGgvzd1Rq/Q==}
-
   '@types/shell-quote@1.7.5':
     resolution: {integrity: sha512-+UE8GAGRPbJVQDdxi16dgadcBfQ+KG2vgZhV1+3A1XmHbmwcdwhCUwIdy+d3pAGrbvgRoVSjeI9vOWyq376Yzw==}
 
@@ -3401,12 +3415,6 @@ packages:
   '@types/stacktrace-js@2.0.3':
     resolution: {integrity: sha512-B6JnMic4NAZ4mLWmRi4RvayCN2HZQvpcVF0MkoqubtuZx1AQB0/kRlrngGiocEPyO7R+TFocTEoLKQ0HzmEOPw==}
     deprecated: This is a stub types definition. stacktrace-js provides its own type definitions, so you do not need this installed.
-
-  '@types/stream-chain@2.1.0':
-    resolution: {integrity: sha512-guDyAl6s/CAzXUOWpGK2bHvdiopLIwpGu8v10+lb9hnQOyo4oj/ZUQFOvqFjKGsE3wJP1fpIesCcMvbXuWsqOg==}
-
-  '@types/stream-json@1.7.8':
-    resolution: {integrity: sha512-MU1OB1eFLcYWd1LjwKXrxdoPtXSRzRmAnnxs4Js/ayB5O/NvHraWwuOaqMWIebpYwM6khFlsJOHEhI9xK/ab4Q==}
 
   '@types/stylis@4.2.5':
     resolution: {integrity: sha512-1Xve+NMN7FWjY14vLoY5tL3BVEQ/n42YLwaqJIPYhotZ9uBHt87VceMwWQpzmdEt2TNXIorIFG+YeCUUW7RInw==}
@@ -5017,12 +5025,15 @@ packages:
   fast-uri@3.1.0:
     resolution: {integrity: sha512-iPeeDKJSWf4IEOasVVrknXpaBV0IApz/gp7S2bb7Z4Lljbl2MGJRqInZiUrQwV16cpzw/D3S5j5Julj/gT52AA==}
 
-  fast-xml-parser@5.2.3:
-    resolution: {integrity: sha512-OdCYfRqfpuLUFonTNjvd30rCBZUneHpSQkCqfaeWQ9qrKcl6XlWeDBNVwGb+INAIxRshuN2jF+BE0L6gbBO2mw==}
-    hasBin: true
+  fast-xml-builder@1.2.0:
+    resolution: {integrity: sha512-00aAWieqff+ZJhsXA4g1g7M8k+7AYoMUUHF+/zFb5U6Uv/P0Vl4QZo84/IcufzYalLuEj9928bXN9PbbFzMF0Q==}
 
   fast-xml-parser@5.2.5:
     resolution: {integrity: sha512-pfX9uG9Ki0yekDHx2SiuRIyFdyAr1kMIMitPvb0YBo8SUfKvia7w7FIyd/l6av85pFYRhZscS75MwMnbvY+hcQ==}
+    hasBin: true
+
+  fast-xml-parser@5.8.0:
+    resolution: {integrity: sha512-6bIM7fsJxeo3uXv7OncQYsBAMPJ7V16Slahl/6M98C/i2q+vB1+4a0MtrvYwDFEUrwDSbAmeLDRXsOBwrL7yAg==}
     hasBin: true
 
   fastest-levenshtein@1.0.16:
@@ -7031,6 +7042,10 @@ packages:
     resolution: {integrity: sha512-ak9Qy5Q7jYb2Wwcey5Fpvg2KoAc/ZIhLSLOSBmRmygPsGwkVVt0fZa0qrtMz+m6tJTAHfZQ8FnmB4MG4LWy7/w==}
     engines: {node: '>=8'}
 
+  path-expression-matcher@1.5.0:
+    resolution: {integrity: sha512-cbrerZV+6rvdQrrD+iGMcZFEiiSrbv9Tfdkvnusy6y0x0GKBXREFg/Y65GhIfm0tnLntThhzCnfKwp1WRjeCyQ==}
+    engines: {node: '>=14.0.0'}
+
   path-is-absolute@1.0.1:
     resolution: {integrity: sha512-AVbw3UJ2e9bq64vSaS9Am0fje1Pa8pbGqTTsmXfaIiMpnr5DlDhfJOuLj9Sf95ZPVDAUerDfEk88MPmPe7UCQg==}
     engines: {node: '>=0.10.0'}
@@ -7185,6 +7200,10 @@ packages:
 
   pretty-bytes@7.0.0:
     resolution: {integrity: sha512-U5otLYPR3L0SVjHGrkEUx5mf7MxV2ceXeE7VwWPk+hyzC5drNohsOGNPDZqxCqyX1lkbEN4kl1LiI8QFd7r0ZA==}
+    engines: {node: '>=20'}
+
+  pretty-bytes@7.1.0:
+    resolution: {integrity: sha512-nODzvTiYVRGRqAOvE84Vk5JDPyyxsVk0/fbA/bq7RqlnhksGpset09XTxbpvLTIjoaF7K8Z8DG8yHtKGTPSYRw==}
     engines: {node: '>=20'}
 
   pretty-format@27.5.1:
@@ -7440,8 +7459,8 @@ packages:
     resolution: {integrity: sha512-GDhwkLfywWL2s6vEjyhri+eXmfH6j1L7JE27WhqLeYzoh/A3DBaYGEj2H/HFZCn/kMfim73FXxEJTw06WtxQwg==}
     engines: {node: '>= 14.18.0'}
 
-  reconnecting-eventsource@1.6.4:
-    resolution: {integrity: sha512-0L3IS3wxcNFApTPPHkcbY8Aya7XZIpYDzhxa8j6QSufVkUN018XJKfh2ZaThLBGP/iN5UTz2yweMhkqr0PKa7A==}
+  reconnecting-eventsource@1.6.5:
+    resolution: {integrity: sha512-L7ADnbp7yA42vvjwx7cZFNmiyHNBu/UldL1NCEvB23xBkZhESF83s2cnD9sLfvcX9wMIzW1UpIS7EOq/iu3E2g==}
     engines: {node: '>=12.0.0'}
 
   redent@3.0.0:
@@ -7613,8 +7632,8 @@ packages:
   safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
 
-  sanitize-filename@1.6.3:
-    resolution: {integrity: sha512-y/52Mcy7aw3gRm7IrcGDFx/bCk4AhRh2eI9luHOQM86nZsqwiRkkq2GekHXBBD+SmPidc8i2PqtYZl+pWJ8Oeg==}
+  sanitize-filename@1.6.4:
+    resolution: {integrity: sha512-9ZyI08PsvdQl2r/bBIGubpVdR3RR9sY6RDiWFPreA21C/EFlQhmgo20UZlNjZMMZNubusLhAQozkA0Od5J21Eg==}
 
   sax@1.4.1:
     resolution: {integrity: sha512-+aWOz7yVScEGoKNd4PA10LZ8sk0A/z5+nXQG5giUO5rprX9jgYsTdov9qCchZiPIZezbZH+jRut8nPodFAX4Jg==}
@@ -7768,8 +7787,8 @@ packages:
   simple-get@4.0.1:
     resolution: {integrity: sha512-brv7p5WgH0jmQJr1ZDDfKDOSeWWg+OVypG99A/5vYGPqJ6pxiaHLy8nxtFjBA7oMa01ebA9gfh1uMCFqOuXxvA==}
 
-  simple-git@3.27.0:
-    resolution: {integrity: sha512-ivHoFS9Yi9GY49ogc6/YAi3Fl9ROnF4VyubNylgCkA+RVqLaKWnDSzXOVzya8csELIaWaYNutsEuAhZrtOjozA==}
+  simple-git@3.36.0:
+    resolution: {integrity: sha512-cGQjLjK8bxJw4QuYT7gxHw3/IouVESbhahSsHrX97MzCL1gu2u7oy38W6L2ZIGECEfIBG4BabsWDPjBxJENv9Q==}
 
   simple-invariant@2.0.1:
     resolution: {integrity: sha512-1sbhsxqI+I2tqlmjbz99GXNmZtr6tKIyEgGGnJw/MKGblalqk/XoOYYFJlBzTKZCxx8kLaD3FD5s9BEEjx5Pyg==}
@@ -7903,14 +7922,8 @@ packages:
     resolution: {integrity: sha512-UhDfHmA92YAlNnCfhmq0VeNL5bDbiZGg7sZ2IvPsXubGkiNa9EC+tUTsjBRsYUAz87btI6/1wf4XoVvQ3uRnmQ==}
     engines: {node: '>=18'}
 
-  stream-chain@2.2.5:
-    resolution: {integrity: sha512-1TJmBx6aSWqZ4tx7aTpBDXK0/e2hhcNSTV8+CbFJtDjbb+I1mZ8lHit0Grw9GRT+6JbIrrDd8esncgBi8aBXGA==}
-
   stream-combiner@0.0.4:
     resolution: {integrity: sha512-rT00SPnTVyRsaSz5zgSPma/aHSOic5U1prhYdRy5HS2kTZviFpmDgzilbtsJsxiroqACmayynDN/9VzIbX5DOw==}
-
-  stream-json@1.9.1:
-    resolution: {integrity: sha512-uWkjJ+2Nt/LO9Z/JyKZbMusL8Dkh97uUBTv3AJQ74y07lVahLY4eEFsPsE97pxYBwr8nnjMAIch5eqI0gPShyw==}
 
   streamx@2.22.0:
     resolution: {integrity: sha512-sLh1evHOzBy/iWRiR6d1zRcLao4gGZr3C1kzNz4fopCOKJb6xD9ub8Mpi9Mr1R6id5o43S+d93fI48UC5uM9aw==}
@@ -7974,18 +7987,6 @@ packages:
     resolution: {integrity: sha512-gmBGslpoQJtgnMAvOVqGZpEz9dyoKTCzy2nfz/n8aIFhN/jCE/rCmcxabB6jOOHV+0WNnylOxaxBQPSvcWklhA==}
     engines: {node: '>=12'}
 
-  strip-bom-string@1.0.0:
-    resolution: {integrity: sha512-uCC2VHvQRYu+lMh4My/sFNmF2klFymLX1wHJeXnbEJERpV/ZsVuonzerjfrGpIGF7LBVa1O7i9kjiWvJiFck8g==}
-    engines: {node: '>=0.10.0'}
-
-  strip-bom@3.0.0:
-    resolution: {integrity: sha512-vavAMRXOgBVNF6nyEEmL3DBK19iRpDcoIwW+swQ+CbGiu7lju6t+JklA1MHweoWtadgt4ISVUsXLyDq34ddcwA==}
-    engines: {node: '>=4'}
-
-  strip-bom@5.0.0:
-    resolution: {integrity: sha512-p+byADHF7SzEcVnLvc/r3uognM1hUhObuHXxJcgLCfD194XAkaLbjq3Wzb0N5G2tgIjH0dgT708Z51QxMeu60A==}
-    engines: {node: '>=12'}
-
   strip-final-newline@2.0.0:
     resolution: {integrity: sha512-BrpvfNAE3dcvq7ll3xVumzjKjZQ5tI1sEUIKr3Uoks0XUl45St3FlatVqef9prk4jRDzhW6WZg+3bk93y6pLjA==}
     engines: {node: '>=6'}
@@ -8019,6 +8020,9 @@ packages:
 
   strnum@2.1.1:
     resolution: {integrity: sha512-7ZvoFTiCnGxBtDqJ//Cu6fWtZtc7Y3x+QOirG15wztbdngGSkht27o2pyGWrVy0b4WAy3jbKmnoK6g5VlVNUUw==}
+
+  strnum@2.3.0:
+    resolution: {integrity: sha512-ums3KNd42PGyx5xaoVTO1mjU1bH3NpY4vsrVlnv9PNGqQj8wd7rJ6nEypLrJ7z5vxK5RP0yMLo6J/Gsm62DI5Q==}
 
   strong-type@0.1.6:
     resolution: {integrity: sha512-eJe5caH6Pi5oMMeQtIoBPpvNu/s4jiyb63u5tkHNnQXomK+puyQ5i+Z5iTLBr/xUz/pIcps0NSfzzFI34+gAXg==}
@@ -8918,6 +8922,10 @@ packages:
   xml-name-validator@5.0.0:
     resolution: {integrity: sha512-EvGK8EJ3DhaHfbRlETOWAS5pO9MZITeauHKJyb8wyajUfQUenkIg2MvLDTZ4T/TgIcm3HU0TFBgWWboAZ30UHg==}
     engines: {node: '>=18'}
+
+  xml-naming@0.1.0:
+    resolution: {integrity: sha512-k8KO9hrMyNk6tUWqUfkTEZbezRRpONVOzUTnc97VnCvyj6Tf9lyUR9EDAIeiVLv56jsMcoXEwjW8Kv5yPY52lw==}
+    engines: {node: '>=16.0.0'}
 
   xml2js@0.5.0:
     resolution: {integrity: sha512-drPFnkQJik/O+uPKpqSgr22mpuFHqKdbS835iAQrUC73L2F5WkboIRd63ai/2Yg6I1jzifPFKH2NTK+cfglkIA==}
@@ -9899,7 +9907,7 @@ snapshots:
       '@babel/parser': 7.27.2
       '@babel/template': 7.27.2
       '@babel/types': 7.27.1
-      debug: 4.4.1
+      debug: 4.4.3
       globals: 11.12.0
     transitivePeerDependencies:
       - supports-color
@@ -10461,7 +10469,7 @@ snapshots:
 
   '@kwsites/file-exists@1.1.1':
     dependencies:
-      debug: 4.4.1
+      debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
 
@@ -10591,6 +10599,8 @@ snapshots:
       '@noble/hashes': 1.8.0
 
   '@noble/hashes@1.8.0': {}
+
+  '@nodable/entities@2.1.0': {}
 
   '@node-rs/crc32-android-arm-eabi@1.10.6':
     optional: true
@@ -11445,6 +11455,12 @@ snapshots:
 
   '@shikijs/vscode-textmate@10.0.2': {}
 
+  '@simple-git/args-pathspec@1.0.3': {}
+
+  '@simple-git/argv-parser@1.1.1':
+    dependencies:
+      '@simple-git/args-pathspec': 1.0.3
+
   '@sinclair/typebox@0.27.8': {}
 
   '@sindresorhus/merge-streams@2.3.0': {}
@@ -12073,7 +12089,7 @@ snapshots:
   '@types/glob@8.1.0':
     dependencies:
       '@types/minimatch': 5.1.2
-      '@types/node': 22.19.19
+      '@types/node': 24.2.1
 
   '@types/glob@9.0.0':
     dependencies:
@@ -12130,7 +12146,7 @@ snapshots:
 
   '@types/node-fetch@2.6.12':
     dependencies:
-      '@types/node': 22.19.19
+      '@types/node': 24.2.1
       form-data: 4.0.4
 
   '@types/node-ipc@9.2.3':
@@ -12180,8 +12196,6 @@ snapshots:
 
   '@types/sarif@2.1.7': {}
 
-  '@types/semver-compare@1.0.3': {}
-
   '@types/shell-quote@1.7.5': {}
 
   '@types/stack-utils@2.0.3': {}
@@ -12189,15 +12203,6 @@ snapshots:
   '@types/stacktrace-js@2.0.3':
     dependencies:
       stacktrace-js: 2.0.2
-
-  '@types/stream-chain@2.1.0':
-    dependencies:
-      '@types/node': 22.19.19
-
-  '@types/stream-json@1.7.8':
-    dependencies:
-      '@types/node': 22.19.19
-      '@types/stream-chain': 2.1.0
 
   '@types/stylis@4.2.5': {}
 
@@ -12224,7 +12229,7 @@ snapshots:
 
   '@types/yauzl@2.10.3':
     dependencies:
-      '@types/node': 22.19.19
+      '@types/node': 24.2.1
     optional: true
 
   '@typescript-eslint/eslint-plugin@8.32.1(@typescript-eslint/parser@8.32.1(eslint@9.27.0(jiti@2.4.2))(typescript@5.8.3))(eslint@9.27.0(jiti@2.4.2))(typescript@5.8.3)':
@@ -12265,7 +12270,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/typescript-estree': 8.32.1(typescript@5.8.3)
       '@typescript-eslint/utils': 8.32.1(eslint@9.27.0(jiti@2.4.2))(typescript@5.8.3)
-      debug: 4.4.1
+      debug: 4.4.3
       eslint: 9.27.0(jiti@2.4.2)
       ts-api-utils: 2.1.0(typescript@5.8.3)
       typescript: 5.8.3
@@ -12278,7 +12283,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 8.32.1
       '@typescript-eslint/visitor-keys': 8.32.1
-      debug: 4.4.1
+      debug: 4.4.3
       fast-glob: 3.3.3
       is-glob: 4.0.3
       minimatch: 9.0.5
@@ -14099,7 +14104,7 @@ snapshots:
 
   extract-zip@2.0.1:
     dependencies:
-      debug: 4.4.1
+      debug: 4.4.3
       get-stream: 5.2.0
       yauzl: 2.10.0
     optionalDependencies:
@@ -14140,13 +14145,22 @@ snapshots:
 
   fast-uri@3.1.0: {}
 
-  fast-xml-parser@5.2.3:
+  fast-xml-builder@1.2.0:
     dependencies:
-      strnum: 2.1.1
+      path-expression-matcher: 1.5.0
+      xml-naming: 0.1.0
 
   fast-xml-parser@5.2.5:
     dependencies:
       strnum: 2.1.1
+
+  fast-xml-parser@5.8.0:
+    dependencies:
+      '@nodable/entities': 2.1.0
+      fast-xml-builder: 1.2.0
+      path-expression-matcher: 1.5.0
+      strnum: 2.3.0
+      xml-naming: 0.1.0
 
   fastest-levenshtein@1.0.16: {}
 
@@ -14419,7 +14433,7 @@ snapshots:
     dependencies:
       basic-ftp: 5.0.5
       data-uri-to-buffer: 6.0.2
-      debug: 4.4.1
+      debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
 
@@ -14524,7 +14538,7 @@ snapshots:
       js-yaml: 3.14.1
       kind-of: 6.0.3
       section-matter: 1.0.0
-      strip-bom-string: 1.0.0
+      strip-bom-string: link:packages/strip-bom-string
 
   gtoken@7.1.0:
     dependencies:
@@ -16009,7 +16023,7 @@ snapshots:
 
   micromark@2.11.4:
     dependencies:
-      debug: 4.4.1
+      debug: 4.4.3
       parse-entities: 2.0.0
     transitivePeerDependencies:
       - supports-color
@@ -16440,7 +16454,7 @@ snapshots:
     dependencies:
       '@tootallnate/quickjs-emscripten': 0.23.0
       agent-base: 7.1.3
-      debug: 4.4.1
+      debug: 4.4.3
       get-uri: 6.0.4
       http-proxy-agent: 7.0.2
       https-proxy-agent: 7.0.6
@@ -16519,6 +16533,8 @@ snapshots:
   path-data-parser@0.1.0: {}
 
   path-exists@4.0.0: {}
+
+  path-expression-matcher@1.5.0: {}
 
   path-is-absolute@1.0.1: {}
 
@@ -16659,6 +16675,8 @@ snapshots:
 
   pretty-bytes@7.0.0: {}
 
+  pretty-bytes@7.1.0: {}
+
   pretty-format@27.5.1:
     dependencies:
       ansi-regex: 5.0.1
@@ -16707,7 +16725,7 @@ snapshots:
   proxy-agent@6.5.0:
     dependencies:
       agent-base: 7.1.3
-      debug: 4.4.1
+      debug: 4.4.3
       http-proxy-agent: 7.0.2
       https-proxy-agent: 7.0.6
       lru-cache: 7.18.3
@@ -16964,7 +16982,7 @@ snapshots:
       graceful-fs: 4.2.11
       js-yaml: 3.14.1
       pify: 4.0.1
-      strip-bom: 3.0.0
+      strip-bom: link:packages/strip-bom
 
   read@1.0.7:
     dependencies:
@@ -16999,7 +17017,7 @@ snapshots:
 
   readdirp@4.1.2: {}
 
-  reconnecting-eventsource@1.6.4: {}
+  reconnecting-eventsource@1.6.5: {}
 
   redent@3.0.0:
     dependencies:
@@ -17251,7 +17269,7 @@ snapshots:
 
   safer-buffer@2.1.2: {}
 
-  sanitize-filename@1.6.3:
+  sanitize-filename@1.6.4:
     dependencies:
       truncate-utf8-bytes: 1.0.2
 
@@ -17434,11 +17452,13 @@ snapshots:
       simple-concat: 1.0.1
     optional: true
 
-  simple-git@3.27.0:
+  simple-git@3.36.0:
     dependencies:
       '@kwsites/file-exists': 1.1.1
       '@kwsites/promise-deferred': 1.1.1
-      debug: 4.4.1
+      '@simple-git/args-pathspec': 1.0.3
+      '@simple-git/argv-parser': 1.1.1
+      debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
 
@@ -17477,7 +17497,7 @@ snapshots:
   socks-proxy-agent@8.0.5:
     dependencies:
       agent-base: 7.1.3
-      debug: 4.4.1
+      debug: 4.4.3
       socks: 2.8.4
     transitivePeerDependencies:
       - supports-color
@@ -17563,15 +17583,9 @@ snapshots:
 
   stdin-discarder@0.2.2: {}
 
-  stream-chain@2.2.5: {}
-
   stream-combiner@0.0.4:
     dependencies:
       duplexer: 0.1.2
-
-  stream-json@1.9.1:
-    dependencies:
-      stream-chain: 2.2.5
 
   streamx@2.22.0:
     dependencies:
@@ -17669,12 +17683,6 @@ snapshots:
     dependencies:
       ansi-regex: 6.2.2
 
-  strip-bom-string@1.0.0: {}
-
-  strip-bom@3.0.0: {}
-
-  strip-bom@5.0.0: {}
-
   strip-final-newline@2.0.0: {}
 
   strip-final-newline@3.0.0: {}
@@ -17697,6 +17705,8 @@ snapshots:
       js-tokens: 9.0.1
 
   strnum@2.1.1: {}
+
+  strnum@2.3.0: {}
 
   strong-type@0.1.6: {}
 
@@ -18802,6 +18812,8 @@ snapshots:
   ws@8.20.0: {}
 
   xml-name-validator@5.0.0: {}
+
+  xml-naming@0.1.0: {}
 
   xml2js@0.5.0:
     dependencies:

@@ -1,7 +1,8 @@
 packages:
-    - "src" # Should be apps/vscode
-    - "webview-ui" # Should be apps/vscode-webview
-    - "apps/*"
-    - "packages/*"
+  - "src" # Should be apps/vscode
+  - "webview-ui" # Should be apps/vscode-webview
+  - "apps/*"
+  - "packages/*"
 
 minimumReleaseAge: 10080 # 1 week in minutes - https://pnpm.io/supply-chain-security
+
