@@ -1,12 +1,9 @@
 {
-	"$schema": "https://turbo.build/schema.json",
-	"extends": ["//"],
-	"tasks": {
-		"build": {
-			"outputs": ["../src/webview-ui/**"]
-		},
-		"build:nightly": {
-			"outputs": ["../apps/vscode-nightly/build/webview-ui/**"]
-		}
-	}
+  "$schema": "https://turbo.build/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "outputs": ["../src/webview-ui/**"]
+    }
+  }
 }
