@@ -4,7 +4,7 @@
   "description": "%extension.description%",
   "publisher": "evhenious",
   "version": "3.53.0",
-  "distilled": "1.5dev2",
+  "distilled": "1.5",
   "icon": "assets/icons/icon.png",
   "galleryBanner": {
     "color": "#617A91",
