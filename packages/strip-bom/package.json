@@ -1,0 +1,19 @@
+{
+  "name": "@roo-code/strip-bom",
+  "description": "Strip UTF-8 BOM from strings",
+  "version": "1.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "main": "./src/index.ts",
+  "scripts": {
+    "lint": "eslint src --ext=Ts --max-warnings=0",
+    "check-types": "tsc --noEmit",
+    "clean": "rimraf .turbo"
+  },
+  "devDependencies": {
+    "@roo-code/config-eslint": "workspace:^",
+    "@roo-code/config-typescript": "workspace:^"
+  }
+}

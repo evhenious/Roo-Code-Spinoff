@@ -1,9 +1,7 @@
-import cmp from "semver-compare"
-
 import { Package } from "../../../shared/package"
 
 function isNightlyBuild(): boolean {
-	return Package.name.toLowerCase().includes("nightly")
+  return Package.name.toLowerCase().includes("nightly")
 }
 
 /**
@@ -42,10 +40,19 @@ export type VersionedSettings = Record<string, Record<string, unknown>>
  * @returns -1 if version1 < version2, 0 if equal, 1 if version1 > version2
  */
 export function compareSemver(version1: string, version2: string): number {
-	// Handle pre-release versions by stripping the suffix
-	// semver-compare doesn't handle pre-release properly
-	const stripPrerelease = (v: string): string => v.split("-")[0]
-	return cmp(stripPrerelease(version1), stripPrerelease(version2))
+  // Handle pre-release versions by stripping the suffix
+  // semver-compare doesn't handle pre-release properly
+  const stripPrerelease = (v: string): string => v.split("-")[0]
+  const parts1 = stripPrerelease(version1).split(".").map(Number)
+  const parts2 = stripPrerelease(version2).split(".").map(Number)
+
+  const longestLength = Math.max(parts1.length, parts2.length)
+  for (let i = 0; i < longestLength; i++) {
+    const first = parts1[i] ?? 0
+    const second = parts2[i] ?? 0
+    if (first !== second) return first < second ? -1 : 1
+  }
+  return 0
 }
 
 /**
@@ -56,7 +63,7 @@ export function compareSemver(version1: string, version2: string): number {
  * @returns true if current version >= minPluginVersion
  */
 export function meetsMinimumVersion(minPluginVersion: string, currentVersion: string = Package.version): boolean {
-	return compareSemver(currentVersion, minPluginVersion) >= 0
+  return compareSemver(currentVersion, minPluginVersion) >= 0
 }
 
 /**
@@ -67,31 +74,31 @@ export function meetsMinimumVersion(minPluginVersion: string, currentVersion: st
  * @returns The highest matching version key, or undefined if none match
  */
 export function findHighestMatchingVersion(
-	versionedSettings: VersionedSettings,
-	currentVersion: string = Package.version,
+  versionedSettings: VersionedSettings,
+  currentVersion: string = Package.version,
 ): string | undefined {
-	const versions = Object.keys(versionedSettings)
+  const versions = Object.keys(versionedSettings)
 
-	if (versions.length === 0) {
-		return undefined
-	}
+  if (versions.length === 0) {
+    return undefined
+  }
 
-	// Nightly builds should always pick the highest available versioned settings
-	if (isNightlyBuild()) {
-		versions.sort((a, b) => compareSemver(b, a))
-		return versions[0]
-	}
+  // Nightly builds should always pick the highest available versioned settings
+  if (isNightlyBuild()) {
+    versions.sort((a, b) => compareSemver(b, a))
+    return versions[0]
+  }
 
-	// Filter to versions that are <= currentVersion
-	const matchingVersions = versions.filter((version) => meetsMinimumVersion(version, currentVersion))
+  // Filter to versions that are <= currentVersion
+  const matchingVersions = versions.filter((version) => meetsMinimumVersion(version, currentVersion))
 
-	if (matchingVersions.length === 0) {
-		return undefined
-	}
+  if (matchingVersions.length === 0) {
+    return undefined
+  }
 
-	// Sort in descending order and return the highest
-	matchingVersions.sort((a, b) => compareSemver(b, a))
-	return matchingVersions[0]
+  // Sort in descending order and return the highest
+  matchingVersions.sort((a, b) => compareSemver(b, a))
+  return matchingVersions[0]
 }
 
 /**
@@ -114,14 +121,14 @@ export function findHighestMatchingVersion(
  * @returns The settings object for the highest matching version, or empty object if none match
  */
 export function resolveVersionedSettings<T extends Record<string, unknown>>(
-	versionedSettings: VersionedSettings,
-	currentVersion: string = Package.version,
+  versionedSettings: VersionedSettings,
+  currentVersion: string = Package.version,
 ): Partial<T> {
-	const matchingVersion = findHighestMatchingVersion(versionedSettings, currentVersion)
+  const matchingVersion = findHighestMatchingVersion(versionedSettings, currentVersion)
 
-	if (!matchingVersion) {
-		return {}
-	}
+  if (!matchingVersion) {
+    return {}
+  }
 
-	return versionedSettings[matchingVersion] as Partial<T>
+  return versionedSettings[matchingVersion] as Partial<T>
 }

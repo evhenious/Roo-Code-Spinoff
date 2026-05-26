@@ -10,60 +10,66 @@ import { getShell } from "../../../utils/shell"
  * @internal Exported for testing purposes
  */
 export function getCommandChainOperator(): string {
-	const shell = getShell().toLowerCase()
+  const shell = getShell().toLowerCase()
 
-	// Check for PowerShell (both Windows PowerShell and PowerShell Core)
-	if (shell.includes("powershell") || shell.includes("pwsh")) {
-		return ";"
-	}
+  // Check for PowerShell (both Windows PowerShell and PowerShell Core)
+  if (shell.includes("powershell") || shell.includes("pwsh")) {
+    return ";"
+  }
 
-	// Check for cmd.exe
-	if (shell.includes("cmd.exe")) {
-		return "&&"
-	}
+  // Check for cmd.exe
+  if (shell.includes("cmd.exe")) {
+    return "&&"
+  }
 
-	// Default to Unix-style && for bash, zsh, sh, and other shells
-	// This also covers Git Bash, WSL, and other Unix-like environments on Windows
-	return "&&"
+  // Default to Unix-style && for bash, zsh, sh, and other shells
+  // This also covers Git Bash, WSL, and other Unix-like environments on Windows
+  return "&&"
 }
 
 /**
  * Returns a shell-specific note about command chaining syntax and platform-specific utilities.
  */
 function getCommandChainNote(): string {
-	const shell = getShell().toLowerCase()
+  const shell = getShell().toLowerCase()
 
-	// Check for PowerShell
-	if (shell.includes("powershell") || shell.includes("pwsh")) {
-		return "Note: Using `;` for PowerShell command chaining. For bash/zsh use `&&`, for cmd.exe use `&&`. IMPORTANT: When using PowerShell, avoid Unix-specific utilities like `sed`, `grep`, `awk`, `cat`, `rm`, `cp`, `mv`. Instead use PowerShell equivalents: `Select-String` for grep, `Get-Content` for cat, `Remove-Item` for rm, `Copy-Item` for cp, `Move-Item` for mv, and PowerShell's `-replace` operator or `[regex]` for sed."
-	}
+  // Check for PowerShell
+  if (shell.includes("powershell") || shell.includes("pwsh")) {
+    return "Note: Using `;` for PowerShell command chaining. For bash/zsh use `&&`, for cmd.exe use `&&`. IMPORTANT: When using PowerShell, avoid Unix-specific utilities like `sed`, `grep`, `awk`, `cat`, `rm`, `cp`, `mv`. Instead use PowerShell equivalents: `Select-String` for grep, `Get-Content` for cat, `Remove-Item` for rm, `Copy-Item` for cp, `Move-Item` for mv, and PowerShell's `-replace` operator or `[regex]` for sed."
+  }
 
-	// Check for cmd.exe
-	if (shell.includes("cmd.exe")) {
-		return "Note: Using `&&` for cmd.exe command chaining (conditional execution). For bash/zsh use `&&`, for PowerShell use `;`. IMPORTANT: When using cmd.exe, avoid Unix-specific utilities like `sed`, `grep`, `awk`, `cat`, `rm`, `cp`, `mv`. Use built-in commands like `type` for cat, `del` for rm, `copy` for cp, `move` for mv, `find`/`findstr` for grep, or consider using PowerShell commands instead."
-	}
+  // Check for cmd.exe
+  if (shell.includes("cmd.exe")) {
+    return "Note: Using `&&` for cmd.exe command chaining (conditional execution). For bash/zsh use `&&`, for PowerShell use `;`. IMPORTANT: When using cmd.exe, avoid Unix-specific utilities like `sed`, `grep`, `awk`, `cat`, `rm`, `cp`, `mv`. Use built-in commands like `type` for cat, `del` for rm, `copy` for cp, `move` for mv, `find`/`findstr` for grep, or consider using PowerShell commands instead."
+  }
 
-	// Unix shells
-	return ""
+  // Unix shells
+  return ""
 }
 
 export function getRulesSection(cwd: string, includeEditRule: boolean, settings?: SystemPromptSettings): string {
-	const editRule = includeEditRule
-		? `- When making changes to code, always consider the context in which the code is being used. Ensure that your changes are compatible with the existing codebase and that they follow the project's code and structural patterns.\n`
-		: ""
+  const editRule = includeEditRule
+    ? `- When making changes to code, always consider the context in which the code is being used. Ensure that your changes are compatible with the existing codebase and that they follow the project's code and structural patterns.\n`
+    : ""
 
-	const editRestrictionRule = includeEditRule
-		? `- Some modes have restrictions on which files they can edit. If you attempt to edit a restricted file, the operation will be rejected with a FileRestrictionError that will specify which file patterns are allowed for the current mode.\n  * For example, in architect mode trying to edit app.js would be rejected because architect mode can only edit files matching "\\.md$"\n`
-		: ""
+  const editRestrictionRule = includeEditRule
+    ? `- Some modes have restrictions on which files they can edit. If you attempt to edit a restricted file, the operation will be rejected with a FileRestrictionError that will specify which file patterns are allowed for the current mode.\n  * For example, in architect mode trying to edit app.js would be rejected because architect mode can only edit files matching "\\.md$"\n`
+    : ""
 
-	return `
+  return `
 ====
 
 GENERAL RULES
 
+- You are STRICTLY FORBIDDEN from starting your messages with "Great", "Certainly", "Okay", "Sure". You should NOT be conversational in your responses, but rather direct and to the point.
 - You are only allowed to ask the user questions using the ask_followup_question tool. When asking, provide 2-4 suggested answers that are specific, actionable, and directly related to the task.
 - Prefer using tools over asking questions. For example, use list_files to find a file path rather than asking the user.
-- You are STRICTLY FORBIDDEN from starting your messages with "Great", "Certainly", "Okay", "Sure". You should NOT be conversational in your responses, but rather direct and to the point.
+
+- When faced with multiple valid approaches, choose the simplest one that meets requirements, then inform the user of your choice.
+- If a task is ambiguous, blocked by missing information, or has significant trade-offs depending on the approach, ask the user for clarification before proceeding.
+
+- Do not fabricate file contents, API signatures, function definitions, or project structure. If you need to reference code, always use the appropriate tool to verify it first.
+- If you do not have enough information to answer a question accurately, state your uncertainty explicitly. DO NOT invent facts, statistics, or capabilities you cannot prove with available tools.
 
 - Infer the project type from the file structure and manifest files (e.g., package.json, requirements.txt) to determine appropriate file locations and dependencies.
 - environment_details is auto-generated context appended to each user message. Use it to inform your actions, but explain your reasoning when referencing it, as the user may not see it.
@@ -82,5 +88,5 @@ WORKING DIRECTORY & NAVIGATION RULES
 - You MUST NEVER navigate outside this directory (e.g., \`cd ..\`, \`cd ~\`, \`cd /tmp\`, or any path outside the workspace root).
 - All file-tool paths (read, edit, write, list) must be relative to this workspace root.
 - Terminal sessions reset to the workspace root on creation. If you \`cd\` into a subdirectory, you must chain navigation for every subsequent command: \`cd path/to/subdir && your_command\`. You will automatically return to the workspace root after each terminal session ends.
-- If a task requires working outside the workspace root directory, you MUST inform the user that it is blocked by security constraints and request manual intervention or an alternative approach.`
+- If a task requires working outside the workspace root directory, you MUST stop and inform the user that current operation is blocked by security constraints. Request manual user's intervention, and propose an alternative approach if relevant.`
 }

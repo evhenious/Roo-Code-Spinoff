@@ -80,7 +80,6 @@ body:
         - Chutes AI
         - DeepSeek
         - Featherless AI
-        - Fireworks AI
         - Google Gemini
         - Google Vertex AI
         - Groq
@@ -92,10 +91,8 @@ body:
         - OpenAI Compatible
         - OpenRouter
         - Requesty
-        - SambaNova
         - Unbound
         - VS Code Language Model API
-        - xAI (Grok)
         - Not Applicable / Other
 
   - type: input
