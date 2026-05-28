@@ -33,6 +33,9 @@ const MAX_CONTEXT_WINDOW_RETRIES = 3
 export class TaskWorkflow {
   constructor(private deps: TaskWorkflowDependencies) {}
 
+  /** Tracks the mode slug last sent in environment details. Used to avoid re-sending mode details on every turn. */
+  private _lastSentMode: string | undefined
+
   /**
    * Executes the agentic loop: builds user content, makes API requests,
    * streams responses, assembles assistant messages, executes tools, and
@@ -134,11 +137,18 @@ export class TaskWorkflow {
         }
       }
 
+      // Track mode changes to avoid re-sending mode details on every turn
+      const modeChanged = this._lastSentMode !== currentMode
+      if (modeChanged) {
+        this._lastSentMode = currentMode
+      }
+
       const environmentDetails = await getEnvironmentDetails(
         //
         this.deps.taskForEnvironmentDetails,
         currentIncludeFileDetails,
         currentIncludeFileDetails, // controlling git history and some more stuff visibility
+        modeChanged, // controlling mode details visibility
       )
 
       // Remove any existing environment_details blocks before adding fresh ones.

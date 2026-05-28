@@ -138,6 +138,7 @@ export const globalSettingsSchema = z.object({
    * @default 50
    */
   maxDiagnosticMessages: z.number().default(50),
+  diagnosticsEnabled: z.boolean().default(true),
 
   enableCheckpoints: z.boolean().default(true),
   checkpointTimeout: z
@@ -169,8 +170,6 @@ export const globalSettingsSchema = z.object({
   terminalZshP10k: z.boolean().default(false),
   terminalZdotdir: z.boolean().default(false),
   execaShellPath: z.string().optional(),
-
-  diagnosticsEnabled: z.boolean().default(true),
 
   rateLimitSeconds: z.number().optional(),
   experiments: experimentsSchema.default({

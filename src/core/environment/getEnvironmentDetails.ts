@@ -1,19 +1,15 @@
 import path from "path"
-import os from "os"
 
-import * as vscode from "vscode"
-import pWaitFor from "p-wait-for"
 import delay from "delay"
+import pWaitFor from "p-wait-for"
+import * as vscode from "vscode"
 
 import type { ExperimentId } from "@roo-code/types"
 
+import { Terminal } from "../../integrations/terminal/Terminal"
+import { TerminalRegistry } from "../../integrations/terminal/TerminalRegistry"
 import { formatLanguage } from "../../shared/language"
 import { defaultModeSlug, getFullModeDetails } from "../../shared/modes"
-import { listFiles } from "../../services/glob/list-files"
-import { TerminalRegistry } from "../../integrations/terminal/TerminalRegistry"
-import { Terminal } from "../../integrations/terminal/Terminal"
-import { arePathsEqual } from "../../utils/path"
-import { formatResponse } from "../prompts/responses"
 import { getGitStatus } from "../../utils/git"
 
 import { Task } from "../task/Task"
@@ -23,6 +19,7 @@ export async function getEnvironmentDetails(
   cline: Task,
   includeFileDetails: boolean = false,
   includeEverything: boolean = false,
+  modeChanged: boolean = true,
 ) {
   let details = ""
 
@@ -198,17 +195,17 @@ export async function getEnvironmentDetails(
     }
   }
 
-  if (includeEverything) {
-    // Add current mode and any mode-specific warnings.
-    const {
-      mode,
-      customModes,
-      customModePrompts,
-      experiments = {} as Record<ExperimentId, boolean>,
-      customInstructions: globalCustomInstructions,
-      language,
-    } = state ?? {}
+  // Add current mode and any mode-specific warnings.
+  const {
+    mode,
+    customModes,
+    customModePrompts,
+    experiments = {} as Record<ExperimentId, boolean>,
+    customInstructions: globalCustomInstructions,
+    language,
+  } = state ?? {}
 
+  if (modeChanged) {
     const currentMode = mode ?? defaultModeSlug
 
     const modeDetails = await getFullModeDetails(currentMode, customModes, customModePrompts, {
