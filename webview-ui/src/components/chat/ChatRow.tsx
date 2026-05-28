@@ -1154,16 +1154,14 @@ export const ChatRowContent = ({
             <div className="group">
               <div style={headerStyle}>
                 <MessageCircle className="w-4 shrink-0" aria-label="Speech bubble icon" />
-                <span style={{ fontWeight: "bold" }}>{t("chat:text.rooSaid")}</span>
+                <span style={{ fontWeight: "bold" }}>
+                  {isEmptyContent ? "Roo is thinking..." : t("chat:text.rooSaid")}
+                </span>
                 <div style={{ flexGrow: 1 }} />
                 {!isEmptyContent && <OpenMarkdownPreviewButton markdown={message.text} />}
               </div>
               <div className="pl-6">
-                {isEmptyContent ? (
-                  <div className="text-vscode-descriptionForeground italic">...thinking</div>
-                ) : (
-                  <Markdown markdown={message.text} partial={message.partial} />
-                )}
+                {!isEmptyContent && <Markdown markdown={message.text} partial={message.partial} />}
                 {message.images && message.images.length > 0 && (
                   <div style={{ marginTop: "10px" }}>
                     {message.images.map((image, index) => (
