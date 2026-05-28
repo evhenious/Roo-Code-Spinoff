@@ -122,11 +122,6 @@ export const globalSettingsSchema = z.object({
    */
   includeCurrentTime: z.boolean().default(true),
   /**
-   * Whether to include current cost in the environment details
-   * @default true
-   */
-  includeCurrentCost: z.boolean().default(false),
-  /**
    * Maximum number of git status file entries to include in the environment details.
    * Set to 0 to disable git status. The header (branch, commits) is always included when > 0.
    * @default 0
