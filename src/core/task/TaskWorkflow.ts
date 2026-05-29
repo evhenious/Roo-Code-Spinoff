@@ -163,7 +163,6 @@ export class TaskWorkflow {
       })
 
       // Add environment details as its own text block, separate from tool results.
-      // TODO: what if we added system info only once
       let finalUserContent = [...contentWithoutEnvDetails, { type: "text" as const, text: environmentDetails }]
       // Only add user message to conversation history if:
       // 1. This is the first attempt (retryAttempt === 0), AND
