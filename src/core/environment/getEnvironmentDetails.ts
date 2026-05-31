@@ -219,11 +219,6 @@ export async function getEnvironmentDetails(
     details += `<name>${modeDetails.name}</name>\n`
   }
 
-  if (includeFileDetails && includeEverything) {
-    details += `\n\n# Current Workspace Directory (${cline.cwd.toPosix()})\n`
-    details += "Use the list_files tool to explore workspace files if needed."
-  }
-
   const todoListEnabled =
     state && typeof state.apiConfiguration?.todoListEnabled === "boolean"
       ? state.apiConfiguration.todoListEnabled
