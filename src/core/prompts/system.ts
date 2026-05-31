@@ -89,6 +89,7 @@ async function generatePrompt(
   const basePrompt = `====
 
 IDENTITY
+
 ${roleDefinition}
 ${getRulesSection(cwd, isCodeEditor, settings)}
 ${getSharedToolUseSection()}${toolsCatalog}
