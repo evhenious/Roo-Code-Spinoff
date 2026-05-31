@@ -15,14 +15,7 @@ export async function getModesSection(context: vscode.ExtensionContext, currentM
   const modesList = allModes
     .filter((mode: ModeConfig) => !mode.hidden)
     .map((mode: ModeConfig) => {
-      let description: string
-      if (mode.whenToUse && mode.whenToUse.trim() !== "") {
-        // Use whenToUse as the primary description, indenting subsequent lines for readability
-        description = mode.whenToUse.replace(/\n/g, "\n    ")
-      } else {
-        // Fallback to the first sentence of roleDefinition if whenToUse is not available
-        description = mode.roleDefinition.split(".")[0]
-      }
+      const description = mode.description ?? mode.roleDefinition.split(".")[0]
       const isCurrentMode = mode.slug === currentMode
       const prefix = isCurrentMode ? "**CURRENT MODE** " : "  "
       return `  * ${prefix}"${mode.name}" mode (${mode.slug}) - ${description}`

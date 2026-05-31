@@ -809,7 +809,6 @@ export class CustomModesManager {
       if (customPrompts) {
         if (customPrompts.roleDefinition) exportMode.roleDefinition = customPrompts.roleDefinition
         if (customPrompts.description) exportMode.description = customPrompts.description
-        if (customPrompts.whenToUse) exportMode.whenToUse = customPrompts.whenToUse
         if (customPrompts.customInstructions) exportMode.customInstructions = customPrompts.customInstructions
       }
 

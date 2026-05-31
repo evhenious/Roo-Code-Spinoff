@@ -97,7 +97,6 @@ export const modeConfigSchema = z.object({
   slug: z.string().regex(/^[a-zA-Z0-9-]+$/, "Slug must contain only letters numbers and dashes"),
   name: z.string().min(1, "Name is required"),
   roleDefinition: z.string().min(1, "Role definition is required"),
-  whenToUse: z.string().optional(),
   description: z.string().optional(),
   customInstructions: z.string().optional(),
   groups: groupEntryArraySchema,
@@ -138,12 +137,13 @@ export type CustomModesSettings = z.infer<typeof customModesSettingsSchema>
  * PromptComponent
  */
 
-export const promptComponentSchema = z.object({
-  roleDefinition: z.string().optional(),
-  whenToUse: z.string().optional(),
-  description: z.string().optional(),
-  customInstructions: z.string().optional(),
-})
+export const promptComponentSchema = modeConfigSchema
+  .pick({
+    roleDefinition: true,
+    description: true,
+    customInstructions: true,
+  })
+  .partial()
 
 export type PromptComponent = z.infer<typeof promptComponentSchema>
 
@@ -173,9 +173,7 @@ export const DEFAULT_MODES: readonly ModeConfig[] = [
     name: "❓ Ask",
     roleDefinition:
       "You are Roo, a knowledgeable technical assistant focused on answering questions and providing information about software development, technology, and related topics.",
-    whenToUse:
-      "Use this mode when you need explanations, documentation, or answers to technical questions. Best for understanding concepts, analyzing existing code, getting recommendations, or learning about technologies without making changes.",
-    description: "Get answers and explanations",
+    description: "Answers, explanations, techical discussions",
     groups: ["read", "mcp"],
     customInstructions:
       "You can analyze code, explain concepts, and access external resources. Always answer the user's questions thoroughly, and do not switch to implementing code unless explicitly requested by the user. Include Mermaid diagrams when they clarify your response.",
@@ -184,8 +182,6 @@ export const DEFAULT_MODES: readonly ModeConfig[] = [
     slug: "architect",
     name: "🏗️ Architect",
     roleDefinition: "You are Roo, an experienced technical leader who is inquisitive and an excellent planner.",
-    whenToUse:
-      "Use this mode when you need to plan, design, or strategize before implementation. Perfect for breaking down complex problems, creating technical specifications, designing system architecture, or brainstorming solutions before coding.",
     description: "Plan and design before implementation",
     groups: ["read", ["edit", { fileRegex: "\\.md$", description: "Markdown files only" }], "mcp"],
     customInstructions:
@@ -196,8 +192,6 @@ export const DEFAULT_MODES: readonly ModeConfig[] = [
     name: "💻 Code",
     roleDefinition:
       "You are Roo, a highly skilled software engineer with extensive knowledge in many programming languages, frameworks, design patterns, and best practices.",
-    whenToUse:
-      "Use this mode when you need to write, modify, or refactor code. Ideal for implementing features, fixing bugs, creating new files, or making code improvements across any programming language or framework.",
     description: "Write, modify, and refactor code",
     groups: ["read", "edit", "command", "mcp"],
     customInstructions:
@@ -209,12 +203,10 @@ export const DEFAULT_MODES: readonly ModeConfig[] = [
     name: "🪲 Debug",
     roleDefinition:
       "You are Roo, an expert software engineer specializing in systematic problem diagnosis and resolution.",
-    whenToUse:
-      "Use this mode when you're troubleshooting issues, investigating errors, or diagnosing problems. Specialized in systematic debugging, adding logging, analyzing stack traces, and identifying root causes before applying fixes.",
     description: "Diagnose and fix software issues",
     groups: ["read", "edit", "command", "mcp"],
     customInstructions:
-      "Reflect on 3-5 different possible sources of the problem, distill those down to 1-2 most likely sources, and then add logs to validate your assumptions. Explicitly ask the user to confirm the diagnosis before fixing the problem.",
+      "1. Reflect on 3-5 different possible sources of the problem, distill those down to 1-2 most likely sources.\n\n2. Add logs to validate your assumptions.\n\n3. Explicitly ask the user to confirm the diagnosis before fixing the problem.",
     isCodeEditor: true,
   },
   {
@@ -222,8 +214,6 @@ export const DEFAULT_MODES: readonly ModeConfig[] = [
     name: "🪃 Orchestrator",
     roleDefinition:
       "You are Roo, a strategic workflow orchestrator who coordinates complex tasks by delegating them to appropriate specialized modes. You have a comprehensive understanding of each mode's capabilities and limitations, allowing you to effectively break down complex problems into discrete tasks that can be solved by different specialists.",
-    whenToUse:
-      "Use this mode for complex, multi-step projects that require coordination across different specialties. Ideal when you need to break down large tasks into subtasks, manage workflows, or coordinate work that spans multiple domains or expertise areas.",
     description: "Coordinate tasks across multiple modes",
     groups: [],
     customInstructions:
