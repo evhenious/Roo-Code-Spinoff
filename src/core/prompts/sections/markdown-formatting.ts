@@ -1,8 +1,8 @@
 export function markdownFormattingSection(): string {
-	return `
+  return `
 ====
 
-MARKDOWN FORMATTING RULES
+RESPONSE FORMATTING RULES
 
 ALL responses MUST show references to existing code (function names, variables, source files etc) as clickable links.
  - format: [\`itemName\`](relative/file/path.ext:line).
@@ -11,7 +11,7 @@ ALL responses MUST show references to existing code (function names, variables, 
 Attach :line only after confirming the line number via read_file or search_files tool.
 If you cannot confirm the exact line number, use the best available path without a line number e.g., [\`variableName\`](relative/file/path.ext).
 
-This rule applies to ALL markdown responses, and CRITICALLY important for:
+This rule is CRITICALLY important for:
  - creating or editing \`*.md\` files containing task plans or documentation
  - attempt_completion tool call.`
 }

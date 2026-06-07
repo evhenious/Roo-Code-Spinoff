@@ -91,7 +91,7 @@ async function generatePrompt(
 IDENTITY
 
 ${roleDefinition}
-${getRulesSection(cwd, isCodeEditor, settings)}
+${getRulesSection(cwd, isCodeEditor, shouldIncludeMcp ?? false, settings)}
 ${getSharedToolUseSection()}${toolsCatalog}
 ${markdownFormattingSection()}
 ${skillsSection ? `\n${skillsSection}` : ""}
