@@ -7,10 +7,9 @@ import { publisher, name, version } from "../package.json"
 // by VSCode, but that build artifact is not used during the transpile step of
 // the build, so we still need this override mechanism.
 export const Package = {
-	publisher,
-	name: process.env.PKG_NAME || name,
-	version: process.env.PKG_VERSION || version,
-	outputChannel: process.env.PKG_OUTPUT_CHANNEL || "Roo-Code",
-	sha: process.env.PKG_SHA,
-	distilledVersion: process.env.PKG_DISTILLED_VERSION || undefined,
+  publisher,
+  name: process.env.PKG_NAME || name,
+  version: process.env.PKG_VERSION || version,
+  outputChannel: process.env.PKG_OUTPUT_CHANNEL || "Roo-Code",
+  sha: process.env.PKG_SHA,
 } as const

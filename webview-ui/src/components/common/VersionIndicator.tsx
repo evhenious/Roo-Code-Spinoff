@@ -3,25 +3,21 @@ import { useTranslation } from "react-i18next"
 import { Package } from "@roo/package"
 
 interface VersionIndicatorProps {
-	onClick: () => void
-	className?: string
+  onClick: () => void
+  className?: string
 }
 
 const VersionIndicator: React.FC<VersionIndicatorProps> = ({ onClick, className = "" }) => {
-	const { t } = useTranslation()
+  const { t } = useTranslation()
 
-	const distilledLabel = Package.distilledVersion
-		? `distilled v${Package.distilledVersion} based on v${Package.version}`
-		: `based on v${Package.version}`
-
-	return (
-		<button
-			onClick={onClick}
-			className={`text-xs text-vscode-descriptionForeground rounded-full hover:text-vscode-foreground transition-colors cursor-pointer px-2 py-1 border ${className}`}
-			aria-label={t("chat:versionIndicator.ariaLabel", { version: Package.version })}>
-			{distilledLabel}
-		</button>
-	)
+  return (
+    <button
+      onClick={onClick}
+      className={`text-xs text-vscode-descriptionForeground rounded-full hover:text-vscode-foreground transition-colors cursor-pointer px-2 py-1 border ${className}`}
+      aria-label={t("chat:versionIndicator.ariaLabel", { version: Package.version })}>
+      v.{Package.version}
+    </button>
+  )
 }
 
 export default VersionIndicator
