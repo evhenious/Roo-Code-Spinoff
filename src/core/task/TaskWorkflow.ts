@@ -155,8 +155,7 @@ export class TaskWorkflow {
       const contentWithoutEnvDetails = parsedUserContent.filter((block) => {
         if (block.type === "text" && typeof block.text === "string") {
           const isEnvironmentDetailsBlock =
-            block.text.trim().startsWith("<environment_details>") &&
-            block.text.trim().endsWith("</environment_details>")
+            block.text.trim().startsWith("<env_det>") && block.text.trim().endsWith("</env_det>")
           return !isEnvironmentDetailsBlock
         }
         return true
@@ -435,7 +434,7 @@ export class TaskWorkflow {
                 } else {
                   this.deps.assistantMessageContent.push({
                     type: "text",
-                    content: assistantMessage,
+                    content: assistantMessage.trim(),
                     partial: true,
                   })
                   this.deps.setUserMessageContentReady(false)

@@ -215,8 +215,8 @@ export async function getEnvironmentDetails(
     })
 
     details += `\n\n# Current Mode\n`
-    details += `<slug>${currentMode}</slug>\n`
-    details += `<name>${modeDetails.name}</name>\n`
+    details += `- slug: ${currentMode}\n`
+    details += `- name: ${modeDetails.name}\n`
   }
 
   const todoListEnabled =
@@ -224,5 +224,5 @@ export async function getEnvironmentDetails(
       ? state.apiConfiguration.todoListEnabled
       : true
   const reminderSection = todoListEnabled ? formatReminderSection(cline.todoList) : ""
-  return `<environment_details>\n${details.trim()}\n${reminderSection}\n</environment_details>`
+  return `<env_det>\n${details.trim()}\n${reminderSection}\n</env_det>`
 }

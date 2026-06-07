@@ -1959,7 +1959,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
       await this.initiateTaskLoop([
         {
           type: "text",
-          text: `<user_message>\n${task}\n</user_message>`,
+          text: `<usr>\n${task}\n</usr>`,
         },
         ...imageBlocks,
       ]).catch((error) => {
@@ -2152,30 +2152,10 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 
       let newUserContent: Anthropic.Messages.ContentBlockParam[] = [...modifiedOldUserContent]
 
-      const agoText = ((): string => {
-        const timestamp = lastClineMessage?.ts ?? Date.now()
-        const now = Date.now()
-        const diff = now - timestamp
-        const minutes = Math.floor(diff / 60000)
-        const hours = Math.floor(minutes / 60)
-        const days = Math.floor(hours / 24)
-
-        if (days > 0) {
-          return `${days} day${days > 1 ? "s" : ""} ago`
-        }
-        if (hours > 0) {
-          return `${hours} hour${hours > 1 ? "s" : ""} ago`
-        }
-        if (minutes > 0) {
-          return `${minutes} minute${minutes > 1 ? "s" : ""} ago`
-        }
-        return "just now"
-      })()
-
       if (responseText) {
         newUserContent.push({
           type: "text",
-          text: `<user_message>\n${responseText}\n</user_message>`,
+          text: `<usr>\n${responseText}\n</usr>`,
         })
       }
 
@@ -2421,8 +2401,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
         const contentWithoutEnvDetails = lastUserMsg.content.filter((block: Anthropic.Messages.ContentBlockParam) => {
           if (block.type === "text" && typeof block.text === "string") {
             const isEnvironmentDetailsBlock =
-              block.text.trim().startsWith("<environment_details>") &&
-              block.text.trim().endsWith("</environment_details>")
+              block.text.trim().startsWith("<env_det>") && block.text.trim().endsWith("</env_det>")
             return !isEnvironmentDetailsBlock
           }
           return true
