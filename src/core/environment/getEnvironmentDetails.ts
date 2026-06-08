@@ -30,7 +30,7 @@ export async function getEnvironmentDetails(
   // It could be useful for cline to know if the user went from one or no
   // file to another between messages, so we always include this context.
   const visibleFilePaths = vscode.window.visibleTextEditors
-    ?.map((editor) => editor.document?.uri?.fsPath)
+    ?.map((editor) => editor.document?.uri?.fsPath?.trim())
     .filter(Boolean)
     .map((absolutePath) => path.relative(cline.cwd, absolutePath))
     .slice(0, maxWorkspaceFiles)
@@ -40,7 +40,9 @@ export async function getEnvironmentDetails(
     ? cline.rooIgnoreController.filterPaths(visibleFilePaths)
     : visibleFilePaths.map((p) => p.toPosix()).join("\n")
 
-  if (allowedVisibleFiles) {
+  const shouldShow = Array.isArray(allowedVisibleFiles) ? allowedVisibleFiles.length : allowedVisibleFiles.trim().length
+
+  if (shouldShow) {
     details += "\n\n# VSCode Visible Files"
     details += `\n${allowedVisibleFiles}`
   }
