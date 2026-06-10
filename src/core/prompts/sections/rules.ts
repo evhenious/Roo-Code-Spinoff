@@ -1,11 +1,4 @@
-import type { SystemPromptSettings } from "../types"
-
-export function getRulesSection(
-  cwd: string,
-  includeEditRule: boolean,
-  shouldIncludeMcp: boolean,
-  settings?: SystemPromptSettings,
-): string {
+export function getRulesSection(cwd: string, shouldIncludeMcp: boolean): string {
   const mcpLine = shouldIncludeMcp
     ? `- MCP operations should be used one at a time. Wait for confirmation of success before proceeding with additional operations.\n`
     : ``

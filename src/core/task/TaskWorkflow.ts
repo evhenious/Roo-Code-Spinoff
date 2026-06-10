@@ -24,12 +24,6 @@ import type { McpToolUse, ToolUse } from "../../shared/tools"
 import { processUserContentMentions } from "../mentions/processUserContentMentions"
 import { TaskWorkflowDependencies } from "./interface"
 
-// Constants TODO cleanup?
-const MAX_EXPONENTIAL_BACKOFF_SECONDS = 600
-const DEFAULT_USAGE_COLLECTION_TIMEOUT_MS = 5000
-const FORCED_CONTEXT_REDUCTION_PERCENT = 75
-const MAX_CONTEXT_WINDOW_RETRIES = 3
-
 export class TaskWorkflow {
   constructor(private deps: TaskWorkflowDependencies) {}
 
@@ -146,7 +140,6 @@ export class TaskWorkflow {
       const environmentDetails = await getEnvironmentDetails(
         //
         this.deps.taskForEnvironmentDetails,
-        currentIncludeFileDetails,
         currentIncludeFileDetails, // controlling git history and some more stuff visibility
         modeChanged, // controlling mode details visibility
       )

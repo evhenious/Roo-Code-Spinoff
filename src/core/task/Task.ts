@@ -2497,7 +2497,6 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
       customModes,
       customModePrompts,
       customInstructions,
-      experiments,
       language,
       apiConfiguration,
       enableSubfolderRules,
@@ -2515,14 +2514,11 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
       return SYSTEM_PROMPT(
         provider.context,
         this.cwd,
-        false,
         mcpHub,
-        this.diffStrategy,
         mode ?? defaultModeSlug,
         customModePrompts,
         customModes,
         customInstructions,
-        experiments,
         language,
         rooIgnoreInstructions,
         {
@@ -2534,8 +2530,6 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
             .get<boolean>("newTaskRequireTodos", false),
           isStealthModel: modelInfo?.isStealthModel,
         },
-        undefined, // todoList
-        this.api.getModel().id,
         provider.getSkillsManager(),
       )
     })()

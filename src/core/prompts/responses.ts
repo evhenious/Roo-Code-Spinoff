@@ -222,6 +222,5 @@ const formatImagesIntoBlocks = (images?: string[]): Anthropic.ImageBlockParam[] 
 function getToolInstructionsReminder(): string {
   return `# Reminder: Instructions for Tool Use
 
-Tools are invoked using the platform's native tool calling mechanism.
 Refer to the tool definitions provided in your system instructions for the correct parameter structure and usage examples.`
 }

@@ -17,7 +17,6 @@ import {
   getSystemInfoSection,
   getObjectiveSection,
   getSharedToolUseSection,
-  getToolUseGuidelinesSection,
   getModesSection,
   addCustomInstructions,
   markdownFormattingSection,
@@ -40,19 +39,14 @@ export function getPromptComponent(
 async function generatePrompt(
   context: vscode.ExtensionContext,
   cwd: string,
-  supportsComputerUse: boolean,
   mode: Mode,
   mcpHub?: McpHub,
-  diffStrategy?: DiffStrategy,
   promptComponent?: PromptComponent,
   customModeConfigs?: ModeConfig[],
   globalCustomInstructions?: string,
-  experiments?: Record<string, boolean>,
   language?: string,
   rooIgnoreInstructions?: string,
   settings?: SystemPromptSettings,
-  todoList?: TodoItem[],
-  modelId?: string,
   skillsManager?: SkillsManager,
 ): Promise<string> {
   if (!context) {
@@ -61,21 +55,15 @@ async function generatePrompt(
 
   // Get the full mode config to ensure we have the role definition (used for groups, etc.)
   const modeConfig = getModeBySlug(mode, customModeConfigs) || modes.find((m) => m.slug === mode) || modes[0]
-  const {
-    roleDefinition,
-    baseInstructions,
-    isCodeEditor = false,
-  } = getModeSelection(mode, promptComponent, customModeConfigs)
+  const { roleDefinition, baseInstructions } = getModeSelection(mode, promptComponent, customModeConfigs)
 
   // Check if MCP functionality should be included
   const hasMcpGroup = modeConfig.groups.some((groupEntry) => getGroupName(groupEntry) === "mcp")
   const hasMcpServers = mcpHub && mcpHub.getServers().length > 0
   const shouldIncludeMcp = hasMcpGroup && hasMcpServers
 
-  const codeIndexManager = CodeIndexManager.getInstance(context, cwd)
-
-  // Tool calling is native-only.
-  const effectiveProtocol = "native"
+  // TODO cleanup ?
+  // const codeIndexManager = CodeIndexManager.getInstance(context, cwd)
 
   const [modesSection, skillsSection] = await Promise.all([
     getModesSection(context, mode),
@@ -91,7 +79,7 @@ async function generatePrompt(
 IDENTITY
 
 ${roleDefinition}
-${getRulesSection(cwd, isCodeEditor, shouldIncludeMcp ?? false, settings)}
+${getRulesSection(cwd, shouldIncludeMcp ?? false)}
 ${getSharedToolUseSection()}${toolsCatalog}
 ${markdownFormattingSection()}
 ${skillsSection ? `\n${skillsSection}` : ""}
@@ -111,19 +99,19 @@ ${await addCustomInstructions(baseInstructions, globalCustomInstructions || "", 
 export const SYSTEM_PROMPT = async (
   context: vscode.ExtensionContext,
   cwd: string,
-  supportsComputerUse: boolean,
+  // supportsComputerUse: boolean,
   mcpHub?: McpHub,
-  diffStrategy?: DiffStrategy,
+  // diffStrategy?: DiffStrategy,
   mode: Mode = defaultModeSlug,
   customModePrompts?: CustomModePrompts,
   customModes?: ModeConfig[],
   globalCustomInstructions?: string,
-  experiments?: Record<string, boolean>,
+  // experiments?: Record<string, boolean>,
   language?: string,
   rooIgnoreInstructions?: string,
   settings?: SystemPromptSettings,
-  todoList?: TodoItem[],
-  modelId?: string,
+  // todoList?: TodoItem[],
+  // modelId?: string,
   skillsManager?: SkillsManager,
 ): Promise<string> => {
   if (!context) {
@@ -139,19 +127,14 @@ export const SYSTEM_PROMPT = async (
   return generatePrompt(
     context,
     cwd,
-    supportsComputerUse,
     currentMode.slug,
     mcpHub,
-    diffStrategy,
     promptComponent,
     customModes,
     globalCustomInstructions,
-    experiments,
     language,
     rooIgnoreInstructions,
     settings,
-    todoList,
-    modelId,
     skillsManager,
   )
 }

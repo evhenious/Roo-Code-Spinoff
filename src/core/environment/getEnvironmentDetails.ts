@@ -17,7 +17,6 @@ import { formatReminderSection } from "./reminder"
 
 export async function getEnvironmentDetails(
   cline: Task,
-  includeFileDetails: boolean = false,
   includeEverything: boolean = false,
   modeChanged: boolean = true,
 ) {
