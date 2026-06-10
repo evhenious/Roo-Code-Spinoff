@@ -7,7 +7,7 @@
 ## What Can Roo Code Do For YOU?
 
 - Generate Code from natural language descriptions and specs
-- Adapt with Modes: Code, Architect, Ask, Debug, and Custom Modes
+- Adapt with Modes: Code, Architect, Ask, and Custom Modes
 - Refactor & Debug existing code
 - Write & Update documentation
 - Answer Questions about your codebase
@@ -21,7 +21,6 @@ Roo Code adapts to how you work:
 - Code Mode: everyday coding, edits, and file ops
 - Architect Mode: plan systems, specs, and migrations
 - Ask Mode: fast answers, explanations, and docs
-- Debug Mode: trace issues, add logs, isolate root causes
 - Custom Modes: build specialized modes for your team or workflow
 
 Learn more: [Using Modes](https://docs.roocode.com/basic-usage/using-modes) • [Custom Modes](https://docs.roocode.com/advanced-usage/custom-modes)
