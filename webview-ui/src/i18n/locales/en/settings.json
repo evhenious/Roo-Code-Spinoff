@@ -41,7 +41,7 @@
     "ui": "UI",
     "experimental": "Experimental",
     "language": "Language",
-    "about": "About Roo Code"
+    "about": "About Roo Code Distilled"
   },
   "about": {
     "community": "Want tips or to just hang out with other Roo Code users? Join <redditLink>reddit.com/r/RooCode</redditLink> or <discordLink>discord.gg/roocode</discordLink>",
@@ -699,10 +699,6 @@
     "includeCurrentTime": {
       "label": "Include current time in context",
       "description": "When enabled, the current time and timezone information will be included in the system prompt. Disable this if models are stopping work due to time concerns."
-    },
-    "includeCurrentCost": {
-      "label": "Include current cost in context",
-      "description": "When enabled, the current API usage cost will be included in the system prompt. Disable this if models are stopping work due to cost concerns."
     },
     "maxGitStatusFiles": {
       "label": "Git status max files",

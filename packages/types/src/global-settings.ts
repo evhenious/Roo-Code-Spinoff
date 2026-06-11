@@ -122,11 +122,6 @@ export const globalSettingsSchema = z.object({
    */
   includeCurrentTime: z.boolean().default(true),
   /**
-   * Whether to include current cost in the environment details
-   * @default true
-   */
-  includeCurrentCost: z.boolean().default(false),
-  /**
    * Maximum number of git status file entries to include in the environment details.
    * Set to 0 to disable git status. The header (branch, commits) is always included when > 0.
    * @default 0
@@ -143,6 +138,7 @@ export const globalSettingsSchema = z.object({
    * @default 50
    */
   maxDiagnosticMessages: z.number().default(50),
+  diagnosticsEnabled: z.boolean().default(true),
 
   enableCheckpoints: z.boolean().default(true),
   checkpointTimeout: z
@@ -174,8 +170,6 @@ export const globalSettingsSchema = z.object({
   terminalZshP10k: z.boolean().default(false),
   terminalZdotdir: z.boolean().default(false),
   execaShellPath: z.string().optional(),
-
-  diagnosticsEnabled: z.boolean().default(true),
 
   rateLimitSeconds: z.number().optional(),
   experiments: experimentsSchema.default({
