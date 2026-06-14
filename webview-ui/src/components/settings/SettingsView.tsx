@@ -158,7 +158,6 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
     checkpointTimeout,
     experiments,
     maxOpenTabsContext,
-    maxWorkspaceFiles,
     mcpEnabled,
     soundEnabled,
     ttsEnabled,
@@ -376,7 +375,6 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
           terminalOutputPreviewSize,
           mcpEnabled,
           maxOpenTabsContext: Math.min(Math.max(0, maxOpenTabsContext ?? 20), 500),
-          maxWorkspaceFiles: Math.min(Math.max(0, maxWorkspaceFiles ?? 200), 500),
           showRooIgnoredFiles,
           enableSubfolderRules,
           maxImageFileSize,
@@ -803,7 +801,6 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
                 autoCondenseContextPercent={autoCondenseContextPercent}
                 listApiConfigMeta={listApiConfigMeta ?? []}
                 maxOpenTabsContext={maxOpenTabsContext}
-                maxWorkspaceFiles={maxWorkspaceFiles ?? 200}
                 showRooIgnoredFiles={showRooIgnoredFiles}
                 enableSubfolderRules={enableSubfolderRules}
                 maxImageFileSize={maxImageFileSize}
@@ -850,8 +847,6 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
               <PromptsSettings
                 customSupportPrompts={customSupportPrompts || {}}
                 setCustomSupportPrompts={setCustomSupportPromptsField}
-                includeTaskHistoryInEnhance={includeTaskHistoryInEnhance}
-                setIncludeTaskHistoryInEnhance={(value) => setCachedStateField("includeTaskHistoryInEnhance", value)}
               />
             )}
 

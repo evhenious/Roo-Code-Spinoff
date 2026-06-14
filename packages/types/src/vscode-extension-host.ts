@@ -19,203 +19,203 @@ import type { WorktreeIncludeStatus } from "./worktree.js"
  * Extension -> Webview | CLI
  */
 export interface ExtensionMessage {
-	type:
-		| "action"
-		| "state"
-		| "taskHistoryUpdated"
-		| "taskHistoryItemUpdated"
-		| "selectedImages"
-		| "theme"
-		| "workspaceUpdated"
-		| "invoke"
-		| "messageUpdated"
-		| "mcpServers"
-		| "enhancedPrompt"
-		| "commitSearchResults"
-		| "listApiConfig"
-		| "routerModels"
-		| "openAiModels"
-		| "ollamaModels"
-		| "lmStudioModels"
-		| "vsCodeLmModels"
-		| "vsCodeLmApiAvailable"
-		| "updatePrompt"
-		| "systemPrompt"
-		| "autoApprovalEnabled"
-		| "updateCustomMode"
-		| "deleteCustomMode"
-		| "exportModeResult"
-		| "importModeResult"
-		| "checkRulesDirectoryResult"
-		| "deleteCustomModeCheck"
-		| "currentCheckpointUpdated"
-		| "checkpointInitWarning"
-		| "ttsStart"
-		| "ttsStop"
-		| "fileSearchResults"
-		| "toggleApiConfigPin"
-		| "acceptInput"
-		| "setHistoryPreviewCollapsed"
-		| "commandExecutionStatus"
-		| "mcpExecutionStatus"
-		| "vsCodeSetting"
-		| "condenseTaskContextStarted"
-		| "condenseTaskContextResponse"
-		| "singleRouterModelFetchResponse"
-		| "indexingStatusUpdate"
-		| "indexCleared"
-		| "codebaseIndexConfig"
-		| "codeIndexSettingsSaved"
-		| "codeIndexSecretStatus"
-		| "showDeleteMessageDialog"
-		| "showEditMessageDialog"
-		| "commands"
-		| "insertTextIntoTextarea"
-		| "interactionRequired"
-		| "customToolsResult"
-		| "modes"
-		| "taskWithAggregatedCosts"
-		| "openAiCodexRateLimits"
-		// Worktree response types
-		| "worktreeList"
-		| "worktreeResult"
-		| "worktreeCopyProgress"
-		| "branchList"
-		| "worktreeDefaults"
-		| "worktreeIncludeStatus"
-		| "branchWorktreeIncludeResult"
-		| "folderSelected"
-		| "skills"
-		| "fileContent"
-	text?: string
-	/** For fileContent: { path, content, error? } */
-	fileContent?: { path: string; content: string | null; error?: string }
-	payload?: any // eslint-disable-line @typescript-eslint/no-explicit-any
-	checkpointWarning?: {
-		type: "WAIT_TIMEOUT" | "INIT_TIMEOUT"
-		timeout: number
-	}
-	action?:
-		| "chatButtonClicked"
-		| "settingsButtonClicked"
-		| "historyButtonClicked"
-		| "didBecomeVisible"
-		| "focusInput"
-		| "switchTab"
-		| "toggleAutoApprove"
-	invoke?: "newChat" | "sendMessage" | "primaryButtonClick" | "secondaryButtonClick" | "setChatBoxMessage"
-	/**
-	 * Partial state updates are allowed to reduce message size (e.g. omit large fields like taskHistory).
-	 * The webview is responsible for merging.
-	 */
-	state?: Partial<ExtensionState>
-	images?: string[]
-	filePaths?: string[]
-	openedTabs?: Array<{
-		label: string
-		isActive: boolean
-		path?: string
-	}>
-	clineMessage?: ClineMessage
-	routerModels?: RouterModels
-	openAiModels?: string[]
-	ollamaModels?: ModelRecord
-	lmStudioModels?: ModelRecord
-	vsCodeLmModels?: { vendor?: string; family?: string; version?: string; id?: string }[]
-	mcpServers?: McpServer[]
-	commits?: GitCommit[]
-	listApiConfig?: ProviderSettingsEntry[]
-	mode?: string
-	customMode?: ModeConfig
-	slug?: string
-	success?: boolean
-	/** Generic payload for extension messages that use `values` */
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	values?: Record<string, any>
-	requestId?: string
-	promptText?: string
-	results?:
-		| { path: string; type: "file" | "folder"; label?: string }[]
-		| { name: string; description?: string; argumentHint?: string; source: "global" | "project" | "built-in" }[]
-	error?: string
-	setting?: string
-	value?: any // eslint-disable-line @typescript-eslint/no-explicit-any
-	hasContent?: boolean
-	tab?: string
-	errors?: string[]
-	rulesFolderPath?: string
-	settings?: any // eslint-disable-line @typescript-eslint/no-explicit-any
-	messageTs?: number
-	hasCheckpoint?: boolean
-	context?: string
-	commands?: Command[]
-	queuedMessages?: QueuedMessage[]
-	tools?: SerializedCustomToolDefinition[] // For customToolsResult
-	skills?: SkillMetadata[] // For skills response
-	modes?: { slug: string; name: string }[] // For modes response
-	aggregatedCosts?: {
-		// For taskWithAggregatedCosts response
-		totalCost: number
-		ownCost: number
-		childrenCost: number
-	}
-	historyItem?: HistoryItem
-	taskHistory?: HistoryItem[] // For taskHistoryUpdated: full sorted task history
-	/** For taskHistoryItemUpdated: single updated/added history item */
-	taskHistoryItem?: HistoryItem
-	// Worktree response properties
-	worktrees?: Array<{
-		path: string
-		branch: string
-		commitHash: string
-		isCurrent: boolean
-		isBare: boolean
-		isDetached: boolean
-		isLocked: boolean
-		lockReason?: string
-	}>
-	isGitRepo?: boolean
-	isMultiRoot?: boolean
-	isSubfolder?: boolean
-	gitRootPath?: string
-	worktreeResult?: {
-		success: boolean
-		message: string
-		worktree?: {
-			path: string
-			branch: string
-			commitHash: string
-			isCurrent: boolean
-			isBare: boolean
-			isDetached: boolean
-			isLocked: boolean
-			lockReason?: string
-		}
-	}
-	localBranches?: string[]
-	remoteBranches?: string[]
-	currentBranch?: string
-	suggestedBranch?: string
-	suggestedPath?: string
-	worktreeIncludeExists?: boolean
-	worktreeIncludeStatus?: WorktreeIncludeStatus
-	hasGitignore?: boolean
-	gitignoreContent?: string
-	// branchWorktreeIncludeResult
-	branch?: string
-	hasWorktreeInclude?: boolean
-	// worktreeCopyProgress (size-based)
-	copyProgressBytesCopied?: number
-	copyProgressTotalBytes?: number
-	copyProgressItemName?: string
-	// folderSelected
-	path?: string
+  type:
+    | "action"
+    | "state"
+    | "taskHistoryUpdated"
+    | "taskHistoryItemUpdated"
+    | "selectedImages"
+    | "theme"
+    | "workspaceUpdated"
+    | "invoke"
+    | "messageUpdated"
+    | "mcpServers"
+    | "enhancedPrompt"
+    | "commitSearchResults"
+    | "listApiConfig"
+    | "routerModels"
+    | "openAiModels"
+    | "ollamaModels"
+    | "lmStudioModels"
+    | "vsCodeLmModels"
+    | "vsCodeLmApiAvailable"
+    | "updatePrompt"
+    | "systemPrompt"
+    | "autoApprovalEnabled"
+    | "updateCustomMode"
+    | "deleteCustomMode"
+    | "exportModeResult"
+    | "importModeResult"
+    | "checkRulesDirectoryResult"
+    | "deleteCustomModeCheck"
+    | "currentCheckpointUpdated"
+    | "checkpointInitWarning"
+    | "ttsStart"
+    | "ttsStop"
+    | "fileSearchResults"
+    | "toggleApiConfigPin"
+    | "acceptInput"
+    | "setHistoryPreviewCollapsed"
+    | "commandExecutionStatus"
+    | "mcpExecutionStatus"
+    | "vsCodeSetting"
+    | "condenseTaskContextStarted"
+    | "condenseTaskContextResponse"
+    | "singleRouterModelFetchResponse"
+    | "indexingStatusUpdate"
+    | "indexCleared"
+    | "codebaseIndexConfig"
+    | "codeIndexSettingsSaved"
+    | "codeIndexSecretStatus"
+    | "showDeleteMessageDialog"
+    | "showEditMessageDialog"
+    | "commands"
+    | "insertTextIntoTextarea"
+    | "interactionRequired"
+    | "customToolsResult"
+    | "modes"
+    | "taskWithAggregatedCosts"
+    | "openAiCodexRateLimits"
+    // Worktree response types
+    | "worktreeList"
+    | "worktreeResult"
+    | "worktreeCopyProgress"
+    | "branchList"
+    | "worktreeDefaults"
+    | "worktreeIncludeStatus"
+    | "branchWorktreeIncludeResult"
+    | "folderSelected"
+    | "skills"
+    | "fileContent"
+  text?: string
+  /** For fileContent: { path, content, error? } */
+  fileContent?: { path: string; content: string | null; error?: string }
+  payload?: any // eslint-disable-line @typescript-eslint/no-explicit-any
+  checkpointWarning?: {
+    type: "WAIT_TIMEOUT" | "INIT_TIMEOUT"
+    timeout: number
+  }
+  action?:
+    | "chatButtonClicked"
+    | "settingsButtonClicked"
+    | "historyButtonClicked"
+    | "didBecomeVisible"
+    | "focusInput"
+    | "switchTab"
+    | "toggleAutoApprove"
+  invoke?: "newChat" | "sendMessage" | "primaryButtonClick" | "secondaryButtonClick" | "setChatBoxMessage"
+  /**
+   * Partial state updates are allowed to reduce message size (e.g. omit large fields like taskHistory).
+   * The webview is responsible for merging.
+   */
+  state?: Partial<ExtensionState>
+  images?: string[]
+  filePaths?: string[]
+  openedTabs?: Array<{
+    label: string
+    isActive: boolean
+    path?: string
+  }>
+  clineMessage?: ClineMessage
+  routerModels?: RouterModels
+  openAiModels?: string[]
+  ollamaModels?: ModelRecord
+  lmStudioModels?: ModelRecord
+  vsCodeLmModels?: { vendor?: string; family?: string; version?: string; id?: string }[]
+  mcpServers?: McpServer[]
+  commits?: GitCommit[]
+  listApiConfig?: ProviderSettingsEntry[]
+  mode?: string
+  customMode?: ModeConfig
+  slug?: string
+  success?: boolean
+  /** Generic payload for extension messages that use `values` */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  values?: Record<string, any>
+  requestId?: string
+  promptText?: string
+  results?:
+    | { path: string; type: "file" | "folder"; label?: string }[]
+    | { name: string; description?: string; argumentHint?: string; source: "global" | "project" | "built-in" }[]
+  error?: string
+  setting?: string
+  value?: any // eslint-disable-line @typescript-eslint/no-explicit-any
+  hasContent?: boolean
+  tab?: string
+  errors?: string[]
+  rulesFolderPath?: string
+  settings?: any // eslint-disable-line @typescript-eslint/no-explicit-any
+  messageTs?: number
+  hasCheckpoint?: boolean
+  context?: string
+  commands?: Command[]
+  queuedMessages?: QueuedMessage[]
+  tools?: SerializedCustomToolDefinition[] // For customToolsResult
+  skills?: SkillMetadata[] // For skills response
+  modes?: { slug: string; name: string }[] // For modes response
+  aggregatedCosts?: {
+    // For taskWithAggregatedCosts response
+    totalCost: number
+    ownCost: number
+    childrenCost: number
+  }
+  historyItem?: HistoryItem
+  taskHistory?: HistoryItem[] // For taskHistoryUpdated: full sorted task history
+  /** For taskHistoryItemUpdated: single updated/added history item */
+  taskHistoryItem?: HistoryItem
+  // Worktree response properties
+  worktrees?: Array<{
+    path: string
+    branch: string
+    commitHash: string
+    isCurrent: boolean
+    isBare: boolean
+    isDetached: boolean
+    isLocked: boolean
+    lockReason?: string
+  }>
+  isGitRepo?: boolean
+  isMultiRoot?: boolean
+  isSubfolder?: boolean
+  gitRootPath?: string
+  worktreeResult?: {
+    success: boolean
+    message: string
+    worktree?: {
+      path: string
+      branch: string
+      commitHash: string
+      isCurrent: boolean
+      isBare: boolean
+      isDetached: boolean
+      isLocked: boolean
+      lockReason?: string
+    }
+  }
+  localBranches?: string[]
+  remoteBranches?: string[]
+  currentBranch?: string
+  suggestedBranch?: string
+  suggestedPath?: string
+  worktreeIncludeExists?: boolean
+  worktreeIncludeStatus?: WorktreeIncludeStatus
+  hasGitignore?: boolean
+  gitignoreContent?: string
+  // branchWorktreeIncludeResult
+  branch?: string
+  hasWorktreeInclude?: boolean
+  // worktreeCopyProgress (size-based)
+  copyProgressBytesCopied?: number
+  copyProgressTotalBytes?: number
+  copyProgressItemName?: string
+  // folderSelected
+  path?: string
 }
 
 export interface OpenAiCodexRateLimitsMessage {
-	type: "openAiCodexRateLimits"
-	values?: OpenAiCodexRateLimitInfo
-	error?: string
+  type: "openAiCodexRateLimits"
+  values?: OpenAiCodexRateLimitInfo
+  error?: string
 }
 
 /**
@@ -224,41 +224,41 @@ export interface OpenAiCodexRateLimitsMessage {
  * Examples: message history, current task ID, API configuration snapshot.
  */
 export type IRuntimeState = {
-	lockApiConfigAcrossModes?: boolean
-	version: string
-	clineMessages: ClineMessage[]
-	currentTaskId?: string
-	currentTaskItem?: HistoryItem
-	currentTaskTodos?: TodoItem[] // Initial todos for the current task
-	apiConfiguration: ProviderSettings
-	uriScheme?: string
+  lockApiConfigAcrossModes?: boolean
+  version: string
+  clineMessages: ClineMessage[]
+  currentTaskId?: string
+  currentTaskItem?: HistoryItem
+  currentTaskTodos?: TodoItem[] // Initial todos for the current task
+  apiConfiguration: ProviderSettings
+  uriScheme?: string
 
-	taskHistory: HistoryItem[]
+  taskHistory: HistoryItem[]
 
-	toolRequirements?: Record<string, boolean> // Map of tool names to their requirements (e.g. {"apply_diff": true})
+  toolRequirements?: Record<string, boolean> // Map of tool names to their requirements (e.g. {"apply_diff": true})
 
-	cwd?: string // Current working directory
+  cwd?: string // Current working directory
 
-	renderContext: "sidebar" | "editor"
-	maxReadFileLine?: number // Maximum line limit for read_file tool (-1 for default)
-	settingsImportedAt?: number
+  renderContext: "sidebar" | "editor"
+  maxReadFileLine?: number // Maximum line limit for read_file tool (-1 for default)
+  settingsImportedAt?: number
 
-	cloudAuthSkipModel?: boolean // Flag indicating auth completed without model selection (user should pick 3rd-party provider)
-	cloudApiUrl?: string
+  cloudAuthSkipModel?: boolean // Flag indicating auth completed without model selection (user should pick 3rd-party provider)
+  cloudApiUrl?: string
 
-	messageQueue?: QueuedMessage[]
-	apiModelId?: string
-	mcpServers?: McpServer[]
-	openAiCodexIsAuthenticated?: boolean
-	debug?: boolean
+  messageQueue?: QueuedMessage[]
+  apiModelId?: string
+  mcpServers?: McpServer[]
+  openAiCodexIsAuthenticated?: boolean
+  debug?: boolean
 
-	/**
-	 * Monotonically increasing sequence number for clineMessages state pushes.
-	 * When present, the frontend should only apply clineMessages from a state push
-	 * if its seq is greater than the last applied seq. This prevents stale state
-	 * (captured during async getStateToPostToWebview) from overwriting newer messages.
-	 */
-	clineMessagesSeq?: number
+  /**
+   * Monotonically increasing sequence number for clineMessages state pushes.
+   * When present, the frontend should only apply clineMessages from a state push
+   * if its seq is greater than the last applied seq. This prevents stale state
+   * (captured during async getStateToPostToWebview) from overwriting newer messages.
+   */
+  clineMessagesSeq?: number
 }
 
 /**
@@ -269,11 +269,11 @@ export type IRuntimeState = {
 export type ExtensionState = GlobalSettings & IRuntimeState
 
 export interface Command {
-	name: string
-	source: "global" | "project" | "built-in"
-	filePath?: string
-	description?: string
-	argumentHint?: string
+  name: string
+  source: "global" | "project" | "built-in"
+  filePath?: string
+  description?: string
+  argumentHint?: string
 }
 
 /**
@@ -286,429 +286,428 @@ export type ClineAskResponse = "yesButtonClicked" | "noButtonClicked" | "message
 export type AudioType = "notification" | "celebration" | "progress_loop"
 
 export interface UpdateTodoListPayload {
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	todos: any[]
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  todos: any[]
 }
 
 export type EditQueuedMessagePayload = Pick<QueuedMessage, "id" | "text" | "images">
 
 export interface WebviewMessage {
-	type:
-		| "updateTodoList"
-		| "deleteMultipleTasksWithIds"
-		| "currentApiConfigName"
-		| "saveApiConfiguration"
-		| "upsertApiConfiguration"
-		| "deleteApiConfiguration"
-		| "loadApiConfiguration"
-		| "loadApiConfigurationById"
-		| "renameApiConfiguration"
-		| "getListApiConfiguration"
-		| "customInstructions"
-		| "webviewDidLaunch"
-		| "newTask"
-		| "askResponse"
-		| "terminalOperation"
-		| "clearTask"
-		| "selectImages"
-		| "exportCurrentTask"
-		| "shareCurrentTask"
-		| "showTaskWithId"
-		| "deleteTaskWithId"
-		| "exportTaskWithId"
-		| "importSettings"
-		| "exportSettings"
-		| "resetState"
-		| "flushRouterModels"
-		| "requestRouterModels"
-		| "requestOpenAiModels"
-		| "requestOllamaModels"
-		| "requestLmStudioModels"
-		| "requestVsCodeLmModels"
-		| "openImage"
-		| "saveImage"
-		| "openFile"
-		| "readFileContent"
-		| "openMention"
-		| "cancelTask"
-		| "cancelAutoApproval"
-		| "updateVSCodeSetting"
-		| "getVSCodeSetting"
-		| "vsCodeSetting"
-		| "updateCondensingPrompt"
-		| "playSound"
-		| "playTts"
-		| "stopTts"
-		| "ttsEnabled"
-		| "ttsSpeed"
-		| "openKeyboardShortcuts"
-		| "openMcpSettings"
-		| "openProjectMcpSettings"
-		| "restartMcpServer"
-		| "refreshAllMcpServers"
-		| "toggleToolAlwaysAllow"
-		| "toggleToolEnabledForPrompt"
-		| "toggleMcpServer"
-		| "updateMcpTimeout"
-		| "enhancePrompt"
-		| "enhancedPrompt"
-		| "draggedImages"
-		| "deleteMessage"
-		| "deleteMessageConfirm"
-		| "submitEditedMessage"
-		| "editMessageConfirm"
-		| "searchCommits"
-		| "setApiConfigPassword"
-		| "mode"
-		| "updatePrompt"
-		| "getSystemPrompt"
-		| "copySystemPrompt"
-		| "systemPrompt"
-		| "enhancementApiConfigId"
-		| "autoApprovalEnabled"
-		| "updateCustomMode"
-		| "deleteCustomMode"
-		| "setopenAiCustomModelInfo"
-		| "openCustomModesSettings"
-		| "checkpointDiff"
-		| "checkpointRestore"
-		| "deleteMcpServer"
-		| "codebaseIndexEnabled"
-		| "searchFiles"
-		| "toggleApiConfigPin"
-		| "hasOpenedModeSelector"
-		| "lockApiConfigAcrossModes"
-		| "cloudLandingPageSignIn"
-		| "openAiCodexSignIn"
-		| "openAiCodexSignOut"
-		| "switchOrganization"
-		| "condenseTaskContextRequest"
-		| "requestIndexingStatus"
-		| "startIndexing"
-		| "stopIndexing"
-		| "clearIndexData"
-		| "indexingStatusUpdate"
-		| "indexCleared"
-		| "toggleWorkspaceIndexing"
-		| "setAutoEnableDefault"
-		| "focusPanelRequest"
-		| "openExternal"
-		| "switchTab"
-		| "exportMode"
-		| "exportModeResult"
-		| "importMode"
-		| "importModeResult"
-		| "checkRulesDirectory"
-		| "checkRulesDirectoryResult"
-		| "saveCodeIndexSettingsAtomic"
-		| "requestCodeIndexSecretStatus"
-		| "requestCommands"
-		| "openCommandFile"
-		| "deleteCommand"
-		| "createCommand"
-		| "insertTextIntoTextarea"
-		| "imageGenerationSettings"
-		| "queueMessage"
-		| "removeQueuedMessage"
-		| "editQueuedMessage"
-		| "openMarkdownPreview"
-		| "updateSettings"
-		| "allowedCommands"
-		| "getTaskWithAggregatedCosts"
-		| "deniedCommands"
-		| "openDebugApiHistory"
-		| "openDebugUiHistory"
-		| "downloadErrorDiagnostics"
-		| "requestOpenAiCodexRateLimits"
-		| "refreshCustomTools"
-		| "requestModes"
-		| "switchMode"
-		| "debugSetting"
-		// Worktree messages
-		| "listWorktrees"
-		| "createWorktree"
-		| "deleteWorktree"
-		| "switchWorktree"
-		| "getAvailableBranches"
-		| "getWorktreeDefaults"
-		| "getWorktreeIncludeStatus"
-		| "checkBranchWorktreeInclude"
-		| "createWorktreeInclude"
-		| "checkoutBranch"
-		| "browseForWorktreePath"
-		// Skills messages
-		| "requestSkills"
-		| "createSkill"
-		| "deleteSkill"
-		| "moveSkill"
-		| "updateSkillModes"
-		| "openSkillFile"
-	text?: string
-	taskId?: string
-	editedMessageContent?: string
-	tab?: "settings" | "history" | "mcp" | "modes" | "chat"
-	disabled?: boolean
-	context?: string
-	dataUri?: string
-	askResponse?: ClineAskResponse
-	apiConfiguration?: ProviderSettings
-	images?: string[]
-	bool?: boolean
-	value?: number
-	stepIndex?: number
-	isLaunchAction?: boolean
-	forceShow?: boolean
-	commands?: string[]
-	audioType?: AudioType
-	serverName?: string
-	toolName?: string
-	alwaysAllow?: boolean
-	isEnabled?: boolean
-	mode?: string
-	promptMode?: string | "enhance"
-	customPrompt?: PromptComponent
-	dataUrls?: string[]
-	/** Generic payload for webview messages that use `values` */
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	values?: Record<string, any>
-	query?: string
-	setting?: string
-	slug?: string
-	modeConfig?: ModeConfig
-	timeout?: number
-	payload?: WebViewMessagePayload
-	source?: "global" | "project"
-	skillName?: string // For skill operations (createSkill, deleteSkill, moveSkill, openSkillFile)
-	/** @deprecated Use skillModeSlugs instead */
-	skillMode?: string // For skill operations (current mode restriction)
-	/** @deprecated Use newSkillModeSlugs instead */
-	newSkillMode?: string // For moveSkill (target mode)
-	skillDescription?: string // For createSkill (skill description)
-	/** Mode slugs for skill operations. undefined/empty = any mode */
-	skillModeSlugs?: string[] // For skill operations (mode restrictions)
-	/** Target mode slugs for updateSkillModes */
-	newSkillModeSlugs?: string[] // For updateSkillModes (new mode restrictions)
-	requestId?: string
-	ids?: string[]
-	terminalOperation?: "continue" | "abort"
-	messageTs?: number
-	restoreCheckpoint?: boolean
-	historyPreviewCollapsed?: boolean
-	filters?: { type?: string; search?: string; tags?: string[] }
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	settings?: any
-	url?: string // For openExternal
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	config?: Record<string, any> // Add config to the payload
-	hasContent?: boolean // For checkRulesDirectoryResult
-	checkOnly?: boolean // For deleteCustomMode check
-	useProviderSignup?: boolean // For rooCloudSignIn to use provider signup flow
-	codeIndexSettings?: {
-		// Global state settings
-		codebaseIndexEnabled: boolean
-		codebaseIndexQdrantUrl: string
-		codebaseIndexEmbedderProvider:
-			| "openai"
-			| "ollama"
-			| "openai-compatible"
-			| "gemini"
-			| "mistral"
-			| "vercel-ai-gateway"
-			| "bedrock"
-			| "openrouter"
-		codebaseIndexEmbedderBaseUrl?: string
-		codebaseIndexEmbedderModelId: string
-		codebaseIndexEmbedderModelDimension?: number // Generic dimension for all providers
-		codebaseIndexOpenAiCompatibleBaseUrl?: string
-		codebaseIndexBedrockRegion?: string
-		codebaseIndexBedrockProfile?: string
-		codebaseIndexSearchMaxResults?: number
-		codebaseIndexSearchMinScore?: number
-		codebaseIndexOpenRouterSpecificProvider?: string // OpenRouter provider routing
+  type:
+    | "updateTodoList"
+    | "deleteMultipleTasksWithIds"
+    | "currentApiConfigName"
+    | "saveApiConfiguration"
+    | "upsertApiConfiguration"
+    | "deleteApiConfiguration"
+    | "loadApiConfiguration"
+    | "loadApiConfigurationById"
+    | "renameApiConfiguration"
+    | "getListApiConfiguration"
+    | "customInstructions"
+    | "webviewDidLaunch"
+    | "newTask"
+    | "askResponse"
+    | "terminalOperation"
+    | "clearTask"
+    | "selectImages"
+    | "exportCurrentTask"
+    | "shareCurrentTask"
+    | "showTaskWithId"
+    | "deleteTaskWithId"
+    | "exportTaskWithId"
+    | "importSettings"
+    | "exportSettings"
+    | "resetState"
+    | "flushRouterModels"
+    | "requestRouterModels"
+    | "requestOpenAiModels"
+    | "requestOllamaModels"
+    | "requestLmStudioModels"
+    | "requestVsCodeLmModels"
+    | "openImage"
+    | "saveImage"
+    | "openFile"
+    | "readFileContent"
+    | "openMention"
+    | "cancelTask"
+    | "cancelAutoApproval"
+    | "updateVSCodeSetting"
+    | "getVSCodeSetting"
+    | "vsCodeSetting"
+    | "updateCondensingPrompt"
+    | "playSound"
+    | "playTts"
+    | "stopTts"
+    | "ttsEnabled"
+    | "ttsSpeed"
+    | "openKeyboardShortcuts"
+    | "openMcpSettings"
+    | "openProjectMcpSettings"
+    | "restartMcpServer"
+    | "refreshAllMcpServers"
+    | "toggleToolAlwaysAllow"
+    | "toggleToolEnabledForPrompt"
+    | "toggleMcpServer"
+    | "updateMcpTimeout"
+    | "enhancedPrompt"
+    | "draggedImages"
+    | "deleteMessage"
+    | "deleteMessageConfirm"
+    | "submitEditedMessage"
+    | "editMessageConfirm"
+    | "searchCommits"
+    | "setApiConfigPassword"
+    | "mode"
+    | "updatePrompt"
+    | "getSystemPrompt"
+    | "copySystemPrompt"
+    | "systemPrompt"
+    | "enhancementApiConfigId"
+    | "autoApprovalEnabled"
+    | "updateCustomMode"
+    | "deleteCustomMode"
+    | "setopenAiCustomModelInfo"
+    | "openCustomModesSettings"
+    | "checkpointDiff"
+    | "checkpointRestore"
+    | "deleteMcpServer"
+    | "codebaseIndexEnabled"
+    | "searchFiles"
+    | "toggleApiConfigPin"
+    | "hasOpenedModeSelector"
+    | "lockApiConfigAcrossModes"
+    | "cloudLandingPageSignIn"
+    | "openAiCodexSignIn"
+    | "openAiCodexSignOut"
+    | "switchOrganization"
+    | "condenseTaskContextRequest"
+    | "requestIndexingStatus"
+    | "startIndexing"
+    | "stopIndexing"
+    | "clearIndexData"
+    | "indexingStatusUpdate"
+    | "indexCleared"
+    | "toggleWorkspaceIndexing"
+    | "setAutoEnableDefault"
+    | "focusPanelRequest"
+    | "openExternal"
+    | "switchTab"
+    | "exportMode"
+    | "exportModeResult"
+    | "importMode"
+    | "importModeResult"
+    | "checkRulesDirectory"
+    | "checkRulesDirectoryResult"
+    | "saveCodeIndexSettingsAtomic"
+    | "requestCodeIndexSecretStatus"
+    | "requestCommands"
+    | "openCommandFile"
+    | "deleteCommand"
+    | "createCommand"
+    | "insertTextIntoTextarea"
+    | "imageGenerationSettings"
+    | "queueMessage"
+    | "removeQueuedMessage"
+    | "editQueuedMessage"
+    | "openMarkdownPreview"
+    | "updateSettings"
+    | "allowedCommands"
+    | "getTaskWithAggregatedCosts"
+    | "deniedCommands"
+    | "openDebugApiHistory"
+    | "openDebugUiHistory"
+    | "downloadErrorDiagnostics"
+    | "requestOpenAiCodexRateLimits"
+    | "refreshCustomTools"
+    | "requestModes"
+    | "switchMode"
+    | "debugSetting"
+    // Worktree messages
+    | "listWorktrees"
+    | "createWorktree"
+    | "deleteWorktree"
+    | "switchWorktree"
+    | "getAvailableBranches"
+    | "getWorktreeDefaults"
+    | "getWorktreeIncludeStatus"
+    | "checkBranchWorktreeInclude"
+    | "createWorktreeInclude"
+    | "checkoutBranch"
+    | "browseForWorktreePath"
+    // Skills messages
+    | "requestSkills"
+    | "createSkill"
+    | "deleteSkill"
+    | "moveSkill"
+    | "updateSkillModes"
+    | "openSkillFile"
+  text?: string
+  taskId?: string
+  editedMessageContent?: string
+  tab?: "settings" | "history" | "mcp" | "modes" | "chat"
+  disabled?: boolean
+  context?: string
+  dataUri?: string
+  askResponse?: ClineAskResponse
+  apiConfiguration?: ProviderSettings
+  images?: string[]
+  bool?: boolean
+  value?: number
+  stepIndex?: number
+  isLaunchAction?: boolean
+  forceShow?: boolean
+  commands?: string[]
+  audioType?: AudioType
+  serverName?: string
+  toolName?: string
+  alwaysAllow?: boolean
+  isEnabled?: boolean
+  mode?: string
+  promptMode?: string | "enhance"
+  customPrompt?: PromptComponent
+  dataUrls?: string[]
+  /** Generic payload for webview messages that use `values` */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  values?: Record<string, any>
+  query?: string
+  setting?: string
+  slug?: string
+  modeConfig?: ModeConfig
+  timeout?: number
+  payload?: WebViewMessagePayload
+  source?: "global" | "project"
+  skillName?: string // For skill operations (createSkill, deleteSkill, moveSkill, openSkillFile)
+  /** @deprecated Use skillModeSlugs instead */
+  skillMode?: string // For skill operations (current mode restriction)
+  /** @deprecated Use newSkillModeSlugs instead */
+  newSkillMode?: string // For moveSkill (target mode)
+  skillDescription?: string // For createSkill (skill description)
+  /** Mode slugs for skill operations. undefined/empty = any mode */
+  skillModeSlugs?: string[] // For skill operations (mode restrictions)
+  /** Target mode slugs for updateSkillModes */
+  newSkillModeSlugs?: string[] // For updateSkillModes (new mode restrictions)
+  requestId?: string
+  ids?: string[]
+  terminalOperation?: "continue" | "abort"
+  messageTs?: number
+  restoreCheckpoint?: boolean
+  historyPreviewCollapsed?: boolean
+  filters?: { type?: string; search?: string; tags?: string[] }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  settings?: any
+  url?: string // For openExternal
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  config?: Record<string, any> // Add config to the payload
+  hasContent?: boolean // For checkRulesDirectoryResult
+  checkOnly?: boolean // For deleteCustomMode check
+  useProviderSignup?: boolean // For rooCloudSignIn to use provider signup flow
+  codeIndexSettings?: {
+    // Global state settings
+    codebaseIndexEnabled: boolean
+    codebaseIndexQdrantUrl: string
+    codebaseIndexEmbedderProvider:
+      | "openai"
+      | "ollama"
+      | "openai-compatible"
+      | "gemini"
+      | "mistral"
+      | "vercel-ai-gateway"
+      | "bedrock"
+      | "openrouter"
+    codebaseIndexEmbedderBaseUrl?: string
+    codebaseIndexEmbedderModelId: string
+    codebaseIndexEmbedderModelDimension?: number // Generic dimension for all providers
+    codebaseIndexOpenAiCompatibleBaseUrl?: string
+    codebaseIndexBedrockRegion?: string
+    codebaseIndexBedrockProfile?: string
+    codebaseIndexSearchMaxResults?: number
+    codebaseIndexSearchMinScore?: number
+    codebaseIndexOpenRouterSpecificProvider?: string // OpenRouter provider routing
 
-		// Secret settings
-		codeIndexOpenAiKey?: string
-		codeIndexQdrantApiKey?: string
-		codebaseIndexOpenAiCompatibleApiKey?: string
-		codebaseIndexGeminiApiKey?: string
-		codebaseIndexMistralApiKey?: string
-		codebaseIndexVercelAiGatewayApiKey?: string
-		codebaseIndexOpenRouterApiKey?: string
-	}
-	updatedSettings?: Partial<RooCodeSettings>
-	/** Task configuration applied via `createTask()` when starting a cloud task. */
-	taskConfiguration?: Partial<RooCodeSettings>
-	// Worktree properties
-	worktreePath?: string
-	worktreeBranch?: string
-	worktreeBaseBranch?: string
-	worktreeCreateNewBranch?: boolean
-	worktreeForce?: boolean
-	worktreeNewWindow?: boolean
-	worktreeIncludeContent?: string
+    // Secret settings
+    codeIndexOpenAiKey?: string
+    codeIndexQdrantApiKey?: string
+    codebaseIndexOpenAiCompatibleApiKey?: string
+    codebaseIndexGeminiApiKey?: string
+    codebaseIndexMistralApiKey?: string
+    codebaseIndexVercelAiGatewayApiKey?: string
+    codebaseIndexOpenRouterApiKey?: string
+  }
+  updatedSettings?: Partial<RooCodeSettings>
+  /** Task configuration applied via `createTask()` when starting a cloud task. */
+  taskConfiguration?: Partial<RooCodeSettings>
+  // Worktree properties
+  worktreePath?: string
+  worktreeBranch?: string
+  worktreeBaseBranch?: string
+  worktreeCreateNewBranch?: boolean
+  worktreeForce?: boolean
+  worktreeNewWindow?: boolean
+  worktreeIncludeContent?: string
 }
 
 export interface RequestOpenAiCodexRateLimitsMessage {
-	type: "requestOpenAiCodexRateLimits"
+  type: "requestOpenAiCodexRateLimits"
 }
 
 export const checkoutDiffPayloadSchema = z.object({
-	ts: z.number().optional(),
-	previousCommitHash: z.string().optional(),
-	commitHash: z.string(),
-	mode: z.enum(["full", "checkpoint", "from-init", "to-current"]),
+  ts: z.number().optional(),
+  previousCommitHash: z.string().optional(),
+  commitHash: z.string(),
+  mode: z.enum(["full", "checkpoint", "from-init", "to-current"]),
 })
 
 export type CheckpointDiffPayload = z.infer<typeof checkoutDiffPayloadSchema>
 
 export const checkoutRestorePayloadSchema = z.object({
-	ts: z.number(),
-	commitHash: z.string(),
-	mode: z.enum(["preview", "restore"]),
+  ts: z.number(),
+  commitHash: z.string(),
+  mode: z.enum(["preview", "restore"]),
 })
 
 export type CheckpointRestorePayload = z.infer<typeof checkoutRestorePayloadSchema>
 
 export interface IndexingStatusPayload {
-	state: "Standby" | "Indexing" | "Indexed" | "Error" | "Stopping"
-	message: string
+  state: "Standby" | "Indexing" | "Indexed" | "Error" | "Stopping"
+  message: string
 }
 
 export interface IndexClearedPayload {
-	success: boolean
-	error?: string
+  success: boolean
+  error?: string
 }
 
 export type WebViewMessagePayload =
-	| CheckpointDiffPayload
-	| CheckpointRestorePayload
-	| IndexingStatusPayload
-	| IndexClearedPayload
-	| UpdateTodoListPayload
-	| EditQueuedMessagePayload
+  | CheckpointDiffPayload
+  | CheckpointRestorePayload
+  | IndexingStatusPayload
+  | IndexClearedPayload
+  | UpdateTodoListPayload
+  | EditQueuedMessagePayload
 
 export interface IndexingStatus {
-	systemStatus: string
-	message?: string
-	processedItems: number
-	totalItems: number
-	currentItemUnit?: string
-	workspacePath?: string
-	workspaceEnabled?: boolean
-	autoEnableDefault?: boolean
+  systemStatus: string
+  message?: string
+  processedItems: number
+  totalItems: number
+  currentItemUnit?: string
+  workspacePath?: string
+  workspaceEnabled?: boolean
+  autoEnableDefault?: boolean
 }
 
 export interface IndexingStatusUpdateMessage {
-	type: "indexingStatusUpdate"
-	values: IndexingStatus
+  type: "indexingStatusUpdate"
+  values: IndexingStatus
 }
 
 export interface LanguageModelChatSelector {
-	vendor?: string
-	family?: string
-	version?: string
-	id?: string
+  vendor?: string
+  family?: string
+  version?: string
+  id?: string
 }
 
 export interface ClineSayTool {
-	tool:
-		| "editedExistingFile"
-		| "appliedDiff"
-		| "newFileCreated"
-		| "codebaseSearch"
-		| "astGrep"
-		| "readFile"
-		| "readCommandOutput"
-		| "listFilesTopLevel"
-		| "listFilesRecursive"
-		| "searchFiles"
-		| "switchMode"
-		| "newTask"
-		| "finishTask"
-		| "generateImage"
-		| "imageGenerated"
-		| "runSlashCommand"
-		| "updateTodoList"
-		| "skill"
-		| "unknown"
-	path?: string
-	// For readCommandOutput
-	readStart?: number
-	readEnd?: number
-	totalBytes?: number
-	searchPattern?: string
-	matchCount?: number
-	diff?: string
-	content?: string
-	// Original file content before first edit (for merged diff display in FileChangesPanel)
-	originalContent?: string
-	// Unified diff statistics computed by the extension
-	diffStats?: { added: number; removed: number }
-	regex?: string
-	filePattern?: string
-	mode?: string
-	reason?: string
-	isOutsideWorkspace?: boolean
-	isProtected?: boolean
-	additionalFileCount?: number // Number of additional files in the same read_file request
-	lineNumber?: number
-	startLine?: number // Starting line for read_file operations (for navigation on click)
-	query?: string
-	batchFiles?: Array<{
-		path: string
-		lineSnippet: string
-		isOutsideWorkspace?: boolean
-		key: string
-		content?: string
-	}>
-	batchDiffs?: Array<{
-		path: string
-		changeCount: number
-		key: string
-		content: string
-		// Per-file unified diff statistics computed by the extension
-		diffStats?: { added: number; removed: number }
-		diffs?: Array<{
-			content: string
-			startLine?: number
-		}>
-	}>
-	batchDirs?: Array<{
-		path: string
-		recursive: boolean
-		isOutsideWorkspace?: boolean
-		key: string
-	}>
-	question?: string
-	imageData?: string // Base64 encoded image data for generated images
-	// Properties for runSlashCommand tool
-	command?: string
-	args?: string
-	source?: string
-	description?: string
-	// Properties for skill tool
-	skill?: string
+  tool:
+    | "editedExistingFile"
+    | "appliedDiff"
+    | "newFileCreated"
+    | "codebaseSearch"
+    | "astGrep"
+    | "readFile"
+    | "readCommandOutput"
+    | "listFilesTopLevel"
+    | "listFilesRecursive"
+    | "searchFiles"
+    | "switchMode"
+    | "newTask"
+    | "finishTask"
+    | "generateImage"
+    | "imageGenerated"
+    | "runSlashCommand"
+    | "updateTodoList"
+    | "skill"
+    | "unknown"
+  path?: string
+  // For readCommandOutput
+  readStart?: number
+  readEnd?: number
+  totalBytes?: number
+  searchPattern?: string
+  matchCount?: number
+  diff?: string
+  content?: string
+  // Original file content before first edit (for merged diff display in FileChangesPanel)
+  originalContent?: string
+  // Unified diff statistics computed by the extension
+  diffStats?: { added: number; removed: number }
+  regex?: string
+  filePattern?: string
+  mode?: string
+  reason?: string
+  isOutsideWorkspace?: boolean
+  isProtected?: boolean
+  additionalFileCount?: number // Number of additional files in the same read_file request
+  lineNumber?: number
+  startLine?: number // Starting line for read_file operations (for navigation on click)
+  query?: string
+  batchFiles?: Array<{
+    path: string
+    lineSnippet: string
+    isOutsideWorkspace?: boolean
+    key: string
+    content?: string
+  }>
+  batchDiffs?: Array<{
+    path: string
+    changeCount: number
+    key: string
+    content: string
+    // Per-file unified diff statistics computed by the extension
+    diffStats?: { added: number; removed: number }
+    diffs?: Array<{
+      content: string
+      startLine?: number
+    }>
+  }>
+  batchDirs?: Array<{
+    path: string
+    recursive: boolean
+    isOutsideWorkspace?: boolean
+    key: string
+  }>
+  question?: string
+  imageData?: string // Base64 encoded image data for generated images
+  // Properties for runSlashCommand tool
+  command?: string
+  args?: string
+  source?: string
+  description?: string
+  // Properties for skill tool
+  skill?: string
 }
 
 export interface ClineAskUseMcpServer {
-	serverName: string
-	type: "use_mcp_tool" | "access_mcp_resource"
-	toolName?: string
-	arguments?: string
-	uri?: string
-	response?: string
+  serverName: string
+  type: "use_mcp_tool" | "access_mcp_resource"
+  toolName?: string
+  arguments?: string
+  uri?: string
+  response?: string
 }
 
 export interface ClineApiReqInfo {
-	request?: string
-	tokensIn?: number
-	tokensOut?: number
-	cacheWrites?: number
-	cacheReads?: number
-	cost?: number
-	cancelReason?: ClineApiReqCancelReason
-	streamingFailedMessage?: string
-	apiProtocol?: "anthropic" | "openai"
+  request?: string
+  tokensIn?: number
+  tokensOut?: number
+  cacheWrites?: number
+  cacheReads?: number
+  cost?: number
+  cancelReason?: ClineApiReqCancelReason
+  streamingFailedMessage?: string
+  apiProtocol?: "anthropic" | "openai"
 }
 
 export type ClineApiReqCancelReason = "streaming_failed" | "user_cancelled"

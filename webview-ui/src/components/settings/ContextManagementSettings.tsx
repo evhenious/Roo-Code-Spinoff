@@ -30,7 +30,6 @@ type ContextManagementSettingsProps = HTMLAttributes<HTMLDivElement> & {
   autoCondenseContextPercent: number
   listApiConfigMeta: any[]
   maxOpenTabsContext: number
-  maxWorkspaceFiles: number
   showRooIgnoredFiles?: boolean
   enableSubfolderRules?: boolean
   maxImageFileSize?: number
@@ -47,7 +46,6 @@ type ContextManagementSettingsProps = HTMLAttributes<HTMLDivElement> & {
     | "autoCondenseContext"
     | "autoCondenseContextPercent"
     | "maxOpenTabsContext"
-    | "maxWorkspaceFiles"
     | "showRooIgnoredFiles"
     | "enableSubfolderRules"
     | "maxImageFileSize"
@@ -66,7 +64,6 @@ export const ContextManagementSettings = ({
   autoCondenseContextPercent,
   listApiConfigMeta,
   maxOpenTabsContext,
-  maxWorkspaceFiles,
   showRooIgnoredFiles,
   enableSubfolderRules,
   setCachedStateField,
@@ -162,28 +159,6 @@ export const ContextManagementSettings = ({
             {t("settings:contextManagement.openTabs.description")}
           </div>
         </SearchableSetting>
-
-        <SearchableSetting
-          settingId="context-workspace-files"
-          section="contextManagement"
-          label={t("settings:contextManagement.workspaceFiles.label")}>
-          <span className="block font-medium mb-1">{t("settings:contextManagement.workspaceFiles.label")}</span>
-          <div className="flex items-center gap-2">
-            <Slider
-              min={0}
-              max={500}
-              step={1}
-              value={[maxWorkspaceFiles ?? 200]}
-              onValueChange={([value]) => setCachedStateField("maxWorkspaceFiles", value)}
-              data-testid="workspace-files-limit-slider"
-            />
-            <span className="w-10">{maxWorkspaceFiles ?? 200}</span>
-          </div>
-          <div className="text-vscode-descriptionForeground text-sm mt-1">
-            {t("settings:contextManagement.workspaceFiles.description")}
-          </div>
-        </SearchableSetting>
-
         <SearchableSetting
           settingId="context-max-git-status-files"
           section="contextManagement"
@@ -204,7 +179,6 @@ export const ContextManagementSettings = ({
             {t("settings:contextManagement.maxGitStatusFiles.description")}
           </div>
         </SearchableSetting>
-
         <SearchableSetting
           settingId="context-show-rooignored-files"
           section="contextManagement"
@@ -219,7 +193,6 @@ export const ContextManagementSettings = ({
             {t("settings:contextManagement.rooignore.description")}
           </div>
         </SearchableSetting>
-
         <SearchableSetting
           settingId="context-enable-subfolder-rules"
           section="contextManagement"
@@ -236,7 +209,6 @@ export const ContextManagementSettings = ({
             {t("settings:contextManagement.enableSubfolderRules.description")}
           </div>
         </SearchableSetting>
-
         <SearchableSetting
           settingId="context-max-image-file-size"
           section="contextManagement"
@@ -267,7 +239,6 @@ export const ContextManagementSettings = ({
             {t("settings:contextManagement.maxImageFileSize.description")}
           </div>
         </SearchableSetting>
-
         <SearchableSetting
           settingId="context-max-total-image-size"
           section="contextManagement"
@@ -298,7 +269,6 @@ export const ContextManagementSettings = ({
             {t("settings:contextManagement.maxTotalImageSize.description")}
           </div>
         </SearchableSetting>
-
         <SearchableSetting
           settingId="context-include-diagnostic-messages"
           section="contextManagement"
@@ -315,7 +285,6 @@ export const ContextManagementSettings = ({
             {t("settings:contextManagement.diagnostics.includeMessages.description")}
           </div>
         </SearchableSetting>
-
         <SearchableSetting
           settingId="context-max-diagnostic-messages"
           section="contextManagement"
@@ -367,7 +336,6 @@ export const ContextManagementSettings = ({
             {t("settings:contextManagement.diagnostics.maxMessages.description")}
           </div>
         </SearchableSetting>
-
         <SearchableSetting
           settingId="context-write-delay"
           section="contextManagement"
@@ -390,7 +358,6 @@ export const ContextManagementSettings = ({
             {t("settings:contextManagement.diagnostics.delayAfterWrite.description")}
           </div>
         </SearchableSetting>
-
         <SearchableSetting
           settingId="context-include-current-time"
           section="contextManagement"

@@ -154,7 +154,6 @@ export const globalSettingsSchema = z.object({
   soundVolume: z.number().default(0.5),
 
   maxOpenTabsContext: z.number().default(20),
-  maxWorkspaceFiles: z.number().default(200),
   showRooIgnoredFiles: z.boolean().default(false),
   enableSubfolderRules: z.boolean().default(false),
   maxImageFileSize: z.number().default(5),
