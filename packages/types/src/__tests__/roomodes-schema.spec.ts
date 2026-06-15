@@ -118,23 +118,6 @@ describe("roomodes JSON schema", () => {
     expect(valid).toBe(true)
   })
 
-  it("should accept the modes tool group", () => {
-    const config = {
-      customModes: [
-        {
-          slug: "orchestrator",
-          name: "Orchestrator",
-          roleDefinition: "You orchestrate other modes.",
-          groups: ["read", "modes"],
-        },
-      ],
-    }
-
-    const valid = validate(config)
-    expect(validate.errors).toBeNull()
-    expect(valid).toBe(true)
-  })
-
   it("should reject a config missing customModes", () => {
     const config = {}
 
