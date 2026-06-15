@@ -368,6 +368,7 @@ async function getFileOrFolderContentWithMetadata(
 
         const displayName = isIgnored ? `${LOCK_SYMBOL} ${entry.name}` : entry.name
 
+        // TODO dangerous token waste. Fix?
         if (entry.isFile()) {
           folderListing += `${linePrefix}${displayName}\n`
           if (!isIgnored) {
