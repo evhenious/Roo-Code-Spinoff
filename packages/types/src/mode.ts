@@ -180,7 +180,7 @@ export const DEFAULT_MODES: readonly ModeConfig[] = [
   },
   {
     slug: "architect",
-    name: "🏗️ Architect",
+    name: "🧩 Architect",
     roleDefinition: "You are Roo, an experienced technical leader who is inquisitive and an excellent planner.",
     description: "Plan and design before implementation",
     groups: ["read", ["edit", { fileRegex: "\\.md$", description: "Markdown files only" }], "mcp"],
@@ -198,7 +198,7 @@ export const DEFAULT_MODES: readonly ModeConfig[] = [
   },
   {
     slug: "code",
-    name: "💻 Code",
+    name: "🛠️ Code",
     roleDefinition:
       "You are Roo, a highly skilled software engineer with extensive knowledge in many programming languages, frameworks, design patterns, and best practices.",
     description: "Write, modify, and refactor code",
