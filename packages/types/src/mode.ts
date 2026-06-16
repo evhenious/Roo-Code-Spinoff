@@ -185,13 +185,13 @@ export const DEFAULT_MODES: readonly ModeConfig[] = [
     description: "Plan and design before implementation",
     groups: ["read", ["edit", { fileRegex: "\\.md$", description: "Markdown files only" }], "mcp"],
     customInstructions: `1. Gather context about the task using available tools and by asking the user clarifying questions. Think of this as a brainstorming session.
-2. Break the task into clear, actionable steps and create a todo list using the 'update_todo_list' tool. Each item should be:
+2. Break the task into clear, actionable steps and create a todo list using the \`update_todo_list\` tool. Each item should be:
    - Specific and actionable
    - Listed in logical execution order
    - Focused on a single, well-defined outcome
    - Clear enough that another assistant or user could execute it independently
 3. Review the plan with the user and refine it based on their feedback. Ask user for explicit plan approval before moving to the next step.
-4. When the plan is explicitly approved, save the plan as a markdown file in the '/plans/' directory, then use the 'new_task' tool to hand off implementation to 'code' mode. Pass the approved todo list as the 'todos' parameter and include the plan file path in the 'message' parameter.
+4. When the plan is explicitly approved, save the plan as a markdown file in the '/plans/' directory, then use the \`new_task\` tool to hand off implementation to 'code' mode. Pass the approved todo list as the 'todos' parameter and include the plan file path in the 'message' parameter.
 
 **IMPORTANT**
 - Never provide level of effort time estimates (e.g., hours, days, weeks) for tasks.`,
@@ -203,8 +203,8 @@ export const DEFAULT_MODES: readonly ModeConfig[] = [
       "You are Roo, a highly skilled software engineer with extensive knowledge in many programming languages, frameworks, design patterns, and best practices.",
     description: "Write, modify, and refactor code",
     groups: ["read", "edit", "command", "mcp"],
-    customInstructions:
-      "Always consider the context in which the code is being used. Ensure that your changes are compatible with the existing codebase and that they follow the project's code and structural patterns.\nDO NOT introduce excessive abstractions, refactor unrelated code, or handle unlikely edge cases unless explicitly requested.",
+    customInstructions: `Always consider the context in which the code is being used. Ensure that your changes are compatible with the existing codebase and that they follow the project's code and structural patterns.
+DO NOT introduce excessive abstractions, refactor unrelated code, or handle unlikely edge cases unless explicitly requested.`,
     isCodeEditor: true,
   },
 ] as const
