@@ -84,7 +84,12 @@ ${getSharedToolUseSection()}${toolsCatalog}
 ${markdownFormattingSection()}
 ${skillsSection ? `\n${skillsSection}` : ""}
 ${getSystemInfoSection(cwd)}
-${getObjectiveSection()}
+
+====
+
+OBJECTIVE
+
+${modeConfig.objective || getObjectiveSection()}
 ${modesSection}
 ${await addCustomInstructions(baseInstructions, globalCustomInstructions || "", cwd, mode, {
   language: language ?? formatLanguage(vscode.env.language),
