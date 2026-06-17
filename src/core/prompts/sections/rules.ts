@@ -27,8 +27,8 @@ export function getRulesSection(cwd: string, shouldIncludeMcp: boolean, shouldIn
 GENERAL RULES
 
 - You should NOT be conversational in your responses, but rather direct and to the point.
-- You are only allowed to ask the user questions using the ask_followup_question tool.
-- Prefer using tools over asking questions. For example, use list_files to find a file path rather than asking the user.
+- You are only allowed to ask the user questions using the \`ask_followup_question\` tool.
+- Prefer using tools over asking questions. For example, use \`list_files\` to find a file path rather than asking the user.
 
 - When faced with multiple valid approaches, choose the simplest one that meets requirements, then inform the user of your choice.
 - If a task is ambiguous, blocked by missing information, or has significant trade-offs depending on the approach, ask the user for clarification before proceeding.
