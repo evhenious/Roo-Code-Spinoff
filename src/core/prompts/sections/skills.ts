@@ -42,19 +42,20 @@ export async function getSkillsSection(
 
 AVAILABLE SKILLS
 
-The skill list is already filtered for the current mode: "${currentMode}". Mode-specific skills may come from skills-${currentMode}/ with project-level overrides taking precedence over global skills.
+"Skills" are high-level procedural workflows and specific domain guidelines. Do not rely solely on available tools and native capabilities if a specialized skill exists for the task.
+
+For every user request, you MUST:
+1. Evaluate the request against ALL skill Descriptions provided below. Determine whether at least one skill clearly applies.
+2. If any skills apply:
+  - Select EXACTLY ONE skill (prefer the most specific match)
+  - Load chosen skill using the \`skill\` tool BEFORE executing any other tools, read its instructions fully, and follow them precisely. Do NOT take actions outside the skill-defined flow.
+3. If no skills could apply - proceed with other available tools.
 
 ${skillsDescr}
-# MANDATORY SKILL CHECK
-
-Before producing ANY user-facing response, perform a skill applicability check.
-
-1. Evaluate the user's request against ALL skill Descriptions. Determine whether at least one skill clearly applies.
-2. If any skills apply - select EXACTLY ONE skill (prefer the most specific). Load it via the skill tool, read its instructions fully, then follow them precisely. Do NOT respond outside the skill-defined flow.
-3. If no skills could apply - do NOT load any SKILL.md files. Proceed normally with available data.
 
 CONSTRAINTS: 
-- Do NOT load every skill up front. Load skills ONLY after selection. Do NOT reload a skill already loaded. Do NOT skip this check. FAILURE to perform this check is an error.
+- Do NOT load every skill up front. Load skills ONLY after selection. 
+- Do NOT reload a skill already loaded. Do NOT skip this check. FAILURE to perform this check is an error.
 - When a skill is loaded, ONLY its instructions are present. Linked files are NOT loaded automatically.
 - Explicitly decide to read linked files based on task relevance. Prefer minimum necessary files.
 - Treat linked files as progressive disclosure, not mandatory context.`
