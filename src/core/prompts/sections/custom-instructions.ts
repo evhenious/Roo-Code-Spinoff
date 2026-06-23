@@ -385,11 +385,11 @@ export async function addCustomInstructions(
   cwd: string,
   mode: string,
   options: {
-    language?: string
     rooIgnoreInstructions?: string
     settings?: SystemPromptSettings
   } = {},
 ): Promise<string> {
+  console.log("==== loading custom instruction ====")
   const sections = []
 
   // Get the enableSubfolderRules setting (default: false)
@@ -420,28 +420,7 @@ export async function addCustomInstructions(
     if (modeRules.length > 0) {
       modeRuleContent = "\n" + modeRules.join("\n\n")
       usedRuleFile = `rules-${mode} directories`
-    } else {
-      // Fall back to existing behavior for legacy files
-      const rooModeRuleFile = `.roorules-${mode}`
-      modeRuleContent = await safeReadFile(path.join(cwd, rooModeRuleFile))
-      if (modeRuleContent) {
-        usedRuleFile = rooModeRuleFile
-      } else {
-        const clineModeRuleFile = `.clinerules-${mode}`
-        modeRuleContent = await safeReadFile(path.join(cwd, clineModeRuleFile))
-        if (modeRuleContent) {
-          usedRuleFile = clineModeRuleFile
-        }
-      }
     }
-  }
-
-  // Add language preference if provided
-  if (options.language) {
-    const languageName = isLanguage(options.language) ? LANGUAGES[options.language] : options.language
-    sections.push(
-      `Language Preference:\nYou should always speak and think in the "${languageName}" (${options.language}).`,
-    )
   }
 
   // Add global instructions first

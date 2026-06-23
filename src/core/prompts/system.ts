@@ -92,7 +92,6 @@ OBJECTIVE
 ${modeConfig.objective || getObjectiveSection()}
 ${modesSection}
 ${await addCustomInstructions(baseInstructions, globalCustomInstructions || "", cwd, mode, {
-  language: language ?? formatLanguage(vscode.env.language),
   rooIgnoreInstructions,
   settings,
 })}
@@ -104,19 +103,14 @@ ${await addCustomInstructions(baseInstructions, globalCustomInstructions || "", 
 export const SYSTEM_PROMPT = async (
   context: vscode.ExtensionContext,
   cwd: string,
-  // supportsComputerUse: boolean,
   mcpHub?: McpHub,
-  // diffStrategy?: DiffStrategy,
   mode: Mode = defaultModeSlug,
   customModePrompts?: CustomModePrompts,
   customModes?: ModeConfig[],
   globalCustomInstructions?: string,
-  // experiments?: Record<string, boolean>,
   language?: string,
   rooIgnoreInstructions?: string,
   settings?: SystemPromptSettings,
-  // todoList?: TodoItem[],
-  // modelId?: string,
   skillsManager?: SkillsManager,
 ): Promise<string> => {
   if (!context) {

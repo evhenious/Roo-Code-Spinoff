@@ -636,7 +636,6 @@ export class ClineProvider
 
     const { customSupportPrompts } = await visibleProvider.getState()
 
-    // TODO: Improve type safety for promptType.
     const prompt = supportPrompt.create(promptType, params, customSupportPrompts)
 
     if (command === "addToContext") {
