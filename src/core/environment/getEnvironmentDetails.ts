@@ -15,6 +15,8 @@ import { getGitStatus } from "../../utils/git"
 import { Task } from "../task/Task"
 import { formatReminderSection } from "./reminder"
 
+const MAX_VISIBLE_EDITORS = 2
+
 export async function getEnvironmentDetails(
   cline: Task,
   includeEverything: boolean = false,
@@ -24,7 +26,6 @@ export async function getEnvironmentDetails(
 
   const clineProvider = cline.providerRef.deref()
   const state = await clineProvider?.getState()
-  const { maxWorkspaceFiles = 200 } = state ?? {}
 
   // It could be useful for cline to know if the user went from one or no
   // file to another between messages, so we always include this context.
@@ -32,7 +33,7 @@ export async function getEnvironmentDetails(
     ?.map((editor) => editor.document?.uri?.fsPath?.trim())
     .filter(Boolean)
     .map((absolutePath) => path.relative(cline.cwd, absolutePath))
-    .slice(0, maxWorkspaceFiles)
+    .slice(0, MAX_VISIBLE_EDITORS)
 
   // Filter paths through rooIgnoreController
   const allowedVisibleFiles = cline.rooIgnoreController

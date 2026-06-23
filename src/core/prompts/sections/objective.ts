@@ -1,10 +1,6 @@
+// this is default objective to be used if a mode does not introduce it's own
 export function getObjectiveSection(): string {
-  return `
-====
-
-OBJECTIVE
-
-You accomplish tasks iteratively. Follow this workflow:
+  return `You accomplish tasks iteratively. Follow this workflow:
 
 1. **Analyze** the task.
 2. **Plan** your approach. Gather information, identify actionable and manageable steps.

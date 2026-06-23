@@ -304,11 +304,21 @@ async function getFileOrFolderContentWithMetadata(
         }
       }
 
+      if (!linesRequired) {
+        // avoiding adding 2000 lines without specific need to have them all
+        // let LLM to read when need
+        return {
+          type: "file",
+          path: mentionPath,
+          content: `[read_file for '${mentionPath}']\nNote: File mentioned without specific lines. Use read_file tool to view.`,
+        }
+      }
+
       try {
         const result = await extractTextFromFileWithMetadata(
           absPath,
-          linesRequired ? linesRequired[1] - linesRequired[0] : undefined, // limit
-          linesRequired ? linesRequired[0] : undefined, // offset
+          linesRequired[1] - linesRequired[0], // limit
+          linesRequired[0], // offset
         )
 
         // Track file context
@@ -358,6 +368,7 @@ async function getFileOrFolderContentWithMetadata(
 
         const displayName = isIgnored ? `${LOCK_SYMBOL} ${entry.name}` : entry.name
 
+        // TODO dangerous token waste. Fix?
         if (entry.isFile()) {
           folderListing += `${linePrefix}${displayName}\n`
           if (!isIgnored) {

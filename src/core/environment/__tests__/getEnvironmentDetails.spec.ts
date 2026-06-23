@@ -73,7 +73,6 @@ describe("getEnvironmentDetails", () => {
 
     mockState = {
       terminalOutputLineLimit: 100,
-      maxWorkspaceFiles: 50,
       maxOpenTabsContext: 10,
       mode: "code",
       customModes: [],
@@ -190,19 +189,6 @@ describe("getEnvironmentDetails", () => {
     const result = await getEnvironmentDetails(mockCline as Task, true)
     expect(result).toContain("Desktop files not shown automatically")
     expect(listFiles).not.toHaveBeenCalled()
-  })
-
-  it("should skip file listing when maxWorkspaceFiles is 0", async () => {
-    mockProvider.getState.mockResolvedValue({
-      ...mockState,
-      maxWorkspaceFiles: 0,
-    })
-
-    const result = await getEnvironmentDetails(mockCline as Task, true)
-
-    expect(listFiles).not.toHaveBeenCalled()
-    expect(result).toContain("(Use the list_files tool to explore workspace files if needed.)")
-    expect(formatResponse.formatFilesList).not.toHaveBeenCalled()
   })
 
   it("should include recently modified files if any", async () => {

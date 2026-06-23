@@ -12,6 +12,7 @@
 - Write & Update documentation
 - Answer Questions about your codebase
 - Automate repetitive tasks
+- Delegate subtasks to other modes
 - Utilize MCP Servers
 
 ## Modes

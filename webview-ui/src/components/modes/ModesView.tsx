@@ -65,15 +65,7 @@ function getGroupName(group: GroupEntry): ToolGroup {
 const ModesView = () => {
   const { t } = useAppTranslation()
 
-  const {
-    customModePrompts,
-    listApiConfigMeta,
-    currentApiConfigName,
-    mode,
-    customInstructions,
-    setCustomInstructions,
-    customModes,
-  } = useExtensionState()
+  const { customModePrompts, listApiConfigMeta, currentApiConfigName, mode, customModes } = useExtensionState()
 
   // Use a local state to track the visually active mode
   // This prevents flickering when switching modes rapidly by:
@@ -1215,34 +1207,6 @@ const ModesView = () => {
 
         <div className="pb-5">
           <h3 className="text-vscode-foreground mb-3">{t("prompts:globalCustomInstructions.title")}</h3>
-
-          <div className="text-sm text-vscode-descriptionForeground mb-2">
-            <Trans i18nKey="prompts:globalCustomInstructions.description">
-              <VSCodeLink
-                href={buildDocLink(
-                  "features/custom-instructions#setting-up-global-rules",
-                  "prompts_global_custom_instructions",
-                )}
-                style={{ display: "inline" }}
-                aria-label="Learn more about global custom instructions"></VSCodeLink>
-            </Trans>
-          </div>
-          <VSCodeTextArea
-            resize="vertical"
-            value={customInstructions || ""}
-            onChange={(e) => {
-              const value =
-                (e as unknown as CustomEvent)?.detail?.target?.value ?? ((e as any).target as HTMLTextAreaElement).value
-              setCustomInstructions(value ?? undefined)
-              vscode.postMessage({
-                type: "customInstructions",
-                text: value ?? undefined,
-              })
-            }}
-            rows={4}
-            className="w-full"
-            data-testid="global-custom-instructions-textarea"
-          />
           <div className="text-xs text-vscode-descriptionForeground mt-1.5">
             <Trans
               i18nKey="prompts:globalCustomInstructions.loadFromFile"

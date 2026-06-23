@@ -273,7 +273,6 @@ export const useExtensionStateStore = create<IExtensionStoreWithMethods>((set, g
     setAutoApprovalEnabled: (value: boolean) => set((prevState) => ({ ...prevState, autoApprovalEnabled: value })),
     setCustomModes: (value: ModeConfig[]) => set((prevState) => ({ ...prevState, customModes: value })),
     setMaxOpenTabsContext: (value: number) => set((prevState) => ({ ...prevState, maxOpenTabsContext: value })),
-    setMaxWorkspaceFiles: (value: number) => set((prevState) => ({ ...prevState, maxWorkspaceFiles: value })),
     setShowRooIgnoredFiles: (value: boolean) => set((prevState) => ({ ...prevState, showRooIgnoredFiles: value })),
     setEnableSubfolderRules: (value: boolean) => set((prevState) => ({ ...prevState, enableSubfolderRules: value })),
     setMaxImageFileSize: (value: number) => set((prevState) => ({ ...prevState, maxImageFileSize: value })),

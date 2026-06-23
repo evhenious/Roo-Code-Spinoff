@@ -13,5 +13,5 @@ If you cannot confirm the exact line number, use the best available path without
 
 This rule is CRITICALLY important for:
  - creating or editing \`*.md\` files containing task plans or documentation
- - attempt_completion tool call.`
+ - \`attempt_completion\` tool call.`
 }

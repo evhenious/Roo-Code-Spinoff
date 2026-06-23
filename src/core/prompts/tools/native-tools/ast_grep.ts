@@ -1,29 +1,28 @@
 import type OpenAI from "openai"
 
-const AST_GREP_DESCRIPTION = `Search code using AST (Abstract Syntax Tree) patterns via ast-grep (sg).
-This tool finds code based on structural patterns rather than plain text matching.
-Ideal for finding specific code constructs like function definitions, class usages, method calls, etc.
+const AST_GREP_DESCRIPTION = `Search code using AST (Abstract Syntax Tree) patterns via ast-grep (sg). Finds code based on structural patterns rather than plain text matching.
 
-CRITICAL:
-- refer to 'ast-grep' skill for usage examples and query syntax rules
+When to Use:
+- Finding code constructs by structure: function definitions, class usages, method calls, imports
+- Matching patterns with wildcards and named captures (e.g., all React hooks, all useEffect calls with dependencies)
+- Searching across multiple file types with language-aware AST parsing
+
+Do not use when:
+- You need simple text or regex search — use search_files instead
+- Searching for a literal string that doesn't appear in the code (AST requires valid syntax)
+
+CRITICAL: Refer to the 'ast-grep' skill for full query syntax rules, meta-variable rules, and usage examples.
 
 Parameters:
-- query: (required) The inline YAML rule definition as a multi-line string. Must include at minimum:
-  - id: a unique identifier for the search
-  - language: language for which rule.pattern is a valid code fragment (e.g. tsx, javascript, typescript, rust)
-  - rule.pattern: the AST pattern to match (use $$$ for meta-variables, $NAME for named variables)
-    Example for simple text match:
-      'id: find-useeffect\\nlanguage: jsx\\nrule:\\n  pattern: "useEffect"'
-    Example with constraints:
-    'id: find-all-react-hooks\\nlanguage: tsx\\nrule:\\n  pattern: "const $$$ = $HOOK<$TYPE>($$$ARGS)"\\nconstraints:\\n  HOOK:\\n    regex: "^use[A-Z]"'
+- query: (required) Inline YAML rule definition with id, language, and rule.pattern fields
 - path: (optional) Limit search to a specific directory. Leave empty for entire workspace.
-- file_pattern: (optional) Glob pattern to filter files. MUST use proper glob syntax with brace expansion for multiple extensions, e.g., "*.{js,jsx,ts,tsx}". Single patterns like "*.ts" or directory globs like "src/**/*.js" are also valid.`
+- file_pattern: (optional) Glob pattern to filter files (e.g., "*.{ts,tsx}")`
 
-const QUERY_PARAMETER_DESCRIPTION = `The inline YAML rule definition (required: id, language and rule.pattern). Use \\n for newlines.`
+const QUERY_PARAMETER_DESCRIPTION = `Inline YAML rule definition (required fields: id, language, rule.pattern). See ast-grep skill for syntax.`
 
 const PATH_PARAMETER_DESCRIPTION = `Optional directory (relative to workspace) to limit the search scope`
 
-const FILE_PATTERN_PARAMETER_DESCRIPTION = `Optional glob pattern to filter files. MUST use proper glob syntax with brace expansion for multiple extensions, e.g., "*.{ts,tsx}"`
+const FILE_PATTERN_PARAMETER_DESCRIPTION = `Optional glob pattern to filter files (e.g., "*.{ts,tsx}")`
 
 export default {
   type: "function",

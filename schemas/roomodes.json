@@ -24,9 +24,18 @@
           "customInstructions": {
             "type": "string"
           },
+          "objective": {
+            "type": "string"
+          },
           "source": {
             "type": "string",
             "enum": ["global", "project"]
+          },
+          "hidden": {
+            "type": "boolean"
+          },
+          "isCodeEditor": {
+            "type": "boolean"
           },
           "groups": {
             "type": "array",
@@ -77,12 +86,6 @@
               "required": ["relativePath"],
               "additionalProperties": false
             }
-          },
-          "hidden": {
-            "type": "boolean"
-          },
-          "isCodeEditor": {
-            "type": "boolean"
           }
         },
         "required": ["slug", "name", "roleDefinition", "groups"],

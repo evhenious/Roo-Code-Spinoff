@@ -290,9 +290,7 @@ describe("addCustomInstructions", () => {
   })
 
   it("should include preferred language when provided", async () => {
-    const instructions = await addCustomInstructions("", "", "/test/path", defaultModeSlug, {
-      language: "en",
-    })
+    const instructions = await addCustomInstructions("", "", "/test/path", defaultModeSlug, {})
     expect(instructions).toMatchFileSnapshot("./__snapshots__/add-custom-instructions/with-preferred-language.snap")
   })
 
@@ -302,9 +300,7 @@ describe("addCustomInstructions", () => {
   })
 
   it("should combine all custom instructions", async () => {
-    const instructions = await addCustomInstructions("Custom test instructions", "", "/test/path", defaultModeSlug, {
-      language: "en",
-    })
+    const instructions = await addCustomInstructions("Custom test instructions", "", "/test/path", defaultModeSlug, {})
     expect(instructions).toMatchFileSnapshot(
       "./__snapshots__/add-custom-instructions/combined-custom-instructions.snap",
     )

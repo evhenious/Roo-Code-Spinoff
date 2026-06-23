@@ -104,20 +104,19 @@ export async function extractTextFromFileWithMetadata(
 
   // Handle other files
   const isBinary = await isBinaryFile(filePath).catch(() => false)
-
-  if (!isBinary) {
-    const rawContent = await fs.readFile(filePath, "utf8")
-    const result = readWithSlice(rawContent, offset, limit)
-
-    return {
-      content: result.content,
-      totalLines: result.totalLines,
-      returnedLines: result.returnedLines,
-      wasTruncated: result.wasTruncated,
-      linesShown: result.includedRanges.length > 0 ? result.includedRanges[0] : undefined,
-    }
-  } else {
+  if (isBinary) {
     throw new Error(`Cannot read text for file type: ${fileExtension}`)
+  }
+
+  const rawContent = await fs.readFile(filePath, "utf8")
+  const result = readWithSlice(rawContent, offset, limit)
+
+  return {
+    content: result.content,
+    totalLines: result.totalLines,
+    returnedLines: result.returnedLines,
+    wasTruncated: result.wasTruncated,
+    linesShown: result.includedRanges.length > 0 ? result.includedRanges[0] : undefined,
   }
 }
 
