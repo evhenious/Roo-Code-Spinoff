@@ -4,6 +4,10 @@ import * as diff from "diff"
 import { RooIgnoreController, LOCK_TEXT_SYMBOL } from "../ignore/RooIgnoreController"
 import { RooProtectedController } from "../protect/RooProtectedController"
 
+const toolIstructions = `# Reminder: Tool Use
+
+Refer to the tool definitions provided in your system instructions for the correct parameter structure and usage examples.`
+
 export const formatResponse = {
   toolDenied: () =>
     JSON.stringify({
@@ -40,18 +44,16 @@ export const formatResponse = {
     }),
 
   noToolsUsed: () => {
-    const instructions = getToolInstructionsReminder()
-
     return `[ERROR] You did not use a tool in your previous response!
 
-${instructions}
+${toolIstructions}
 
 # Next Steps
 
-1. If you have completed the user's task, use the attempt_completion tool.
-2. If you require additional information from the user, use the ask_followup_question tool.
+1. If you have completed the user's task, use the \`attempt_completion\` tool.
+2. If you require additional information from the user, use the \`ask_followup_question\` tool.
 3. Otherwise, proceed with the next step of the task.
-(This is an automated message, so do not respond to it conversationally.)`
+(This is an automated message, do not respond to it conversationally.)`
   },
 
   tooManyMistakes: (feedback?: string) =>
@@ -61,9 +63,9 @@ ${instructions}
     }),
 
   missingToolParameterError: (paramName: string) => {
-    const instructions = getToolInstructionsReminder()
+    return `Missing value for required parameter '${paramName}'. Please retry with complete response.
 
-    return `Missing value for required parameter '${paramName}'. Please retry with complete response.\n\n${instructions}`
+${toolIstructions}`
   },
 
   invalidMcpToolArgumentError: (serverName: string, toolName: string) =>
@@ -182,7 +184,7 @@ ${instructions}
     if (didHitLimit) {
       return `${rooIgnoreParsed.join(
         "\n",
-      )}\n\n(File list truncated. Use list_files on specific subdirectories if you need to explore further.)`
+      )}\n\n(File list truncated. Use \`list_files\` on specific subdirectories if you need to explore further.)`
     } else if (rooIgnoreParsed.length === 0 || (rooIgnoreParsed.length === 1 && rooIgnoreParsed[0] === "")) {
       return "No files found."
     } else {
@@ -214,13 +216,4 @@ const formatImagesIntoBlocks = (images?: string[]): Anthropic.ImageBlockParam[] 
         } as Anthropic.ImageBlockParam
       })
     : []
-}
-
-/**
- * Gets the tool use instructions reminder.
- */
-function getToolInstructionsReminder(): string {
-  return `# Reminder: Instructions for Tool Use
-
-Refer to the tool definitions provided in your system instructions for the correct parameter structure and usage examples.`
 }
