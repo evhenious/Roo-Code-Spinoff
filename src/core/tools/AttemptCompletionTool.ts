@@ -2,7 +2,7 @@ import * as vscode from "vscode"
 
 import { RooCodeEventName, type HistoryItem } from "@roo-code/types"
 
-import { Task } from "../task/Task"
+import type { Task } from "../task/Task"
 import { formatResponse } from "../prompts/responses"
 import { Package } from "../../shared/package"
 import type { ToolUse } from "../../shared/tools"

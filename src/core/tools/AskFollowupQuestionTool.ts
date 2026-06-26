@@ -1,4 +1,4 @@
-import { Task } from "../task/Task"
+import type { Task } from "../task/Task"
 import { formatResponse } from "../prompts/responses"
 import type { ToolUse } from "../../shared/tools"
 
