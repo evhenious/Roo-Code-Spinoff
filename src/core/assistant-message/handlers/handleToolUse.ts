@@ -37,6 +37,20 @@ import { formatResponse } from "../../prompts/responses"
 import { AskIgnoredError } from "../../task/AskIgnoredError"
 import { BaseTool, ToolCallbacks } from "../../tools/BaseTool"
 
+type StandardTool = Exclude<ToolName, "custom_tool" | "attempt_completion" | "new_task">
+type StdSpecialTool = Extract<ToolName, "attempt_completion" | "new_task">
+
+type StdToolDefinition = {
+  tool: BaseTool<any>
+  needsCheckpoint?: boolean
+}
+
+type SpecialToolDefinition = {
+  tool: BaseTool<any>
+  needsCheckpoint?: boolean
+  params?: Partial<ToolCallbacks & AttemptCompletionCallbacks>
+}
+
 const handleToolCallIdError = async (taskInstance: Task, block: any) => {
   const errorMessage =
     "Invalid tool call: missing tool_use.id. XML tool calls are no longer supported. Remove any XML tool markup (e.g. <read_file>...</read_file>) and use native tool calling instead."
@@ -56,6 +70,83 @@ const handleToolCallIdError = async (taskInstance: Task, block: any) => {
   taskInstance.userMessageContent.push({ type: "text", text: errorMessage })
   taskInstance.didAlreadyUseTool = true
 }
+
+const toolMap = {
+  write_to_file: {
+    tool: writeToFileTool,
+    needsCheckpoint: true,
+  },
+  update_todo_list: {
+    tool: updateTodoListTool,
+  },
+  apply_diff: {
+    tool: applyDiffToolClass,
+    needsCheckpoint: true,
+  },
+  edit: {
+    tool: editTool,
+    needsCheckpoint: true,
+  },
+  search_and_replace: {
+    tool: editTool,
+    needsCheckpoint: true,
+  },
+  search_replace: {
+    tool: searchReplaceTool,
+    needsCheckpoint: true,
+  },
+  edit_file: {
+    tool: editFileTool,
+    needsCheckpoint: true,
+  },
+  apply_patch: {
+    tool: applyPatchTool,
+    needsCheckpoint: true,
+  },
+  read_file: {
+    tool: readFileTool,
+  },
+  list_files: {
+    tool: listFilesTool,
+  },
+  codebase_search: {
+    tool: codebaseSearchTool,
+  },
+  ast_grep: {
+    tool: astGrepTool,
+  },
+  search_files: {
+    tool: searchFilesTool,
+  },
+  execute_command: {
+    tool: executeCommandTool,
+  },
+  read_command_output: {
+    tool: readCommandOutputTool,
+  },
+  use_mcp_tool: {
+    tool: useMcpToolTool,
+  },
+  access_mcp_resource: {
+    tool: accessMcpResourceTool,
+  },
+  ask_followup_question: {
+    tool: askFollowupQuestionTool,
+  },
+  switch_mode: {
+    tool: switchModeTool,
+  },
+  run_slash_command: {
+    tool: runSlashCommandTool,
+  },
+  skill: {
+    tool: skillTool,
+  },
+  generate_image: {
+    tool: generateImageTool,
+    needsCheckpoint: true,
+  },
+} as const satisfies Partial<Record<StandardTool, StdToolDefinition>>
 
 const toolDescription = (block: any, customModes: ModeConfig[] | undefined): string => {
   switch (block.name) {
@@ -273,15 +364,6 @@ export async function handleToolUse(taskInstance: Task, block: any) {
     return true
   }
 
-  const askFinishSubTaskApproval = async () => {
-    // Ask the user to approve this task has completed, and he has
-    // reviewed it, and we can declare task is finished and return
-    // control to the parent task to continue running the rest of
-    // the sub-tasks.
-    const toolMessage = JSON.stringify({ tool: "finishTask" })
-    return await askApproval("tool", toolMessage)
-  }
-
   const handleError = async (action: string, error: Error) => {
     // Silently ignore AskIgnoredError - this is an internal control flow
     // signal, not an actual error. It occurs when a newer ask supersedes an older one.
@@ -396,84 +478,32 @@ export async function handleToolUse(taskInstance: Task, block: any) {
     }
   }
 
-  type OnlyStandardTool = Exclude<ToolName, "custom_tool">
-  type ToolDefinition = {
-    tool: BaseTool<any>
-    needsCheckpoint?: boolean
-    params?: Partial<ToolCallbacks & AttemptCompletionCallbacks>
+  //! 1. Handle partial calls
+  // This is critical for native tool calling where every tool_use MUST have a tool_result
+
+  // CRITICAL: Don't process partial blocks for unknown tools - just let them stream in.
+  // If we try to show errors for partial blocks, we'd show the error on every streaming chunk,
+  // creating a loop that appears to freeze the extension. Only handle complete blocks.
+  if (block.partial) {
+    return
   }
 
+  //! 2. handle std plain tools
   const stdCallbacks = {
     askApproval,
     handleError,
     pushToolResult,
   }
 
-  const toolMap = {
-    write_to_file: {
-      tool: writeToFileTool,
-      needsCheckpoint: true,
-    },
-    update_todo_list: {
-      tool: updateTodoListTool,
-    },
-    apply_diff: {
-      tool: applyDiffToolClass,
-      needsCheckpoint: true,
-    },
-    edit: {
-      tool: editTool,
-      needsCheckpoint: true,
-    },
-    search_and_replace: {
-      tool: editTool,
-      needsCheckpoint: true,
-    },
-    search_replace: {
-      tool: searchReplaceTool,
-      needsCheckpoint: true,
-    },
-    edit_file: {
-      tool: editFileTool,
-      needsCheckpoint: true,
-    },
-    apply_patch: {
-      tool: applyPatchTool,
-      needsCheckpoint: true,
-    },
-    read_file: {
-      tool: readFileTool,
-    },
-    list_files: {
-      tool: listFilesTool,
-    },
-    codebase_search: {
-      tool: codebaseSearchTool,
-    },
-    ast_grep: {
-      tool: astGrepTool,
-    },
-    search_files: {
-      tool: searchFilesTool,
-    },
-    execute_command: {
-      tool: executeCommandTool,
-    },
-    read_command_output: {
-      tool: readCommandOutputTool,
-    },
-    use_mcp_tool: {
-      tool: useMcpToolTool,
-    },
-    access_mcp_resource: {
-      tool: accessMcpResourceTool,
-    },
-    ask_followup_question: {
-      tool: askFollowupQuestionTool,
-    },
-    switch_mode: {
-      tool: switchModeTool,
-    },
+  if (block.name in toolMap) {
+    const { tool, needsCheckpoint = false } = toolMap[block.name as StandardTool] as StdToolDefinition
+
+    if (needsCheckpoint) await checkpointSaveAndMark(taskInstance)
+    return tool.handle(taskInstance, block, { ...stdCallbacks })
+  }
+
+  //! 3. some tools require special care, but we don't initiate this map until we sure we need it (not std tool!)
+  const specialToolMap = {
     new_task: {
       tool: newTaskTool,
       needsCheckpoint: true,
@@ -482,90 +512,82 @@ export async function handleToolUse(taskInstance: Task, block: any) {
     attempt_completion: {
       tool: attemptCompletionTool,
       params: {
-        askFinishSubTaskApproval,
+        askFinishSubTaskApproval: () => {
+          // Ask the user to approve this task has completed, and he has
+          // reviewed it, and we can declare task is finished and return
+          // control to the parent task to continue running the rest of
+          // the sub-tasks.
+          const toolMessage = JSON.stringify({ tool: "finishTask" })
+          return askApproval("tool", toolMessage)
+        },
         toolDescription: () => toolDescription(block, customModes),
       },
     },
-    run_slash_command: {
-      tool: runSlashCommandTool,
-    },
-    skill: {
-      tool: skillTool,
-    },
-    generate_image: {
-      tool: generateImageTool,
-      needsCheckpoint: true,
-    },
-  } as const satisfies Partial<Record<OnlyStandardTool, ToolDefinition>>
+  } as const satisfies Partial<Record<StdSpecialTool, SpecialToolDefinition>>
 
-  if (block.name in toolMap) {
-    const { tool, needsCheckpoint = false, params = {} } = toolMap[block.name as OnlyStandardTool] as ToolDefinition
+  if (block.name in specialToolMap) {
+    const {
+      tool,
+      needsCheckpoint = false,
+      params = {},
+    } = specialToolMap[block.name as StdSpecialTool] as SpecialToolDefinition
+
     if (needsCheckpoint) await checkpointSaveAndMark(taskInstance)
-    await tool.handle(taskInstance, block, { ...stdCallbacks, ...params })
-  } else {
-    // Handle unknown/invalid tool names OR custom tools
-    // This is critical for native tool calling where every tool_use MUST have a tool_result
+    return tool.handle(taskInstance, block, { ...stdCallbacks, ...params })
+  }
 
-    // CRITICAL: Don't process partial blocks for unknown tools - just let them stream in.
-    // If we try to show errors for partial blocks, we'd show the error on every streaming chunk,
-    // creating a loop that appears to freeze the extension. Only handle complete blocks.
-    if (block.partial) {
-      return
-    }
+  //! 4. should be custom or unknown tool now
+  const customTool = stateExperiments?.customTools ? customToolRegistry.get(block.name) : undefined
+  if (customTool) {
+    try {
+      let customToolArgs
 
-    const customTool = stateExperiments?.customTools ? customToolRegistry.get(block.name) : undefined
-
-    if (customTool) {
-      try {
-        let customToolArgs
-
-        if (customTool.parameters) {
-          try {
-            customToolArgs = customTool.parameters.parse(block.nativeArgs || block.params || {})
-          } catch (parseParamsError) {
-            const message = `Custom tool "${block.name}" argument validation failed: ${parseParamsError.message}`
-            console.error(message)
-            taskInstance.consecutiveMistakeCount++
-            await taskInstance.say("error", message)
-            pushToolResult(formatResponse.toolError(message))
-            return
-          }
+      if (customTool.parameters) {
+        try {
+          customToolArgs = customTool.parameters.parse(block.nativeArgs || block.params || {})
+        } catch (parseParamsError) {
+          const message = `Custom tool "${block.name}" argument validation failed: ${parseParamsError.message}`
+          console.error(message)
+          taskInstance.consecutiveMistakeCount++
+          await taskInstance.say("error", message)
+          pushToolResult(formatResponse.toolError(message))
+          return
         }
-
-        const result = await customTool.execute(customToolArgs, {
-          mode: mode ?? defaultModeSlug,
-          task: taskInstance,
-        })
-
-        console.log(`${customTool.name}.execute(): ${JSON.stringify(customToolArgs)} -> ${JSON.stringify(result)}`)
-
-        pushToolResult(result)
-        taskInstance.consecutiveMistakeCount = 0
-      } catch (executionError: any) {
-        taskInstance.consecutiveMistakeCount++
-        // Record custom tool error with static name
-        taskInstance.recordToolError("custom_tool", executionError.message)
-        await handleError(`executing custom tool "${block.name}"`, executionError)
       }
 
-      return
+      const result = await customTool.execute(customToolArgs, {
+        mode: mode ?? defaultModeSlug,
+        task: taskInstance,
+      })
+
+      console.log(`${customTool.name}.execute(): ${JSON.stringify(customToolArgs)} -> ${JSON.stringify(result)}`)
+
+      pushToolResult(result)
+      taskInstance.consecutiveMistakeCount = 0
+    } catch (executionError: any) {
+      taskInstance.consecutiveMistakeCount++
+      // Record custom tool error with static name
+      taskInstance.recordToolError("custom_tool", executionError.message)
+      await handleError(`executing custom tool "${block.name}"`, executionError)
     }
 
-    // Not a custom tool - handle as unknown tool error
-    const errorMessage = `Unknown tool "${block.name}". This tool does not exist. Please use one of the available tools.`
-    taskInstance.consecutiveMistakeCount++
-    taskInstance.recordToolError(block.name as ToolName, errorMessage)
-
-    await taskInstance.say("error", t("tools:unknownToolError", { toolName: block.name }))
-    // Push tool_result directly WITHOUT setting didAlreadyUseTool
-    // This prevents the stream from being interrupted with "Response interrupted by tool use result"
-    taskInstance.pushToolResultToUserContent({
-      type: "tool_result",
-      tool_use_id: sanitizeToolUseId(toolCallId),
-      content: formatResponse.toolError(errorMessage),
-      is_error: true,
-    })
+    return
   }
+
+  //! Not a custom tool - handle as unknown tool error
+  const errorMessage = `Unknown tool "${block.name}". This tool does not exist. Please use one of the available tools.`
+  taskInstance.consecutiveMistakeCount++
+  taskInstance.recordToolError(block.name as ToolName, errorMessage)
+
+  await taskInstance.say("error", t("tools:unknownToolError", { toolName: block.name }))
+  // Push tool_result directly WITHOUT setting didAlreadyUseTool
+  // This prevents the stream from being interrupted with "Response interrupted by tool use result"
+  taskInstance.pushToolResultToUserContent({
+    type: "tool_result",
+    tool_use_id: sanitizeToolUseId(toolCallId),
+    content: formatResponse.toolError(errorMessage),
+    is_error: true,
+  })
 }
 
 /**
