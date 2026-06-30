@@ -21,6 +21,7 @@ import searchFiles from "./search_files"
 import switchMode from "./switch_mode"
 import updateTodoList from "./update_todo_list"
 import writeToFile from "./write_to_file"
+import notify from "./notify"
 
 export { getMcpServerTools } from "./mcp_server"
 export { convertOpenAIToolToAnthropic, convertOpenAIToolsToAnthropic } from "./converters"
@@ -30,8 +31,8 @@ export type { ReadFileToolOptions } from "./read_file"
  * Options for customizing the native tools array.
  */
 export interface NativeToolsOptions {
-	/** Whether the model supports image processing (default: false) */
-	supportsImages?: boolean
+  /** Whether the model supports image processing (default: false) */
+  supportsImages?: boolean
 }
 
 /**
@@ -41,36 +42,37 @@ export interface NativeToolsOptions {
  * @returns Array of native tool definitions
  */
 export function getNativeTools(options: NativeToolsOptions = {}): OpenAI.Chat.ChatCompletionTool[] {
-	const { supportsImages = false } = options
+  const { supportsImages = false } = options
 
-	const readFileOptions: ReadFileToolOptions = {
-		supportsImages,
-	}
+  const readFileOptions: ReadFileToolOptions = {
+    supportsImages,
+  }
 
-	return [
-		accessMcpResource,
-		apply_diff,
-		applyPatch,
-		askFollowupQuestion,
-		attemptCompletion,
-		astGrep,
-		codebaseSearch,
-		executeCommand,
-		generateImage,
-		listFiles,
-		newTask,
-		readCommandOutput,
-		createReadFileTool(readFileOptions),
-		runSlashCommand,
-		skill,
-		searchReplace,
-		edit_file,
-		editTool,
-		searchFiles,
-		switchMode,
-		updateTodoList,
-		writeToFile,
-	] satisfies OpenAI.Chat.ChatCompletionTool[]
+  return [
+    accessMcpResource,
+    apply_diff,
+    applyPatch,
+    askFollowupQuestion,
+    attemptCompletion,
+    notify,
+    astGrep,
+    codebaseSearch,
+    executeCommand,
+    generateImage,
+    listFiles,
+    newTask,
+    readCommandOutput,
+    createReadFileTool(readFileOptions),
+    runSlashCommand,
+    skill,
+    searchReplace,
+    edit_file,
+    editTool,
+    searchFiles,
+    switchMode,
+    updateTodoList,
+    writeToFile,
+  ] satisfies OpenAI.Chat.ChatCompletionTool[]
 }
 
 // Backward compatibility: export default tools with line ranges enabled

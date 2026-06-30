@@ -6,7 +6,7 @@ import { RooProtectedController } from "../protect/RooProtectedController"
 
 const toolIstructions = `# Reminder: Tool Use
 
-Refer to the tool definitions provided in your system instructions for the correct parameter structure and usage examples.`
+Refer to the tool definitions provided in your system instructions for the correct parameter structure.`
 
 export const formatResponse = {
   toolDenied: () =>
@@ -43,14 +43,18 @@ export const formatResponse = {
       suggestion: "Try to continue without this file, or ask the user to update the .rooignore file",
     }),
 
-  noToolsUsed: () => {
-    return `[ERROR] You did not use a tool in your previous response!
+  noToolsUsed: (mode: string) => {
+    if (mode === "ask") {
+      return `[ERROR] You did not use a tool in your previous response!
+If you have finished your turn in conversation, use \`notify\` tool to let user know.
+(This is an automated message, do not respond to it conversationally.)`
+    }
 
-${toolIstructions}
+    return `[ERROR] You did not use a tool in your previous response!
 
 # Next Steps
 
-1. If you have completed the user's task, use the \`attempt_completion\` tool.
+1. If you have completed the user's task, use the \`attempt_completion\` or \`notify\` tool.
 2. If you require additional information from the user, use the \`ask_followup_question\` tool.
 3. Otherwise, proceed with the next step of the task.
 (This is an automated message, do not respond to it conversationally.)`

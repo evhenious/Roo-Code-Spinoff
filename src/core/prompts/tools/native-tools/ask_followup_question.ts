@@ -1,10 +1,6 @@
 import type OpenAI from "openai"
 
-const ASK_FOLLOWUP_QUESTION_DESCRIPTION = `Ask the user a question to gather additional information needed to proceed.
-
-Parameters:
-- question: (required) The question to ask
-- follow_up: (required) An array of 2-4 suggested answers
+const ASK_FOLLOWUP_QUESTION_DESCRIPTION = `Ask the user a question when you need structured follow-up or want to offer predefined choices.
 
 Example: Asking for file path
 { "question": "What is the preferred path to the config.json file?", "follow_up": [{ "text": "./src/config.json", "mode": null }, { "text": "./config/config.json", "mode": null }, { "text": "./config.json", "mode": null }] }

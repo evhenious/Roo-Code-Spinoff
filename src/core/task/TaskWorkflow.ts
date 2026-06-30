@@ -24,6 +24,13 @@ import type { McpToolUse, ToolUse } from "../../shared/tools"
 import { processUserContentMentions } from "../mentions/processUserContentMentions"
 import { TaskWorkflowDependencies } from "./interface"
 
+interface StackItem {
+  userContent: Anthropic.Messages.ContentBlockParam[]
+  includeFileDetails: boolean
+  retryAttempt?: number
+  userMessageWasRemoved?: boolean
+}
+
 export class TaskWorkflow {
   constructor(private deps: TaskWorkflowDependencies) {}
 
@@ -39,13 +46,6 @@ export class TaskWorkflow {
     userContent: Anthropic.Messages.ContentBlockParam[],
     includeFileDetails: boolean = false,
   ): Promise<boolean> {
-    interface StackItem {
-      userContent: Anthropic.Messages.ContentBlockParam[]
-      includeFileDetails: boolean
-      retryAttempt?: number
-      userMessageWasRemoved?: boolean
-    }
-
     const stack: StackItem[] = [{ userContent, includeFileDetails, retryAttempt: 0 }]
 
     // Cache API protocol once per iteration (optimization)
@@ -361,7 +361,11 @@ export class TaskWorkflow {
                     this.deps.assistantMessageContent.push(partialToolUse)
                     this.deps.setUserMessageContentReady(false)
                     await this.deps.presentAssistantMessage()
-                  } else if (event.type === "tool_call_delta") {
+
+                    continue
+                  }
+
+                  if (event.type === "tool_call_delta") {
                     const partialToolUse = NativeToolCallParser.processStreamingChunk(event.id, event.delta)
 
                     if (partialToolUse) {
@@ -372,7 +376,11 @@ export class TaskWorkflow {
                         await this.deps.presentAssistantMessage()
                       }
                     }
-                  } else if (event.type === "tool_call_end") {
+
+                    continue
+                  }
+
+                  if (event.type === "tool_call_end") {
                     const finalToolUse = NativeToolCallParser.finalizeStreamingToolCall(event.id)
                     const toolUseIndex = this.deps.streamingToolCallIndices.get(event.id)
 
@@ -394,8 +402,12 @@ export class TaskWorkflow {
                       this.deps.setUserMessageContentReady(false)
                       await this.deps.presentAssistantMessage()
                     }
+
+                    continue
                   }
-                }
+                } // 'for' loop ends
+
+                // break after all tool chunks processed
                 break
               }
 
@@ -709,7 +721,7 @@ export class TaskWorkflow {
               ...this.deps.userMessageContent,
               {
                 type: "text",
-                text: formatResponse.noToolsUsed(),
+                text: formatResponse.noToolsUsed(currentMode),
               },
             ])
           } else {

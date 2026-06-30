@@ -44,7 +44,7 @@ AVAILABLE SKILLS
 
 "Skills" are high-level procedural workflows and specific domain guidelines. Do not rely solely on available tools and native capabilities if a specialized skill exists for the task.
 
-For every user request, you MUST:
+For every user's request which is not trivial or purely conversational, or requires specific domain knowledge, you MUST:
 1. Evaluate the request against ALL skill Descriptions provided in the list below. Determine whether at least one skill clearly applies.
 2. If any skills apply:
   - Select EXACTLY ONE skill (prefer the most specific match)

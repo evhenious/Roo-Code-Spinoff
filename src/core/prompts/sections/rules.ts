@@ -1,4 +1,9 @@
-export function getRulesSection(cwd: string, shouldIncludeMcp: boolean, shouldIncludeShell: boolean): string {
+export function getRulesSection(
+  cwd: string,
+  shouldIncludeMcp: boolean,
+  shouldIncludeShell: boolean,
+  modeSlug: string,
+): string {
   const mcpLine = shouldIncludeMcp
     ? `- MCP operations should be used one at a time. Wait for confirmation of success before proceeding with additional operations.\n`
     : ``
@@ -21,14 +26,23 @@ export function getRulesSection(cwd: string, shouldIncludeMcp: boolean, shouldIn
     : `- All file-tool paths (read, list) must be relative to (and be inside) the workspace root.
 - If a task requires working outside the workspace root directory, you MUST stop and inform the user that current operation is blocked by security constraints. Request manual user's intervention, and propose an alternative approach if relevant.`
 
+  const isConversational = modeSlug === "ask"
+
+  const hardConversationRules = `- You should NOT be conversational in your responses, but rather direct and to the point.
+- You are only allowed to ask the user questions using the \`ask_followup_question\` tool.
+- Prefer using tools over asking questions. For example, use \`list_files\` to find a file path rather than asking the user.`
+
+  const softConversationRules = `- Keep responses focused on the user's question or topic.
+- Be direct and concise by default. Use brief conversational framing only when it aids clarity.
+- Avoid pleasantries, apologies, or meta-commentary about your process.
+- Ask questions naturally in your responses. Use \`ask_followup_question\` tool only when you need structured follow-up or want to offer the user predefined choices.`
+
   return `
 ====
 
 GENERAL RULES
 
-- You should NOT be conversational in your responses, but rather direct and to the point.
-- You are only allowed to ask the user questions using the \`ask_followup_question\` tool.
-- Prefer using tools over asking questions. For example, use \`list_files\` to find a file path rather than asking the user.
+${isConversational ? softConversationRules : hardConversationRules}
 
 - When faced with multiple valid approaches, choose the simplest one that meets requirements, then inform the user of your choice.
 - If a task is ambiguous, blocked by missing information, or has significant trade-offs depending on the approach, ask the user for clarification before proceeding.

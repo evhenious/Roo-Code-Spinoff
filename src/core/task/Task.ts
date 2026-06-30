@@ -2423,7 +2423,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 
   private async initiateTaskLoop(userContent: Anthropic.Messages.ContentBlockParam[]): Promise<void> {
     // Kicks off the checkpoints initialization process in the background.
-    getCheckpointService(this)
+    getCheckpointService(this) // todo should await, maybe?
 
     let nextUserContent = userContent
     let includeFileDetails = true
@@ -2450,7 +2450,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
         // the user hits max requests and denies resetting the count.
         break
       } else {
-        nextUserContent = [{ type: "text", text: formatResponse.noToolsUsed() }]
+        nextUserContent = [{ type: "text", text: formatResponse.noToolsUsed(this.taskMode) }]
       }
     }
   }

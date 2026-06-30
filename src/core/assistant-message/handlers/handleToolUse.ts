@@ -25,6 +25,7 @@ import { updateTodoListTool } from "../../tools/UpdateTodoListTool"
 import { useMcpToolTool } from "../../tools/UseMcpToolTool"
 import { isValidToolName, validateToolUse } from "../../tools/validateToolUse"
 import { writeToFileTool } from "../../tools/WriteToFileTool"
+import { notifyTool } from "../../tools/NotifyTool"
 
 import Anthropic from "@anthropic-ai/sdk"
 import { customToolRegistry } from "@roo-code/core"
@@ -118,6 +119,9 @@ const toolMap = {
   search_files: {
     tool: searchFilesTool,
   },
+  notify: {
+    tool: notifyTool,
+  },
   execute_command: {
     tool: executeCommandTool,
   },
@@ -186,6 +190,7 @@ const toolDescription = (block: any, customModes: ModeConfig[] | undefined): str
     case "ask_followup_question":
       return `[${block.name} for '${block.params.question}']`
     case "attempt_completion":
+    case "notify":
       return `[${block.name}]`
     case "switch_mode":
       return `[${block.name} to '${block.params.mode_slug}'${block.params.reason ? ` because: ${block.params.reason}` : ""}]`

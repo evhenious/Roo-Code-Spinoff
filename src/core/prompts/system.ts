@@ -70,20 +70,17 @@ async function generatePrompt(
     getSkillsSection(skillsManager, mode as string),
   ])
 
-  // Tools catalog is not included in the system prompt.
-  const toolsCatalog = ""
-
   // SYSTEM prompt constructed here
   const basePrompt = `====
 
 IDENTITY
 
 ${roleDefinition}
-${getRulesSection(cwd, shouldIncludeMcp, isCodeEditor)}
-${getSharedToolUseSection()}${toolsCatalog}
+${getRulesSection(cwd, shouldIncludeMcp, isCodeEditor, mode)}
+${getSharedToolUseSection()}
 ${markdownFormattingSection()}
 ${skillsSection ? `\n${skillsSection}` : ""}
-${getSystemInfoSection(cwd)}
+${getSystemInfoSection()}
 
 ====
 

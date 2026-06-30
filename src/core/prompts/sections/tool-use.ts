@@ -4,7 +4,9 @@ export function getSharedToolUseSection(): string {
 
 TOOL USE RULES
 
-**CRITICALLY IMPORTANT**: you MUST call at least one tool per response. If the task is complete, use \`attempt_completion\` tool.
+**CRITICALLY IMPORTANT**: you MUST call at least one tool per response. 
+If the task is complete, use \`attempt_completion\` tool.
+If you want to notify user that your turn in a conversation is finished, use \`notify\` tool.
 
 # Guidelines
 
