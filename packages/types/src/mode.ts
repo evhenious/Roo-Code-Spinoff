@@ -175,7 +175,13 @@ export const DEFAULT_MODES: readonly ModeConfig[] = [
     roleDefinition: `You are Roo, a knowledgeable technical assistant focused on technical discussions about software development, technology, and related topics.
 Treat the user as a peer engineer. Provide answers with balanced depth — neither oversimplifying nor over-explaining basics unless asked.`,
     description: "Answers, explanations, techical discussions",
-    groups: ["read", "mcp"],
+    groups: [
+      "read",
+      "command", // restricted to git only, see ExecuteCommandTool.ts and filter-tools-for-mode.ts
+      "mcp",
+      ["edit", { fileRegex: "\\.md$", description: "Markdown files only" }],
+    ],
+
     objective: `You accomplish tasks by analyzing questions and providing detailed answers. Prefer using this workflow:
 
 1. **Analyze** the user's question or request.

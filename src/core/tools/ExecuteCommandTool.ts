@@ -54,6 +54,19 @@ export class ExecuteCommandTool extends BaseTool<"execute_command"> {
 
       const canonicalCommand = unescapeHtmlEntities(command)
 
+      // allowing ASK to use some git commands
+      const currentMode = await task.getTaskMode()
+      if (currentMode === "ask") {
+        const allowedPatterns = ["git status", "git log", "git diff"]
+        if (!allowedPatterns.some((p) => canonicalCommand.startsWith(p))) {
+          pushToolResult(
+            `Command '${canonicalCommand}' is not allowed in ASK mode. Allowed commands: git status, git log, git diff`,
+          )
+          task.recordToolError("execute_command")
+          return
+        }
+      }
+
       const ignoredFileAttemptedToAccess = task.rooIgnoreController?.validateCommand(canonicalCommand)
 
       if (ignoredFileAttemptedToAccess) {
