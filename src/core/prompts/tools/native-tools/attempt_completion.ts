@@ -1,12 +1,9 @@
 import type OpenAI from "openai"
 
-const ATTEMPT_COMPLETION_DESCRIPTION = `Present the final result of the task to the user. 
-Only use this if you have received results for all tool calls - calling it while still waiting for tool results causes broken code and incomplete work.
+const ATTEMPT_COMPLETION_DESCRIPTION = `Present the brief summary of the finished task to the user. 
+Only use this if you have received results for all tool calls.`
 
-Parameters:
-- result: (required) Short, concise, final summary of the completed task. Avoid questions or offers for further assistance.`
-
-const RESULT_PARAMETER_DESCRIPTION = `Final task summary message`
+const RESULT_PARAMETER_DESCRIPTION = `The final task summary outlining key points of job done`
 
 export default {
   type: "function",

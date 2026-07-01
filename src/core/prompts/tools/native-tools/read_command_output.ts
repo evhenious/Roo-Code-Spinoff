@@ -18,13 +18,7 @@ When to Use:
 
 Modes:
 - Read mode (default): Read output with optional byte offset and limit for pagination
-- Search mode: Filter lines matching a regex or literal pattern (like grep) — set the search parameter
-
-Parameters:
-- artifact_id: (required) The artifact filename from the truncated output message (e.g., "cmd-1706119234567.txt")
-- search: (optional) Pattern to filter lines. Supports regex or literal strings. Case-insensitive. Omit this parameter entirely if not searching — do not pass null or empty string.
-- offset: (optional) Byte offset to start reading from. Use for pagination.
-- limit: (optional) Maximum bytes to return.
+- Search mode: Filter lines matching a regex or literal pattern (like grep) — set the search parameter to use
 
 Do not use when:
 - Command output was not truncated (no artifact message in the result)

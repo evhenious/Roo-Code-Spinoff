@@ -2,11 +2,11 @@ import type OpenAI from "openai"
 
 const ASK_FOLLOWUP_QUESTION_DESCRIPTION = `Ask the user a question when you need structured follow-up or want to offer predefined choices.
 
-Example: Asking for file path
-{ "question": "What is the preferred path to the config.json file?", "follow_up": [{ "text": "./src/config.json", "mode": null }, { "text": "./config/config.json", "mode": null }, { "text": "./config.json", "mode": null }] }
+Example: Asking for preferred coding language
+{ "question": "What should we use for the new project?", "follow_up": [{ "text": "JavaScript", "mode": null }, { "text": "TypeScript", "mode": null }] }
 
 Example: Asking with mode switch
-{ "question": "Would you like me to implement this feature?", "follow_up": [{ "text": "Yes, implement it now", "mode": "code" }, { "text": "No, just plan it out", "mode": "architect" }] }`
+{ "question": "Would you like me to implement this feature?", "follow_up": [{ "text": "Yes, please do", "mode": "code" }, { "text": "No, just plan it out", "mode": "architect" }] }`
 
 const QUESTION_PARAMETER_DESCRIPTION = `The question to ask`
 

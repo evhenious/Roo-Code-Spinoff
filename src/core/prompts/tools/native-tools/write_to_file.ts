@@ -4,16 +4,13 @@ const WRITE_TO_FILE_DESCRIPTION = `Write content to a file. Creates or overwrite
 
 **Prefer other editing tools for changes to existing files — this tool is slower and cannot handle large files. Use primarily for new file creation.**
 
-When using this tool, you MUST provide the WHOLE and COMPLETE file content. Partial updates or placeholders are strictly forbidden and will result in broken code. NEVER include line numbers. 
+IMPORTANT: When using this tool, ALWAYS provide FULL and COMPLETE file content. Partial updates, placeholders or line numbers are strictly forbidden and will result in broken code. 
 
-When creating a new project, organize all new files within a dedicated project directory unless the user specifies otherwise. Structure the project logically, adhering to best practices for the specific type of project being created.
+When creating a new project, organize all new files within a dedicated project directory unless the user specifies otherwise. Structure the project logically, adhering to best practices for the specific type of project being created.`
 
-Example: Writing a configuration file
-{ "path": "frontend-config.json", "content": "{\\n  \\"apiEndpoint\\": \\"https://api.example.com\\",\\n  \\"theme\\": {\\n    \\"primaryColor\\": \\"#007bff\\"\\n  }\\n}" }`
+const PATH_PARAMETER_DESCRIPTION = `File path, relative to the workspace`
 
-const PATH_PARAMETER_DESCRIPTION = `File path, relative to the workspace.`
-
-const CONTENT_PARAMETER_DESCRIPTION = `Complete file content — all parts, even unchanged. No placeholders or line numbers.`
+const CONTENT_PARAMETER_DESCRIPTION = `File content`
 
 export default {
   type: "function",

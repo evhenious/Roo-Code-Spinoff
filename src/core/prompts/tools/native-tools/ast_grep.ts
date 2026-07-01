@@ -11,12 +11,7 @@ Do not use when:
 - You need simple text or regex search — use search_files instead
 - Searching for a literal string that doesn't appear in the code (AST requires valid syntax)
 
-CRITICAL: Refer to the 'ast-grep' skill for full query syntax rules, meta-variable rules, and usage examples.
-
-Parameters:
-- query: (required) Inline YAML rule definition with id, language, and rule.pattern fields
-- path: (optional) Limit search to a specific directory. Leave empty for entire workspace.
-- file_pattern: (optional) Glob pattern to filter files (e.g., "*.{ts,tsx}")`
+CRITICAL: Refer to the 'ast-grep' skill for full query syntax rules, meta-variable rules, and usage examples.`
 
 const QUERY_PARAMETER_DESCRIPTION = `Inline YAML rule definition (required fields: id, language, rule.pattern). See ast-grep skill for syntax.`
 

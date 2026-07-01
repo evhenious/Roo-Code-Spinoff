@@ -2,10 +2,6 @@ import type OpenAI from "openai"
 
 const ACCESS_MCP_RESOURCE_DESCRIPTION = `Request to access a resource provided by a connected MCP server.
 
-Parameters:
-- server_name: (required) The name of the MCP server
-- uri: (required) URI of the resource to access
-
 Example: Accessing a weather resource
 { "server_name": "weather-server", "uri": "weather://san-francisco/current" }`
 
