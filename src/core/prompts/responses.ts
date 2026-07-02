@@ -46,7 +46,7 @@ export const formatResponse = {
   noToolsUsed: (mode: string) => {
     if (mode === "ask") {
       return `[ERROR] You did not use a tool in your previous response!
-If you have finished your turn in conversation, use \`notify\` tool to let user know.
+If you have finished your turn in conversation, use \`notify\` tool.
 (This is an automated message, do not respond to it conversationally.)`
     }
 
@@ -55,7 +55,9 @@ If you have finished your turn in conversation, use \`notify\` tool to let user 
 # Next Steps
 
 1. If you have completed the user's task, use the \`attempt_completion\` or \`notify\` tool.
-2. If you require additional information from the user, use the \`ask_followup_question\` tool.
+2. If you require additional information from the user, either:
+   - use the \`ask_followup_question\` tool to get structured answer
+   - ask the question naturally and use \`notify\` tool
 3. Otherwise, proceed with the next step of the task.
 (This is an automated message, do not respond to it conversationally.)`
   },

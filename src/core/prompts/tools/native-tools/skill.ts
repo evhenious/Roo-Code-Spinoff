@@ -3,9 +3,9 @@ import type OpenAI from "openai"
 const SKILL_DESCRIPTION = `Load and execute a skill by name.
 
 Use this tool when you need to follow specific procedures documented in a skill. 
-Available skills are listed in the AVAILABLE SKILLS section of the system prompt.`
+Refer to the AVAILABLE SKILLS section of the system prompt.`
 
-const SKILL_PARAMETER_DESCRIPTION = `Name of the skill to load (e.g., create-mcp-server, create-mode).`
+const SKILL_PARAMETER_DESCRIPTION = `Name of the skill to load (e.g., make-mcp-server).`
 
 const ARGS_PARAMETER_DESCRIPTION = `Optional context or arguments to pass to the skill`
 

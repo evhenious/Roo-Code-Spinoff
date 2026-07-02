@@ -370,6 +370,10 @@ export function isToolAllowedInMode(
 
   // Check if it's an always-available tool
   if (ALWAYS_AVAILABLE_TOOLS.includes(toolName)) {
+    if (toolName === "switch_mode" && modeSlug !== "ask") {
+      return false // let's restrict Architect and Code from switching
+    }
+
     // But still check for conditional exclusions
     if (toolName === "codebase_search") {
       return !!(

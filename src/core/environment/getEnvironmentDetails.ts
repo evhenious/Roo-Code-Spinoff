@@ -164,7 +164,7 @@ export async function getEnvironmentDetails(
 
   if (recentlyModifiedFiles.length > 0) {
     details +=
-      "\n\n# Recently Modified Files\nThese files have been modified since you last accessed them, so you may need to re-read them before editing:"
+      "\n\n# Recently Modified Files\nThese files have been modified since you last accessed them, re-read them before editing:"
     for (const filePath of recentlyModifiedFiles) {
       details += `\n${filePath}`
     }
@@ -218,7 +218,6 @@ export async function getEnvironmentDetails(
 
     details += `\n\n# Current Mode\n`
     details += `- slug: ${currentMode}\n`
-    details += `- name: ${modeDetails.name}\n`
   }
 
   const todoListEnabled =

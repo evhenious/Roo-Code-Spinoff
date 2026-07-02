@@ -16,13 +16,11 @@ export function getSystemInfoSection(): string {
   }
 
   let details = `
-====
+# SYSTEM INFORMATION
 
-SYSTEM INFORMATION
-
-Operating System: ${osInfo}
-Default Shell: ${getShell()}
-Home Directory: ${os.homedir().toPosix()}`
+* Operating System: ${osInfo}
+* Default Shell: ${getShell()}
+* Home Directory: ${os.homedir().toPosix()}`
 
   return details
 }

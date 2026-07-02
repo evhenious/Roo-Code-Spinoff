@@ -1,8 +1,6 @@
 export function markdownFormattingSection(): string {
   return `
-====
-
-RESPONSE FORMATTING RULES
+# RESPONSE FORMATTING RULES
 
 All responses where you are referencing current project's contents MUST show these references (function names, variables, source files etc) as clickable links.
  - format: [\`itemName\`](relative/file/path.ext:line).

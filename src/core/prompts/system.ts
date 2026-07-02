@@ -1,27 +1,24 @@
 import * as vscode from "vscode"
 
-import { type ModeConfig, type PromptComponent, type CustomModePrompts, type TodoItem } from "@roo-code/types"
+import { type CustomModePrompts, type ModeConfig, type PromptComponent } from "@roo-code/types"
 
-import { Mode, modes, defaultModeSlug, getModeBySlug, getGroupName, getModeSelection } from "../../shared/modes"
-import { DiffStrategy } from "../../shared/tools"
-import { formatLanguage } from "../../shared/language"
+import { defaultModeSlug, getGroupName, getModeBySlug, getModeSelection, Mode, modes } from "../../shared/modes"
 import { isEmpty } from "../../utils/object"
 
 import { McpHub } from "../../services/mcp/McpHub"
-import { CodeIndexManager } from "../../services/code-index/manager"
 import { SkillsManager } from "../../services/skills/SkillsManager"
 
-import type { SystemPromptSettings } from "./types"
 import {
-  getRulesSection,
-  getSystemInfoSection,
-  getObjectiveSection,
-  getSharedToolUseSection,
-  getModesSection,
   addCustomInstructions,
-  markdownFormattingSection,
+  getModesSection,
+  getObjectiveSection,
+  getRulesSection,
+  getSharedToolUseSection,
   getSkillsSection,
+  getSystemInfoSection,
+  markdownFormattingSection,
 } from "./sections"
+import type { SystemPromptSettings } from "./types"
 
 // Helper function to get prompt component, filtering out empty objects
 export function getPromptComponent(
@@ -61,6 +58,7 @@ async function generatePrompt(
   const hasMcpGroup = modeConfig.groups.some((groupEntry) => getGroupName(groupEntry) === "mcp")
   const hasMcpServers = mcpHub && mcpHub.getServers().length > 0
   const shouldIncludeMcp = hasMcpGroup && !!hasMcpServers
+  const hasCommandGroup = modeConfig.groups.some((groupEntry) => getGroupName(groupEntry) === "command")
 
   // TODO cleanup ?
   // const codeIndexManager = CodeIndexManager.getInstance(context, cwd)
@@ -71,20 +69,17 @@ async function generatePrompt(
   ])
 
   // SYSTEM prompt constructed here
-  const basePrompt = `====
-
-IDENTITY
+  const basePrompt = `
+# IDENTITY
 
 ${roleDefinition}
-${getRulesSection(cwd, shouldIncludeMcp, isCodeEditor, mode)}
+${getRulesSection(cwd, shouldIncludeMcp, hasCommandGroup, mode)} 
 ${getSharedToolUseSection()}
 ${markdownFormattingSection()}
 ${skillsSection ? `\n${skillsSection}` : ""}
 ${getSystemInfoSection()}
 
-====
-
-OBJECTIVE
+# OBJECTIVE
 
 ${modeConfig.objective || getObjectiveSection()}
 ${modesSection}

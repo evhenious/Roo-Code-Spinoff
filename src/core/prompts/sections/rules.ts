@@ -12,35 +12,30 @@ export function getRulesSection(
     ? `
 - Before executing commands, check the "Actively Running Terminals" section in <env_det>. If present, consider how these active processes might impact your task.
 - When executing commands, you MUST verify success before proceeding. Use exit code checks (e.g., set -e or && chaining) and follow-up checks (e.g., ls, test -f) for commands that succeed silently.
-- If a command is expected to produce significant output (e.g., \`npm test\`, \`docker logs\`), you MUST request the user to paste the output using \`ask_followup_question\` rather than assuming success.
-- For long-running or interactive commands, you MUST provide a way for the user to stop them (e.g., \`Ctrl+C\` instructions) and request status updates via \`ask_followup_question\`.
+- For long-running or interactive commands, you MUST provide a way for the user to stop them (e.g., \`Ctrl+C\` instructions).
 `
     : ``
 
   const navigationPartLines = shouldIncludeShell
     ? `- You MUST NEVER navigate outside this directory (e.g., \`cd ..\`, \`cd ~\`, \`cd /tmp\`, or any path outside the workspace root).
 - You MAY navigate into subdirectories within this workspace using \`cd\` or relative paths.
-- All file-tool paths (read, edit, write, list) must be relative to (and be inside) the workspace root.
+- All file paths used in tool calls must be relative to (and be inside) the workspace root.
 - Terminal sessions reset to the workspace root on creation. If you \`cd\` into a subdirectory, you must chain navigation for every subsequent command: \`cd path/to/subdir && your_command\`. You will automatically return to the workspace root after each terminal session ends.
 - If a task requires working outside the workspace root directory, you MUST stop and inform the user that current operation is blocked by security constraints. Request manual user's intervention, and propose an alternative approach if relevant.`
-    : `- All file-tool paths (read, list) must be relative to (and be inside) the workspace root.
+    : `- All file paths used in tool calls must be relative to (and be inside) the workspace root.
 - If a task requires working outside the workspace root directory, you MUST stop and inform the user that current operation is blocked by security constraints. Request manual user's intervention, and propose an alternative approach if relevant.`
 
   const isConversational = modeSlug === "ask"
 
   const hardConversationRules = `- You should NOT be conversational in your responses, but rather direct and to the point.
-- You are only allowed to ask the user questions using the \`ask_followup_question\` tool.
-- Prefer using tools over asking questions. For example, use \`list_files\` to find a file path rather than asking the user.`
+- Prefer using tools over asking questions when possible. For example, use \`list_files\` to find a file path rather than asking the user.`
 
   const softConversationRules = `- Keep responses focused on the user's question or topic.
 - Be direct and concise by default. Use brief conversational framing only when it aids clarity.
-- Avoid pleasantries, apologies, or meta-commentary about your process.
-- Ask questions naturally in your responses. Use \`ask_followup_question\` tool only when you need structured follow-up or want to offer the user predefined choices.`
+- Avoid pleasantries, apologies, or meta-commentary about your process.`
 
   return `
-====
-
-GENERAL RULES
+# GENERAL RULES
 
 ${isConversational ? softConversationRules : hardConversationRules}
 
@@ -54,7 +49,7 @@ ${isConversational ? softConversationRules : hardConversationRules}
 - <env_det> in user messages is auto-generated context. Use it to inform your actions, but always explain your reasoning when referencing it.
 - When presented with images, utilize your vision capabilities to thoroughly examine them and extract meaningful information.
 ${shellCommandsLines}${mcpLine}
-WORKING DIRECTORY & NAVIGATION RULES
+# WORKING DIRECTORY & NAVIGATION RULES
 
 - Your absolute working directory is: ${cwd.toPosix()}. It is the project's base directory (the workspace root).
 ${navigationPartLines}`

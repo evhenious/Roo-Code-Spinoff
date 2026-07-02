@@ -225,16 +225,6 @@ export async function loadRuleFiles(cwd: string, enableSubfolderRules: boolean =
     return "\n# Rules from .roo directories:\n\n" + rules.join("\n\n")
   }
 
-  // Fall back to existing behavior for legacy .roorules/.clinerules files
-  const ruleFiles = [".roorules", ".clinerules"]
-
-  for (const file of ruleFiles) {
-    const content = await safeReadFile(path.join(cwd, file))
-    if (content) {
-      return `\n# Rules from ${file}:\n${content}\n`
-    }
-  }
-
   return ""
 }
 
@@ -379,6 +369,116 @@ async function loadAllAgentRulesFiles(cwd: string, enableSubfolderRules: boolean
   return agentRules.join("\n\n")
 }
 
+/**
+ * Load global custom instructions and format them as a section.
+ */
+function loadGlobalCustomInstructions(globalInstructions: string): string {
+  if (typeof globalInstructions === "string" && globalInstructions.trim()) {
+    return `## Global Instructions:\n${globalInstructions.trim()}`
+  }
+  return ""
+}
+
+/**
+ * Load mode-specific rules from .roo/rules-${mode}/ directories.
+ */
+async function loadModeSpecificRules(
+  cwd: string,
+  mode: string | undefined,
+  enableSubfolderRules: boolean,
+): Promise<string> {
+  if (!mode) return ""
+
+  const rooDirectories = enableSubfolderRules ? await getAllRooDirectoriesForCwd(cwd) : getRooDirectoriesForCwd(cwd)
+
+  const modeRules: string[] = []
+
+  for (const rooDir of rooDirectories) {
+    const modeRulesDir = path.join(rooDir, `rules-${mode}`)
+    if (await directoryExists(modeRulesDir)) {
+      const files = await readTextFilesFromDirectory(modeRulesDir)
+      if (files.length > 0) {
+        const content = formatDirectoryContent(files, cwd)
+        modeRules.push(content)
+      }
+    }
+  }
+
+  if (modeRules.length > 0) {
+    return `# Rules from .roo/rules-${mode}/ directories:\n\n${modeRules.join("\n\n")}`
+  }
+
+  return ""
+}
+
+/**
+ * Load AGENTS.md files, respecting the useAgentRules flag.
+ */
+async function loadAgentRules(cwd: string, enableSubfolderRules: boolean, enabled: boolean): Promise<string> {
+  if (enabled === false) return ""
+  const content = await loadAllAgentRulesFiles(cwd, enableSubfolderRules)
+  return content.trim() || ""
+}
+
+/**
+ * Assemble all loaded sections into the final custom instructions string.
+ */
+function assembleCustomInstructions(
+  modeSpecificInstr: string,
+  globalInstr: string,
+  modeRules: string,
+  genericRules: string,
+  rooIgnore: string | undefined,
+  agentsMd: string,
+): string {
+  const sections: string[] = []
+
+  // Global instructions (if any)
+  if (globalInstr) {
+    sections.push(globalInstr)
+  }
+
+  // Rules section: mode-specific + rooIgnore + generic
+  const rulesParts: string[] = []
+
+  if (modeRules) {
+    rulesParts.push(modeRules)
+  }
+
+  if (rooIgnore) {
+    rulesParts.push(rooIgnore)
+  }
+
+  if (genericRules) {
+    rulesParts.push(genericRules)
+  }
+
+  if (rulesParts.length > 0) {
+    sections.push(`## Rules:\n\n${rulesParts.join("\n\n")}`)
+  }
+
+  const joinedSections = sections.join("\n\n").trim()
+
+  let resp = ""
+
+  // Mode-specific instructions first (highest priority for LLM)
+  if (modeSpecificInstr.trim()) {
+    resp += `\n# MODE-SPECIFIC INSTRUCTIONS\n\n${modeSpecificInstr.trim()}\n`
+  }
+
+  // User's custom instructions
+  if (joinedSections) {
+    resp += `\n# USER'S CUSTOM INSTRUCTIONS\n\n${joinedSections}`
+  }
+
+  // Project-specific context (AGENTS.md) last, separated by ---
+  if (agentsMd.trim()) {
+    resp += "\n\n---\n\n# PROJECT-SPECIFIC CONTEXT\n\n" + agentsMd
+  }
+
+  return resp
+}
+
 export async function addCustomInstructions(
   modeCustomInstructions: string,
   globalCustomInstructions: string,
@@ -389,98 +489,25 @@ export async function addCustomInstructions(
     settings?: SystemPromptSettings
   } = {},
 ): Promise<string> {
-  console.log("==== loading custom instruction ====")
-  const sections = []
-
-  // Get the enableSubfolderRules setting (default: false)
   const enableSubfolderRules = options.settings?.enableSubfolderRules ?? false
 
-  // Load mode-specific rules if mode is provided
-  let modeRuleContent = ""
-  let usedRuleFile = ""
+  // Load all sections in parallel (they are independent)
+  const [globalInstr, modeRules, genericRules, agentsMd] = await Promise.all([
+    loadGlobalCustomInstructions(globalCustomInstructions),
+    loadModeSpecificRules(cwd, mode, enableSubfolderRules),
+    loadRuleFiles(cwd, enableSubfolderRules),
+    loadAgentRules(cwd, enableSubfolderRules, options.settings?.useAgentRules !== false),
+  ])
 
-  if (mode) {
-    const modeRules: string[] = []
-    // Use recursive discovery only if enableSubfolderRules is true
-    const rooDirectories = enableSubfolderRules ? await getAllRooDirectoriesForCwd(cwd) : getRooDirectoriesForCwd(cwd)
-
-    // Check for .roo/rules-${mode}/ directories in order (global, project-local, and optionally subfolders)
-    for (const rooDir of rooDirectories) {
-      const modeRulesDir = path.join(rooDir, `rules-${mode}`)
-      if (await directoryExists(modeRulesDir)) {
-        const files = await readTextFilesFromDirectory(modeRulesDir)
-        if (files.length > 0) {
-          const content = formatDirectoryContent(files, cwd)
-          modeRules.push(content)
-        }
-      }
-    }
-
-    // If we found mode-specific rules in .roo/rules-${mode}/ directories, use them
-    if (modeRules.length > 0) {
-      modeRuleContent = "\n" + modeRules.join("\n\n")
-      usedRuleFile = `rules-${mode} directories`
-    }
-  }
-
-  // Add global instructions first
-  if (typeof globalCustomInstructions === "string" && globalCustomInstructions.trim()) {
-    sections.push(`Global Instructions:\n${globalCustomInstructions.trim()}`)
-  }
-
-  // Add rules - include both mode-specific and generic rules if they exist
-  const rules = []
-
-  // Add mode-specific rules first if they exist
-  if (modeRuleContent && modeRuleContent.trim()) {
-    if (usedRuleFile.includes(path.join(".roo", `rules-${mode}`))) {
-      rules.push(modeRuleContent.trim())
-    } else {
-      rules.push(`# Rules from ${usedRuleFile}:\n${modeRuleContent}`)
-    }
-  }
-
-  if (options.rooIgnoreInstructions) {
-    rules.push(options.rooIgnoreInstructions)
-  }
-
-  // Add AGENTS.md content if enabled (default: true)
-  // Load from root and optionally subdirectories with .roo folders based on enableSubfolderRules setting
-  if (options.settings?.useAgentRules !== false) {
-    const agentRulesContent = await loadAllAgentRulesFiles(cwd, enableSubfolderRules)
-    if (agentRulesContent && agentRulesContent.trim()) {
-      rules.push(agentRulesContent.trim())
-    }
-  }
-
-  // Add generic rules
-  const genericRuleContent = await loadRuleFiles(cwd, enableSubfolderRules)
-  if (genericRuleContent && genericRuleContent.trim()) {
-    rules.push(genericRuleContent.trim())
-  }
-
-  if (rules.length > 0) {
-    sections.push(`Rules:\n\n${rules.join("\n\n")}`)
-  }
-
-  // Add mode-specific instructions the last part - preferrable by LLM
-  if (typeof modeCustomInstructions === "string" && modeCustomInstructions.trim()) {
-    sections.push(`====\n\nMODE-SPECIFIC INSTRUCTIONS\n\n${modeCustomInstructions.trim()}`)
-  }
-
-  const joinedSections = sections.join("\n\n")
-
-  return joinedSections
-    ? `
-====
-
-USER'S CUSTOM INSTRUCTIONS
-
-These additional instructions are provided by the user, and should be followed to the best of your ability.
-
-${joinedSections}
-`
-    : ""
+  // Assemble final result
+  return assembleCustomInstructions(
+    modeCustomInstructions,
+    globalInstr,
+    modeRules,
+    genericRules,
+    options.rooIgnoreInstructions,
+    agentsMd,
+  )
 }
 
 /**
