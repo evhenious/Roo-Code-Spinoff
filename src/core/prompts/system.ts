@@ -45,6 +45,7 @@ async function generatePrompt(
   rooIgnoreInstructions?: string,
   settings?: SystemPromptSettings,
   skillsManager?: SkillsManager,
+  useDeveloperRole: boolean = false,
 ): Promise<string> {
   if (!context) {
     throw new Error("Extension context is required for generating system prompt")
@@ -73,7 +74,7 @@ async function generatePrompt(
 # IDENTITY
 
 ${roleDefinition}
-${getRulesSection(cwd, shouldIncludeMcp, hasCommandGroup, mode)} 
+${getRulesSection(cwd, shouldIncludeMcp, hasCommandGroup, mode, useDeveloperRole)}
 ${getSharedToolUseSection()}
 ${markdownFormattingSection()}
 ${skillsSection ? `\n${skillsSection}` : ""}
@@ -104,6 +105,7 @@ export const SYSTEM_PROMPT = async (
   rooIgnoreInstructions?: string,
   settings?: SystemPromptSettings,
   skillsManager?: SkillsManager,
+  useDeveloperRole: boolean = false,
 ): Promise<string> => {
   if (!context) {
     throw new Error("Extension context is required for generating system prompt")
@@ -127,5 +129,6 @@ export const SYSTEM_PROMPT = async (
     rooIgnoreInstructions,
     settings,
     skillsManager,
+    useDeveloperRole,
   )
 }

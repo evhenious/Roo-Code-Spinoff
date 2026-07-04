@@ -43,7 +43,7 @@ export class AttemptCompletionTool extends BaseTool<"attempt_completion"> {
     if (task.didToolFailInCurrentTurn) {
       const errorMsg = t("common:errors.attempt_completion_tool_failed")
 
-      await task.say("error", errorMsg)
+      await task.renderUIMessage("error", errorMsg)
       pushToolResult(formatResponse.toolError(errorMsg))
       return
     }
@@ -77,7 +77,7 @@ export class AttemptCompletionTool extends BaseTool<"attempt_completion"> {
 
       task.consecutiveMistakeCount = 0
 
-      await task.say("completion_result", result, undefined, false)
+      await task.renderUIMessage("completion_result", result, undefined, false)
 
       // Check for subtask using parentTaskId (metadata-driven delegation)
       if (task.parentTaskId) {
@@ -136,7 +136,7 @@ export class AttemptCompletionTool extends BaseTool<"attempt_completion"> {
       }
 
       // User provided feedback - push tool result to continue the conversation
-      await task.say("user_feedback", text ?? "", images)
+      await task.renderUIMessage("user_feedback", text ?? "", images)
 
       const feedbackText = `<usr>\n${text}\n</usr>`
       pushToolResult(formatResponse.toolResult(feedbackText, images))
@@ -187,11 +187,11 @@ export class AttemptCompletionTool extends BaseTool<"attempt_completion"> {
       if (lastMessage && lastMessage.ask === "command") {
         await task.ask("command", command ?? "", block.partial).catch(() => {})
       } else {
-        await task.say("completion_result", result ?? "", undefined, false)
+        await task.renderUIMessage("completion_result", result ?? "", undefined, false)
         await task.ask("command", command ?? "", block.partial).catch(() => {})
       }
     } else {
-      await task.say("completion_result", result ?? "", undefined, block.partial)
+      await task.renderUIMessage("completion_result", result ?? "", undefined, block.partial)
     }
   }
 

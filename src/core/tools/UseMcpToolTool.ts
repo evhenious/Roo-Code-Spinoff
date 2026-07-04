@@ -117,7 +117,7 @@ export class UseMcpToolTool extends BaseTool<"use_mcp_tool"> {
       if (typeof params.arguments !== "object" || params.arguments === null || Array.isArray(params.arguments)) {
         task.consecutiveMistakeCount++
         task.recordToolError("use_mcp_tool")
-        await task.say("error", t("mcp:errors.invalidJsonArgument", { toolName: params.tool_name }))
+        await task.renderUIMessage("error", t("mcp:errors.invalidJsonArgument", { toolName: params.tool_name }))
         task.didToolFailInCurrentTurn = true
         pushToolResult(
           formatResponse.toolError(formatResponse.invalidMcpToolArgumentError(params.server_name, params.tool_name)),
@@ -163,7 +163,7 @@ export class UseMcpToolTool extends BaseTool<"use_mcp_tool"> {
 
         task.consecutiveMistakeCount++
         task.recordToolError("use_mcp_tool")
-        await task.say("error", t("mcp:errors.serverNotFound", { serverName, availableServers }))
+        await task.renderUIMessage("error", t("mcp:errors.serverNotFound", { serverName, availableServers }))
         task.didToolFailInCurrentTurn = true
 
         pushToolResult(formatResponse.unknownMcpServerError(serverName, availableServersArray))
@@ -175,7 +175,7 @@ export class UseMcpToolTool extends BaseTool<"use_mcp_tool"> {
         // No tools available on this server
         task.consecutiveMistakeCount++
         task.recordToolError("use_mcp_tool")
-        await task.say(
+        await task.renderUIMessage(
           "error",
           t("mcp:errors.toolNotFound", {
             toolName,
@@ -198,7 +198,7 @@ export class UseMcpToolTool extends BaseTool<"use_mcp_tool"> {
 
         task.consecutiveMistakeCount++
         task.recordToolError("use_mcp_tool")
-        await task.say(
+        await task.renderUIMessage(
           "error",
           t("mcp:errors.toolNotFound", {
             toolName,
@@ -220,7 +220,7 @@ export class UseMcpToolTool extends BaseTool<"use_mcp_tool"> {
 
         task.consecutiveMistakeCount++
         task.recordToolError("use_mcp_tool")
-        await task.say(
+        await task.renderUIMessage(
           "error",
           t("mcp:errors.toolDisabled", {
             toolName,
@@ -295,7 +295,7 @@ export class UseMcpToolTool extends BaseTool<"use_mcp_tool"> {
     executionId: string,
     pushToolResult: (content: string | Array<any>) => void,
   ): Promise<void> {
-    await task.say("mcp_server_request_started")
+    await task.renderUIMessage("mcp_server_request_started")
 
     // Send started status
     await this.sendExecutionStatus(task, {
@@ -342,7 +342,7 @@ export class UseMcpToolTool extends BaseTool<"use_mcp_tool"> {
       })
     }
 
-    await task.say("mcp_server_response", toolResultPretty, images)
+    await task.renderUIMessage("mcp_server_response", toolResultPretty, images)
     pushToolResult(formatResponse.toolResult(toolResultPretty, images))
   }
 }

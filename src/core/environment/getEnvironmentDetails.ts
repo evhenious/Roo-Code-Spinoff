@@ -22,7 +22,7 @@ export async function getEnvironmentDetails(
   includeEverything: boolean = false,
   modeChanged: boolean = true,
 ) {
-  let details = ""
+  let details = "# Environment Details"
 
   const clineProvider = cline.providerRef.deref()
   const state = await clineProvider?.getState()
@@ -43,7 +43,7 @@ export async function getEnvironmentDetails(
   const shouldShow = Array.isArray(allowedVisibleFiles) ? allowedVisibleFiles.length : allowedVisibleFiles.trim().length
 
   if (shouldShow) {
-    details += "\n\n# VSCode Visible Files"
+    details += "\n\n## VSCode Visible Files"
     details += `\n${allowedVisibleFiles}`
   }
 
@@ -63,7 +63,7 @@ export async function getEnvironmentDetails(
     : openTabPaths.map((p) => p.toPosix()).join("\n")
 
   if (allowedOpenTabs) {
-    details += "\n\n# VSCode Open Tabs"
+    details += "\n\n## VSCode Open Tabs"
     details += `\n${allowedOpenTabs}`
   }
 
@@ -99,18 +99,18 @@ export async function getEnvironmentDetails(
 
   if (busyTerminals.length > 0) {
     // Terminals are cool, let's retrieve their output.
-    terminalDetails += "\n\n# Actively Running Terminals"
+    terminalDetails += "\n\n## Actively Running Terminals"
 
     for (const busyTerminal of busyTerminals) {
       const cwd = busyTerminal.getCurrentWorkingDirectory()
-      terminalDetails += `\n## Terminal ${busyTerminal.id} (Active)`
-      terminalDetails += `\n### Working Directory: \`${cwd}\``
-      terminalDetails += `\n### Original command: \`${busyTerminal.getLastCommand()}\``
+      terminalDetails += `\n### Terminal ${busyTerminal.id} (Active)`
+      terminalDetails += `\n* Working Directory: \`${cwd}\``
+      terminalDetails += `\n* Original Command: \`${busyTerminal.getLastCommand()}\``
       let newOutput = TerminalRegistry.getUnretrievedOutput(busyTerminal.id)
 
       if (newOutput) {
         newOutput = Terminal.compressTerminalOutput(newOutput)
-        terminalDetails += `\n### New Output\n${newOutput}`
+        terminalDetails += `\n* New Output:\n${newOutput}`
       }
     }
   }
@@ -124,7 +124,7 @@ export async function getEnvironmentDetails(
 
   // Only add the header if there are terminals with output.
   if (terminalsWithOutput.length > 0) {
-    terminalDetails += "\n\n# Inactive Terminals with Completed Process Output"
+    terminalDetails += "\n\n## Inactive Terminals with Completed Process Output"
 
     // Process each terminal with output.
     for (const inactiveTerminal of terminalsWithOutput) {
@@ -148,23 +148,21 @@ export async function getEnvironmentDetails(
       // Add this terminal's outputs to the details.
       if (terminalOutputs.length > 0) {
         const cwd = inactiveTerminal.getCurrentWorkingDirectory()
-        terminalDetails += `\n## Terminal ${inactiveTerminal.id} (Inactive)`
-        terminalDetails += `\n### Working Directory: \`${cwd}\``
+        terminalDetails += `\n### Terminal ${inactiveTerminal.id} (Inactive)`
+        terminalDetails += `\n* Working Directory: \`${cwd}\``
         terminalOutputs.forEach((output) => {
-          terminalDetails += `\n### New Output\n${output}`
+          terminalDetails += `\n* New Output:\n${output}`
         })
       }
     }
   }
-
-  // console.log(`[Task#getEnvironmentDetails] terminalDetails: ${terminalDetails}`)
 
   // Add recently modified files section.
   const recentlyModifiedFiles = cline.fileContextTracker.getAndClearRecentlyModifiedFiles()
 
   if (recentlyModifiedFiles.length > 0) {
     details +=
-      "\n\n# Recently Modified Files\nThese files have been modified since you last accessed them, re-read them before editing:"
+      "\n\n## Recently Modified Files\nThese files have been modified since you last accessed them, re-read them before editing:"
     for (const filePath of recentlyModifiedFiles) {
       details += `\n${filePath}`
     }
@@ -186,14 +184,14 @@ export async function getEnvironmentDetails(
     const timeZoneOffsetHours = Math.floor(Math.abs(timeZoneOffset))
     const timeZoneOffsetMinutes = Math.abs(Math.round((Math.abs(timeZoneOffset) - timeZoneOffsetHours) * 60))
     const timeZoneOffsetStr = `${timeZoneOffset >= 0 ? "+" : "-"}${timeZoneOffsetHours}:${timeZoneOffsetMinutes.toString().padStart(2, "0")}`
-    details += `\n\n# Current Time\nCurrent time in ISO 8601 UTC format: ${now.toISOString()}\nUser time zone: ${timeZone}, UTC${timeZoneOffsetStr}`
+    details += `\n\n## Current Time\nCurrent time in ISO 8601 UTC format: ${now.toISOString()}\nUser time zone: ${timeZone}, UTC${timeZoneOffsetStr}`
   }
 
   // Add git status information (if enabled with maxGitStatusFiles > 0).
   if (maxGitStatusFiles > 0 && includeEverything) {
     const gitStatus = await getGitStatus(cline.cwd, maxGitStatusFiles)
     if (gitStatus) {
-      details += `\n\n# Git Status\n${gitStatus}`
+      details += `\n\n## Git Status\n${gitStatus}`
     }
   }
 
@@ -210,13 +208,13 @@ export async function getEnvironmentDetails(
   if (modeChanged) {
     const currentMode = mode ?? defaultModeSlug
 
-    const modeDetails = await getFullModeDetails(currentMode, customModes, customModePrompts, {
-      cwd: cline.cwd,
-      globalCustomInstructions,
-      language: language ?? formatLanguage(vscode.env.language),
-    })
+    // const modeDetails = await getFullModeDetails(currentMode, customModes, customModePrompts, {
+    //   cwd: cline.cwd,
+    //   globalCustomInstructions,
+    //   language: language ?? formatLanguage(vscode.env.language),
+    // })
 
-    details += `\n\n# Current Mode\n`
+    details += `\n\n## Current Mode\n`
     details += `- slug: ${currentMode}\n`
   }
 

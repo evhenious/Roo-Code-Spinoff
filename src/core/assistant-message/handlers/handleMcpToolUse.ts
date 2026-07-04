@@ -103,7 +103,7 @@ export async function handleMcpTool(taskInstance: Task, mcpBlock: McpToolUse) {
 
     if (response !== "yesButtonClicked") {
       if (text) {
-        await taskInstance.say("user_feedback", text, images)
+        await taskInstance.renderUIMessage("user_feedback", text, images)
         pushToolResult(formatResponse.toolResult(formatResponse.toolDeniedWithFeedback(text), images))
       } else {
         pushToolResult(formatResponse.toolDenied())
@@ -116,7 +116,7 @@ export async function handleMcpTool(taskInstance: Task, mcpBlock: McpToolUse) {
     // Don't push it as a separate tool_result here - that would create duplicates.
     // The tool will call pushToolResult, which will merge the feedback into the actual result.
     if (text) {
-      await taskInstance.say("user_feedback", text, images)
+      await taskInstance.renderUIMessage("user_feedback", text, images)
       approvalFeedback = { text, images }
     }
 
@@ -130,7 +130,7 @@ export async function handleMcpTool(taskInstance: Task, mcpBlock: McpToolUse) {
       return
     }
     const errorString = `Error ${action}: ${JSON.stringify(serializeError(error))}`
-    await taskInstance.say(
+    await taskInstance.renderUIMessage(
       "error",
       `Error ${action}:\n${error.message ?? JSON.stringify(serializeError(error), null, 2)}`,
     )

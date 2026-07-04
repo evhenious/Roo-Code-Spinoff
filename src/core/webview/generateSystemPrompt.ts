@@ -47,6 +47,7 @@ export const generateSystemPrompt = async (provider: ClineProvider, message: Web
       isStealthModel: modelInfo?.isStealthModel,
     },
     provider.getSkillsManager(),
+    apiConfiguration?.useDeveloperRole ?? false,
   )
 
   return systemPrompt

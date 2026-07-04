@@ -13,7 +13,7 @@ export type AskApproval = (
 
 export type HandleError = (action: string, error: Error) => Promise<void>
 
-export type PushToolResult = (content: ToolResponse) => void
+export type PushToolResult = (content: ToolResponse, rooTag?: string) => void
 
 export type AskFinishSubTaskApproval = () => Promise<boolean>
 

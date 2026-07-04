@@ -959,6 +959,273 @@ describe("convertToOpenAiMessages", () => {
       expect(assistantMessage.reasoning_details[2].data).toBe("encrypted_data")
     })
   })
+
+  describe("useDeveloperRole option", () => {
+    it("should split env_det into separate developer message when useDeveloperRole is true", () => {
+      const anthropicMessages: Anthropic.Messages.MessageParam[] = [
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: "Hello, can you help me?",
+            },
+            {
+              type: "text",
+              text: "<env_det>\nSome environment context\n</env_det>",
+            },
+          ],
+        },
+      ]
+
+      const openAiMessages = convertToOpenAiMessages(anthropicMessages, { useDeveloperRole: true })
+
+      // Should produce two messages: developer and user
+      expect(openAiMessages).toHaveLength(2)
+      expect(openAiMessages[0].role).toBe("developer")
+      expect((openAiMessages[0] as OpenAI.Chat.ChatCompletionDeveloperMessageParam).content).toEqual([
+        { type: "text", text: "<env_det>\nSome environment context\n</env_det>" },
+      ])
+      expect(openAiMessages[1].role).toBe("user")
+      const userContent = openAiMessages[1].content as Array<{ type: string; text?: string }>
+      expect(userContent).toHaveLength(1)
+      expect(userContent[0]).toEqual({ type: "text", text: "Hello, can you help me?" })
+    })
+
+    it("should NOT split env_det when useDeveloperRole is false (default behavior)", () => {
+      const anthropicMessages: Anthropic.Messages.MessageParam[] = [
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: "Hello, can you help me?",
+            },
+            {
+              type: "text",
+              text: "<env_det>\nSome environment context\n</env_det>",
+            },
+          ],
+        },
+      ]
+
+      const openAiMessages = convertToOpenAiMessages(anthropicMessages, { useDeveloperRole: false })
+
+      // Should produce a single user message with both blocks bundled
+      expect(openAiMessages).toHaveLength(1)
+      expect(openAiMessages[0].role).toBe("user")
+      const content = openAiMessages[0].content as Array<{ type: string; text?: string }>
+      expect(content).toHaveLength(2)
+      expect(content[0]).toEqual({ type: "text", text: "Hello, can you help me?" })
+      expect(content[1]).toEqual({ type: "text", text: "<env_det>\nSome environment context\n</env_det>" })
+    })
+
+    it("should NOT split env_det when useDeveloperRole is undefined (default behavior)", () => {
+      const anthropicMessages: Anthropic.Messages.MessageParam[] = [
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: "Hello, can you help me?",
+            },
+            {
+              type: "text",
+              text: "<env_det>\nSome environment context\n</env_det>",
+            },
+          ],
+        },
+      ]
+
+      const openAiMessages = convertToOpenAiMessages(anthropicMessages)
+
+      // Should produce a single user message with both blocks bundled (default behavior)
+      expect(openAiMessages).toHaveLength(1)
+      expect(openAiMessages[0].role).toBe("user")
+    })
+
+    it("should handle multiple env_det blocks in a single developer message", () => {
+      const anthropicMessages: Anthropic.Messages.MessageParam[] = [
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: "Hello!",
+            },
+            {
+              type: "text",
+              text: "<env_det>First context</env_det>",
+            },
+            {
+              type: "text",
+              text: "Some middle content.",
+            },
+            {
+              type: "text",
+              text: "<env_det>Second context</env_det>",
+            },
+          ],
+        },
+      ]
+
+      const openAiMessages = convertToOpenAiMessages(anthropicMessages, { useDeveloperRole: true })
+
+      // Should produce two messages: developer (with both env_det blocks) and user (with regular content)
+      expect(openAiMessages).toHaveLength(2)
+      expect(openAiMessages[0].role).toBe("developer")
+      const devContent = openAiMessages[0].content as Array<{ type: string; text?: string }>
+      expect(devContent).toHaveLength(2)
+      expect(devContent[0]).toEqual({ type: "text", text: "<env_det>First context</env_det>" })
+      expect(devContent[1]).toEqual({ type: "text", text: "<env_det>Second context</env_det>" })
+
+      expect(openAiMessages[1].role).toBe("user")
+      const userContent = openAiMessages[1].content as Array<{ type: string; text?: string }>
+      expect(userContent).toHaveLength(2)
+      expect(userContent[0]).toEqual({ type: "text", text: "Hello!" })
+      expect(userContent[1]).toEqual({ type: "text", text: "Some middle content." })
+    })
+
+    it("should preserve images in user message when env_det is split", () => {
+      const anthropicMessages: Anthropic.Messages.MessageParam[] = [
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: "<env_det>Context</env_det>",
+            },
+            {
+              type: "image",
+              source: {
+                type: "base64",
+                media_type: "image/png",
+                data: "base64data",
+              },
+            },
+          ],
+        },
+      ]
+
+      const openAiMessages = convertToOpenAiMessages(anthropicMessages, { useDeveloperRole: true })
+
+      // Should produce two messages: developer and user (with image)
+      expect(openAiMessages).toHaveLength(2)
+      expect(openAiMessages[0].role).toBe("developer")
+      expect(openAiMessages[1].role).toBe("user")
+      const userContent = openAiMessages[1].content as Array<{ type: string; image_url?: { url: string } }>
+      expect(userContent).toHaveLength(1)
+      expect(userContent[0]).toEqual({
+        type: "image_url",
+        image_url: { url: "data:image/png;base64,base64data" },
+      })
+    })
+
+    it("should not treat partial env_det tags as env_det blocks", () => {
+      const anthropicMessages: Anthropic.Messages.MessageParam[] = [
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: "<env_det>unclosed tag</env_det>more text",
+            },
+          ],
+        },
+      ]
+
+      const openAiMessages = convertToOpenAiMessages(anthropicMessages, { useDeveloperRole: true })
+
+      // Should produce a single user message since the text doesn't start/end with env_det tags
+      expect(openAiMessages).toHaveLength(1)
+      expect(openAiMessages[0].role).toBe("user")
+    })
+
+    it("should handle case where all content is env_det blocks", () => {
+      const anthropicMessages: Anthropic.Messages.MessageParam[] = [
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: "<env_det>First</env_det>",
+            },
+            {
+              type: "text",
+              text: "<env_det>Second</env_det>",
+            },
+          ],
+        },
+      ]
+
+      const openAiMessages = convertToOpenAiMessages(anthropicMessages, { useDeveloperRole: true })
+
+      // Should produce only a developer message (no user message)
+      expect(openAiMessages).toHaveLength(1)
+      expect(openAiMessages[0].role).toBe("developer")
+    })
+
+    it("should work with mergeToolResultText when useDeveloperRole is false", () => {
+      const anthropicMessages: Anthropic.Messages.MessageParam[] = [
+        {
+          role: "user",
+          content: [
+            {
+              type: "tool_result",
+              tool_use_id: "tool-123",
+              content: "Tool result content",
+            },
+            {
+              type: "text",
+              text: "<env_det>\nSome context\n</env_det>",
+            },
+          ],
+        },
+      ]
+
+      const openAiMessages = convertToOpenAiMessages(anthropicMessages, {
+        mergeToolResultText: true,
+        useDeveloperRole: false,
+      })
+
+      // Should merge text into tool message (mergeToolResultText takes precedence)
+      expect(openAiMessages).toHaveLength(1)
+      const toolMessage = openAiMessages[0] as OpenAI.Chat.ChatCompletionToolMessageParam
+      expect(toolMessage.role).toBe("tool")
+      expect(toolMessage.content).toBe("Tool result content\n\n<env_det>\nSome context\n</env_det>")
+    })
+
+    it("should NOT merge into tool message when useDeveloperRole is true (split env_det instead)", () => {
+      const anthropicMessages: Anthropic.Messages.MessageParam[] = [
+        {
+          role: "user",
+          content: [
+            {
+              type: "tool_result",
+              tool_use_id: "tool-123",
+              content: "Tool result content",
+            },
+            {
+              type: "text",
+              text: "<env_det>\nSome context\n</env_det>",
+            },
+          ],
+        },
+      ]
+
+      const openAiMessages = convertToOpenAiMessages(anthropicMessages, {
+        mergeToolResultText: true,
+        useDeveloperRole: true,
+      })
+
+      // Should produce 3 messages: tool, developer (env_det), and user (empty text from env_det split)
+      // Since the only non-tool content is an env_det block, it goes to developer role
+      expect(openAiMessages).toHaveLength(2)
+      expect(openAiMessages[0].role).toBe("tool")
+      expect((openAiMessages[0] as OpenAI.Chat.ChatCompletionToolMessageParam).content).toBe("Tool result content")
+      expect(openAiMessages[1].role).toBe("developer")
+    })
+  })
 })
 
 describe("consolidateReasoningDetails", () => {

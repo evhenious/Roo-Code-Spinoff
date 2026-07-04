@@ -47,7 +47,7 @@ export class AskFollowupQuestionTool extends BaseTool<"ask_followup_question"> {
 
       task.consecutiveMistakeCount = 0
       const { text, images } = await task.ask("followup", JSON.stringify(follow_up_json), false)
-      await task.say("user_feedback", text ?? "", images)
+      await task.renderUIMessage("user_feedback", text ?? "", images)
       pushToolResult(formatResponse.toolResult(`<usr>\n${text}\n</usr>`, images))
     } catch (error) {
       await handleError("asking question", error as Error)

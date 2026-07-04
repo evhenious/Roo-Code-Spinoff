@@ -3,14 +3,18 @@ export function getRulesSection(
   shouldIncludeMcp: boolean,
   shouldIncludeShell: boolean,
   modeSlug: string,
+  useDeveloperRole: boolean,
 ): string {
+  const envDetLine =
+    "- <env_det> in user messages is auto-generated context. Use it to inform your actions, but always explain your reasoning when referencing it."
+
   const mcpLine = shouldIncludeMcp
     ? `- MCP operations should be used one at a time. Wait for confirmation of success before proceeding with additional operations.\n`
     : ``
 
   const shellCommandsLines = shouldIncludeShell
     ? `
-- Before executing commands, check the "Actively Running Terminals" section in <env_det>. If present, consider how these active processes might impact your task.
+- Before executing commands, check the "Actively Running Terminals" section in ${useDeveloperRole ? '"Environment Details"' : "<env_det>"}. If present, consider how these active processes might impact your task.
 - When executing commands, you MUST verify success before proceeding. Use exit code checks (e.g., set -e or && chaining) and follow-up checks (e.g., ls, test -f) for commands that succeed silently.
 - For long-running or interactive commands, you MUST provide a way for the user to stop them (e.g., \`Ctrl+C\` instructions).
 `
@@ -46,7 +50,7 @@ ${isConversational ? softConversationRules : hardConversationRules}
 - If you do not have enough information to answer a question accurately, state your uncertainty explicitly. DO NOT invent facts, statistics, or capabilities you cannot prove with available tools.
 
 - Infer the project type from the file structure and manifest files (e.g., package.json, requirements.txt) to determine appropriate file locations and dependencies.
-- <env_det> in user messages is auto-generated context. Use it to inform your actions, but always explain your reasoning when referencing it.
+${useDeveloperRole ? "" : envDetLine}
 - When presented with images, utilize your vision capabilities to thoroughly examine them and extract meaningful information.
 ${shellCommandsLines}${mcpLine}
 # WORKING DIRECTORY & NAVIGATION RULES

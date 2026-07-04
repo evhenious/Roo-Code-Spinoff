@@ -70,7 +70,7 @@ export class ExecuteCommandTool extends BaseTool<"execute_command"> {
       const ignoredFileAttemptedToAccess = task.rooIgnoreController?.validateCommand(canonicalCommand)
 
       if (ignoredFileAttemptedToAccess) {
-        await task.say("rooignore_error", ignoredFileAttemptedToAccess)
+        await task.renderUIMessage("rooignore_error", ignoredFileAttemptedToAccess)
         pushToolResult(formatResponse.rooIgnoreError(ignoredFileAttemptedToAccess))
         return
       }
@@ -128,7 +128,7 @@ export class ExecuteCommandTool extends BaseTool<"execute_command"> {
       } catch (error: unknown) {
         const status: CommandExecutionStatus = { executionId, status: "fallback" }
         provider?.postMessageToWebview({ type: "commandExecutionStatus", text: JSON.stringify(status) })
-        await task.say("shell_integration_warning")
+        await task.renderUIMessage("shell_integration_warning")
 
         // Invalidate pending ask from first execution to prevent race condition
         task.supersedePendingAsk()
@@ -251,7 +251,7 @@ export async function executeCommandInTerminal(
     lastQueuedCommandOutput = text
     commandOutputSayChain = commandOutputSayChain
       .then(async () => {
-        await task.say("command_output", text, undefined, partial, undefined, undefined, {
+        await task.renderUIMessage("command_output", text, undefined, partial, undefined, undefined, {
           isNonInteractive: true,
         })
       })
@@ -432,7 +432,10 @@ export async function executeCommandInTerminal(
     if (isUserTimedOut) {
       const status: CommandExecutionStatus = { executionId, status: "timeout" }
       provider?.postMessageToWebview({ type: "commandExecutionStatus", text: JSON.stringify(status) })
-      await task.say("error", t("common:errors:command_timeout", { seconds: commandExecutionTimeoutSeconds }))
+      await task.renderUIMessage(
+        "error",
+        t("common:errors:command_timeout", { seconds: commandExecutionTimeoutSeconds }),
+      )
       task.didToolFailInCurrentTurn = true
       task.terminalProcess = undefined
 
@@ -469,7 +472,7 @@ export async function executeCommandInTerminal(
 
   if (message) {
     const { text, images } = message
-    await task.say("user_feedback", text, images)
+    await task.renderUIMessage("user_feedback", text, images)
 
     return [
       true,

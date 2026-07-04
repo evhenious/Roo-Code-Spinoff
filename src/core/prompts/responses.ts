@@ -43,23 +43,23 @@ export const formatResponse = {
       suggestion: "Try to continue without this file, or ask the user to update the .rooignore file",
     }),
 
+  // these messages should be in 'user' role block, sending them as 'developer' role allows model to ignore it
   noToolsUsed: (mode: string) => {
     if (mode === "ask") {
-      return `[ERROR] You did not use a tool in your previous response!
-If you have finished your turn in conversation, use \`notify\` tool.
-(This is an automated message, do not respond to it conversationally.)`
+      return `[SYSTEM ERROR]: Tool Use Rules violation detected.
+**Reason:** 0 tools called in your last response.
+**Suggested action:** if you want to properly close your turn in the conversation, use \`notify\` tool.
+**Note:** this is automated message, do not discuss it or answer conversationally.`
     }
 
-    return `[ERROR] You did not use a tool in your previous response!
+    return `[SYSTEM ERROR]: Tool Use Rules violation. You must call at least one tool per response.
 
-# Next Steps
-
-1. If you have completed the user's task, use the \`attempt_completion\` or \`notify\` tool.
-2. If you require additional information from the user, either:
-   - use the \`ask_followup_question\` tool to get structured answer
-   - ask the question naturally and use \`notify\` tool
-3. Otherwise, proceed with the next step of the task.
-(This is an automated message, do not respond to it conversationally.)`
+### Required action:
+* **If you have completed the user's task:** use the \`attempt_completion\` or \`notify\` tool.
+* **If you require additional info from the user:** you must use a tool. Either:
+  - ask the question naturally and use \`notify\` tool to end your turn
+  - use the \`ask_followup_question\` tool
+* **Otherwise:** proceed with the most appropriate tool to continue your current task.`
   },
 
   tooManyMistakes: (feedback?: string) =>

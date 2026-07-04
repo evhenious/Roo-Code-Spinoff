@@ -137,25 +137,38 @@ export class TaskWorkflow {
         this._lastSentMode = currentMode
       }
 
-      const environmentDetails = await getEnvironmentDetails(
-        //
-        this.deps.taskForEnvironmentDetails,
-        currentIncludeFileDetails, // controlling git history and some more stuff visibility
-        modeChanged, // controlling mode details visibility
-      )
-
-      // Remove any existing environment_details blocks before adding fresh ones.
-      const contentWithoutEnvDetails = parsedUserContent.filter((block) => {
+      // Remove any existing environment_details blocks before adding fresh ones (does NOT lookbehind, only current message)
+      let finalUserContent = parsedUserContent.filter((block) => {
         if (block.type === "text" && typeof block.text === "string") {
-          const isEnvironmentDetailsBlock =
-            block.text.trim().startsWith("<env_det>") && block.text.trim().endsWith("</env_det>")
-          return !isEnvironmentDetailsBlock
+          return (block as any)._type !== "env"
         }
         return true
       })
 
-      // Add environment details as its own text block, separate from tool results.
-      let finalUserContent = [...contentWithoutEnvDetails, { type: "text" as const, text: environmentDetails }]
+      let autoErrorIndx = finalUserContent.findIndex((fc: any) => fc._type === "roo_err")
+      if (autoErrorIndx >= 0 && finalUserContent.length > 1) {
+        // defensive: not sending roo_err in the same msg with new user content, should be single separate msg always
+        finalUserContent = finalUserContent.filter((fc: any) => fc._type !== "roo_err")
+        autoErrorIndx = -1
+      }
+
+      if (autoErrorIndx < 0) {
+        const environmentDetails = await getEnvironmentDetails(
+          // not adding env details if auto error
+          this.deps.taskForEnvironmentDetails,
+          currentIncludeFileDetails, // controlling git history and some more stuff visibility
+          modeChanged, // controlling mode details visibility
+        )
+        // Add environment details as its own text block, separate from tool results.
+        const envBlock = {
+          type: "text" as const,
+          text: environmentDetails,
+          _type: "env", //! <-- new flag
+        }
+
+        finalUserContent.push(envBlock)
+      }
+
       // Only add user message to conversation history if:
       // 1. This is the first attempt (retryAttempt === 0), AND
       // 2. The original userContent was not empty, OR
@@ -163,7 +176,9 @@ export class TaskWorkflow {
       const isEmptyUserContent = currentUserContent.length === 0
       const shouldAddUserMessage =
         ((currentItem.retryAttempt ?? 0) === 0 && !isEmptyUserContent) || currentItem.userMessageWasRemoved
+
       if (shouldAddUserMessage) {
+        //! here we save the new message to the api history, which is sent to LLM after!
         await this.deps.addToApiConversationHistory({ role: "user", content: finalUserContent })
       }
 
@@ -174,7 +189,7 @@ export class TaskWorkflow {
         apiProtocol,
       } satisfies ClineApiReqInfo)
 
-      await this.deps.saveClineMessages()
+      await this.deps.saveClineMessages() // saves UI history to show in the chat
       await this.deps.postStateToWebviewWithoutTaskHistory()
 
       try {
@@ -722,7 +737,8 @@ export class TaskWorkflow {
               {
                 type: "text",
                 text: formatResponse.noToolsUsed(currentMode),
-              },
+                _type: "roo_err",
+              } as any,
             ])
           } else {
             this.deps.setConsecutiveNoToolUseCount(0)

@@ -49,7 +49,7 @@ export class AccessMcpResourceTool extends BaseTool<"access_mcp_resource"> {
       }
 
       // Now execute the tool
-      await task.say("mcp_server_request_started")
+      await task.renderUIMessage("mcp_server_request_started")
       const resourceResult = await task.providerRef.deref()?.getMcpHub()?.readResource(server_name, uri)
 
       const resourceResultPretty =
@@ -76,7 +76,7 @@ export class AccessMcpResourceTool extends BaseTool<"access_mcp_resource"> {
         }
       })
 
-      await task.say("mcp_server_response", resourceResultPretty, images)
+      await task.renderUIMessage("mcp_server_response", resourceResultPretty, images)
       pushToolResult(formatResponse.toolResult(resourceResultPretty, images))
     } catch (error) {
       await handleError("accessing MCP resource", error instanceof Error ? error : new Error(String(error)))

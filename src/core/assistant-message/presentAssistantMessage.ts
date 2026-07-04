@@ -84,7 +84,7 @@ export async function presentAssistantMessage(taskInstance: Task) {
         content = content.replace(/\s?<\/thinking>/g, "")
       }
 
-      await taskInstance.say("text", content, undefined, block.partial)
+      await taskInstance.renderUIMessage("text", content, undefined, block.partial)
       break
     }
     case "tool_use": {

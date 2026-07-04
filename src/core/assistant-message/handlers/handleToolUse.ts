@@ -67,7 +67,7 @@ const handleToolCallIdError = async (taskInstance: Task, block: any) => {
   }
 
   taskInstance.consecutiveMistakeCount++
-  await taskInstance.say("error", errorMessage)
+  await taskInstance.renderUIMessage("error", errorMessage)
   taskInstance.userMessageContent.push({ type: "text", text: errorMessage })
   taskInstance.didAlreadyUseTool = true
 }
@@ -290,7 +290,7 @@ export async function handleToolUse(taskInstance: Task, block: any) {
   // Store approval feedback to merge into tool result (GitHub #10465)
   let approvalFeedback: { text: string; images?: string[] } | undefined
 
-  const pushToolResult = (content: ToolResponse) => {
+  const pushToolResult = (content: ToolResponse, rooTag?: string) => {
     // Native tool calling: only allow ONE tool_result per tool call
     if (hasToolResult) {
       console.warn(`[presentAssistantMessage] Skipping duplicate tool_result for tool_use_id: ${toolCallId}`)
@@ -323,6 +323,7 @@ export async function handleToolUse(taskInstance: Task, block: any) {
       type: "tool_result",
       tool_use_id: sanitizeToolUseId(toolCallId),
       content: resultContent,
+      ...(rooTag ? { _tag: rooTag } : {}),
     })
 
     if (imageBlocks.length > 0) {
@@ -349,7 +350,7 @@ export async function handleToolUse(taskInstance: Task, block: any) {
     if (response !== "yesButtonClicked") {
       // Handle both messageResponse and noButtonClicked with text.
       if (text) {
-        await taskInstance.say("user_feedback", text, images)
+        await taskInstance.renderUIMessage("user_feedback", text, images)
         pushToolResult(formatResponse.toolResult(formatResponse.toolDeniedWithFeedback(text), images))
       } else {
         pushToolResult(formatResponse.toolDenied())
@@ -362,7 +363,7 @@ export async function handleToolUse(taskInstance: Task, block: any) {
     // Don't push it as a separate tool_result here - that would create duplicates.
     // The tool will call pushToolResult, which will merge the feedback into the actual result.
     if (text) {
-      await taskInstance.say("user_feedback", text, images)
+      await taskInstance.renderUIMessage("user_feedback", text, images)
       approvalFeedback = { text, images }
     }
 
@@ -377,7 +378,7 @@ export async function handleToolUse(taskInstance: Task, block: any) {
     }
     const errorString = `Error ${action}: ${JSON.stringify(serializeError(error))}`
 
-    await taskInstance.say(
+    await taskInstance.renderUIMessage(
       "error",
       `Error ${action}:\n${error.message ?? JSON.stringify(serializeError(error), null, 2)}`,
     )
@@ -470,7 +471,7 @@ export async function handleToolUse(taskInstance: Task, block: any) {
         )
 
         // Add user feedback to chat.
-        await taskInstance.say("user_feedback", text, images)
+        await taskInstance.renderUIMessage("user_feedback", text, images)
       }
 
       // Return tool result message about the repetition
@@ -554,7 +555,7 @@ export async function handleToolUse(taskInstance: Task, block: any) {
           const message = `Custom tool "${block.name}" argument validation failed: ${parseParamsError.message}`
           console.error(message)
           taskInstance.consecutiveMistakeCount++
-          await taskInstance.say("error", message)
+          await taskInstance.renderUIMessage("error", message)
           pushToolResult(formatResponse.toolError(message))
           return
         }
@@ -584,7 +585,7 @@ export async function handleToolUse(taskInstance: Task, block: any) {
   taskInstance.consecutiveMistakeCount++
   taskInstance.recordToolError(block.name as ToolName, errorMessage)
 
-  await taskInstance.say("error", t("tools:unknownToolError", { toolName: block.name }))
+  await taskInstance.renderUIMessage("error", t("tools:unknownToolError", { toolName: block.name }))
   // Push tool_result directly WITHOUT setting didAlreadyUseTool
   // This prevents the stream from being interrupted with "Response interrupted by tool use result"
   taskInstance.pushToolResultToUserContent({

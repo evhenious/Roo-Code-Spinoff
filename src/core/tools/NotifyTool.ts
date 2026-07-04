@@ -1,6 +1,6 @@
 import * as vscode from "vscode"
 
-import { RooCodeEventName, type HistoryItem } from "@roo-code/types"
+import { RooCodeEventName } from "@roo-code/types"
 
 import type { Task } from "../task/Task"
 import { formatResponse } from "../prompts/responses"
@@ -12,16 +12,15 @@ import { BaseTool, ToolCallbacks } from "./BaseTool"
 
 export class NotifyTool extends BaseTool<"notify"> {
   readonly name = "notify" as const
-  readonly result = "finished answering turn"
 
-  async execute(params: any, task: Task, callbacks: ToolCallbacks): Promise<void> {
+  async execute(_params: any, task: Task, callbacks: ToolCallbacks): Promise<void> {
     const { handleError, pushToolResult } = callbacks
 
     // Prevent attempt_completion if any tool failed in the current turn
     if (task.didToolFailInCurrentTurn) {
       const errorMsg = t("common:errors.notify_tool_failed")
 
-      await task.say("error", errorMsg)
+      await task.renderUIMessage("error", errorMsg)
       pushToolResult(formatResponse.toolError(errorMsg))
       return
     }
@@ -46,7 +45,7 @@ export class NotifyTool extends BaseTool<"notify"> {
     try {
       task.consecutiveMistakeCount = 0
 
-      await task.say("completion_result", undefined, undefined, false)
+      await task.renderUIMessage("completion_result", undefined, undefined, false)
 
       const { response, text, images } = await task.ask("completion_result", "", false)
 
@@ -55,11 +54,22 @@ export class NotifyTool extends BaseTool<"notify"> {
         return
       }
 
+      // response is 'messageResponse' when user just types next msg immediately (without task reopening) in the same convo
+
       // User provided feedback - push tool result to continue the conversation
-      await task.say("user_feedback", text ?? "", images) // <- this is shown in the chat
+      await task.renderUIMessage("user_feedback", text ?? "", images) // <- this is shown in the chat
+
+      // adding tool 'result' first, then user msg and after this images if any. This order should work
+      pushToolResult(formatResponse.toolResult(JSON.stringify({ success: true })), "roo_notify_closed")
 
       const feedbackText = `<usr>\n${text}\n</usr>`
-      pushToolResult(formatResponse.toolResult(feedbackText, images))
+      task.userMessageContent.push(
+        {
+          type: "text",
+          text: feedbackText,
+        },
+        ...formatResponse.imageBlocks(images),
+      )
     } catch (error) {
       await handleError("inspecting site", error as Error)
     }
@@ -67,7 +77,7 @@ export class NotifyTool extends BaseTool<"notify"> {
 
   override async handlePartial(task: Task, block: ToolUse<"notify">): Promise<void> {
     // tool expects NO params
-    await task.say("completion_result", undefined, undefined, block.partial)
+    await task.renderUIMessage("completion_result", undefined, undefined, block.partial)
   }
 
   private emitTaskCompleted(task: Task): void {

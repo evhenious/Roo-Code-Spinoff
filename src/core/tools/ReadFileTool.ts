@@ -149,7 +149,7 @@ export class ReadFileTool extends BaseTool<"read_file"> {
         // RooIgnore validation
         const accessAllowed = task.rooIgnoreController?.validateAccess(relPath)
         if (!accessAllowed) {
-          await task.say("rooignore_error", relPath)
+          await task.renderUIMessage("rooignore_error", relPath)
           const errorMsg = formatResponse.rooIgnoreError(relPath)
           updateFileResult(relPath, {
             status: "blocked",
@@ -188,7 +188,7 @@ export class ReadFileTool extends BaseTool<"read_file"> {
               error: errorMsg,
               nativeContent: `File: ${relPath}\nError: ${errorMsg}`,
             })
-            await task.say("error", `Error reading file ${relPath}: ${errorMsg}`)
+            await task.renderUIMessage("error", `Error reading file ${relPath}: ${errorMsg}`)
             continue
           }
 
@@ -228,7 +228,7 @@ export class ReadFileTool extends BaseTool<"read_file"> {
             error: `Error reading file: ${errorMsg}`,
             nativeContent: `File: ${relPath}\nError: ${errorMsg}`,
           })
-          await task.say("error", `Error reading file ${relPath}: ${errorMsg}`)
+          await task.renderUIMessage("error", `Error reading file ${relPath}: ${errorMsg}`)
         }
       }
 
@@ -249,7 +249,7 @@ export class ReadFileTool extends BaseTool<"read_file"> {
         nativeContent: `File: ${relPath}\nError: ${errorMsg}`,
       })
 
-      await task.say("error", `Error reading file ${relPath}: ${errorMsg}`)
+      await task.renderUIMessage("error", `Error reading file ${relPath}: ${errorMsg}`)
       task.didToolFailInCurrentTurn = true
 
       const errorResult = fileResults
@@ -378,7 +378,7 @@ export class ReadFileTool extends BaseTool<"read_file"> {
           error: `Error reading image file: ${errorMsg}`,
           nativeContent: `File: ${relPath}\nError: ${errorMsg}`,
         })
-        await task.say("error", `Error reading image file ${relPath}: ${errorMsg}`)
+        await task.renderUIMessage("error", `Error reading image file ${relPath}: ${errorMsg}`)
         return
       }
     }
@@ -406,7 +406,7 @@ export class ReadFileTool extends BaseTool<"read_file"> {
           error: `Error extracting text: ${errorMsg}`,
           nativeContent: `File: ${relPath}\nError: ${errorMsg}`,
         })
-        await task.say("error", `Error extracting text from ${relPath}: ${errorMsg}`)
+        await task.renderUIMessage("error", `Error extracting text from ${relPath}: ${errorMsg}`)
         return
       }
     }
@@ -447,12 +447,12 @@ export class ReadFileTool extends BaseTool<"read_file"> {
       const { response, text, images } = await task.ask("tool", completeMessage, false)
 
       if (response === "yesButtonClicked") {
-        if (text) await task.say("user_feedback", text, images)
+        if (text) await task.renderUIMessage("user_feedback", text, images)
         filesToApprove.forEach((fr) => {
           updateFileResult(fr.path, { status: "approved", feedbackText: text, feedbackImages: images })
         })
       } else if (response === "noButtonClicked") {
-        if (text) await task.say("user_feedback", text, images)
+        if (text) await task.renderUIMessage("user_feedback", text, images)
         task.didRejectTool = true
         filesToApprove.forEach((fr) => {
           updateFileResult(fr.path, {
@@ -516,7 +516,7 @@ export class ReadFileTool extends BaseTool<"read_file"> {
       const { response, text, images } = await task.ask("tool", completeMessage, false)
 
       if (response !== "yesButtonClicked") {
-        if (text) await task.say("user_feedback", text, images)
+        if (text) await task.renderUIMessage("user_feedback", text, images)
         task.didRejectTool = true
         updateFileResult(relPath, {
           status: "denied",
@@ -525,7 +525,7 @@ export class ReadFileTool extends BaseTool<"read_file"> {
           feedbackImages: images,
         })
       } else {
-        if (text) await task.say("user_feedback", text, images)
+        if (text) await task.renderUIMessage("user_feedback", text, images)
         updateFileResult(relPath, { status: "approved", feedbackText: text, feedbackImages: images })
       }
     }
@@ -689,7 +689,7 @@ export class ReadFileTool extends BaseTool<"read_file"> {
       // RooIgnore validation
       const accessAllowed = task.rooIgnoreController?.validateAccess(relPath)
       if (!accessAllowed) {
-        await task.say("rooignore_error", relPath)
+        await task.renderUIMessage("rooignore_error", relPath)
         const errorMsg = formatResponse.rooIgnoreError(relPath)
         results.push(`File: ${relPath}\nError: ${errorMsg}`)
         continue
@@ -714,13 +714,13 @@ export class ReadFileTool extends BaseTool<"read_file"> {
       const { response, text, images } = await task.ask("tool", completeMessage, false)
 
       if (response !== "yesButtonClicked") {
-        if (text) await task.say("user_feedback", text, images)
+        if (text) await task.renderUIMessage("user_feedback", text, images)
         task.didRejectTool = true
         results.push(`File: ${relPath}\nStatus: Denied by user`)
         continue
       }
 
-      if (text) await task.say("user_feedback", text, images)
+      if (text) await task.renderUIMessage("user_feedback", text, images)
 
       try {
         // Check if the path is a directory
@@ -728,7 +728,7 @@ export class ReadFileTool extends BaseTool<"read_file"> {
         if (stats.isDirectory()) {
           const errorMsg = `Cannot read '${relPath}' because it is a directory.`
           results.push(`File: ${relPath}\nError: ${errorMsg}`)
-          await task.say("error", `Error reading file ${relPath}: ${errorMsg}`)
+          await task.renderUIMessage("error", `Error reading file ${relPath}: ${errorMsg}`)
           continue
         }
 
@@ -799,7 +799,7 @@ export class ReadFileTool extends BaseTool<"read_file"> {
       } catch (error) {
         const errorMsg = error instanceof Error ? error.message : String(error)
         results.push(`File: ${relPath}\nError: ${errorMsg}`)
-        await task.say("error", `Error reading file ${relPath}: ${errorMsg}`)
+        await task.renderUIMessage("error", `Error reading file ${relPath}: ${errorMsg}`)
       }
     }
 

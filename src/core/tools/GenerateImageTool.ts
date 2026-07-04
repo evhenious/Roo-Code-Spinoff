@@ -54,7 +54,7 @@ export class GenerateImageTool extends BaseTool<"generate_image"> {
 
     const accessAllowed = task.rooIgnoreController?.validateAccess(relPath)
     if (!accessAllowed) {
-      await task.say("rooignore_error", relPath)
+      await task.renderUIMessage("rooignore_error", relPath)
       pushToolResult(formatResponse.rooIgnoreError(relPath))
       return
     }
@@ -65,7 +65,7 @@ export class GenerateImageTool extends BaseTool<"generate_image"> {
 
       const inputImageExists = await fileExistsAtPath(inputImageFullPath)
       if (!inputImageExists) {
-        await task.say("error", `Input image not found: ${getReadablePath(task.cwd, inputImagePath)}`)
+        await task.renderUIMessage("error", `Input image not found: ${getReadablePath(task.cwd, inputImagePath)}`)
         task.didToolFailInCurrentTurn = true
         pushToolResult(formatResponse.toolError(`Input image not found: ${getReadablePath(task.cwd, inputImagePath)}`))
         return
@@ -73,7 +73,7 @@ export class GenerateImageTool extends BaseTool<"generate_image"> {
 
       const inputImageAccessAllowed = task.rooIgnoreController?.validateAccess(inputImagePath)
       if (!inputImageAccessAllowed) {
-        await task.say("rooignore_error", inputImagePath)
+        await task.renderUIMessage("rooignore_error", inputImagePath)
         pushToolResult(formatResponse.rooIgnoreError(inputImagePath))
         return
       }
@@ -84,7 +84,7 @@ export class GenerateImageTool extends BaseTool<"generate_image"> {
 
         const supportedFormats = ["png", "jpg", "jpeg", "gif", "webp"]
         if (!supportedFormats.includes(imageExtension)) {
-          await task.say(
+          await task.renderUIMessage(
             "error",
             `Unsupported image format: ${imageExtension}. Supported formats: ${supportedFormats.join(", ")}`,
           )
@@ -100,7 +100,7 @@ export class GenerateImageTool extends BaseTool<"generate_image"> {
         const mimeType = imageExtension === "jpg" ? "jpeg" : imageExtension
         inputImageData = `data:image/${mimeType};base64,${imageBuffer.toString("base64")}`
       } catch (error) {
-        await task.say(
+        await task.renderUIMessage(
           "error",
           `Failed to read input image: ${error instanceof Error ? error.message : "Unknown error"}`,
         )
@@ -152,7 +152,7 @@ export class GenerateImageTool extends BaseTool<"generate_image"> {
 
     if (imageProvider === "openrouter" && !openRouterApiKey) {
       const errorMessage = t("tools:generateImage.openRouterApiKeyRequired")
-      await task.say("error", errorMessage)
+      await task.renderUIMessage("error", errorMessage)
       pushToolResult(formatResponse.toolError(errorMessage))
       return
     }
@@ -189,7 +189,7 @@ export class GenerateImageTool extends BaseTool<"generate_image"> {
       result = await openRouterHandler.generateImage(prompt, selectedModel, openRouterApiKey!, inputImageData)
 
       if (!result.success) {
-        await task.say("error", result.error || "Failed to generate image")
+        await task.renderUIMessage("error", result.error || "Failed to generate image")
         task.didToolFailInCurrentTurn = true
         pushToolResult(formatResponse.toolError(result.error || "Failed to generate image"))
         return
@@ -197,7 +197,7 @@ export class GenerateImageTool extends BaseTool<"generate_image"> {
 
       if (!result.imageData) {
         const errorMessage = "No image data received"
-        await task.say("error", errorMessage)
+        await task.renderUIMessage("error", errorMessage)
         task.didToolFailInCurrentTurn = true
         pushToolResult(formatResponse.toolError(errorMessage))
         return
@@ -206,7 +206,7 @@ export class GenerateImageTool extends BaseTool<"generate_image"> {
       const base64Match = result.imageData.match(/^data:image\/(png|jpeg|jpg);base64,(.+)$/)
       if (!base64Match) {
         const errorMessage = "Invalid image format received"
-        await task.say("error", errorMessage)
+        await task.renderUIMessage("error", errorMessage)
         task.didToolFailInCurrentTurn = true
         pushToolResult(formatResponse.toolError(errorMessage))
         return
@@ -243,7 +243,7 @@ export class GenerateImageTool extends BaseTool<"generate_image"> {
       const cacheBuster = Date.now()
       imageUri = imageUri.includes("?") ? `${imageUri}&t=${cacheBuster}` : `${imageUri}?t=${cacheBuster}`
 
-      await task.say("image", JSON.stringify({ imageUri, imagePath: fullImagePath }))
+      await task.renderUIMessage("image", JSON.stringify({ imageUri, imagePath: fullImagePath }))
       pushToolResult(formatResponse.toolResult(getReadablePath(task.cwd, finalPath)))
     } catch (error) {
       await handleError("generating image", error as Error)
