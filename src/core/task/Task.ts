@@ -1046,27 +1046,28 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
           }
         }
 
-        // 2. if we try to handle the case user: YOU FORGOT THE TOOL => assistant: calls the tool => user answers right after 'notify' result
+        // 2. if we try to handle the case when
+        //  user: YOU FORGOT THE TOOL => assistant: calls the tool => user answers right after 'notify' or 'attempt_completion' result
         if (validatedMessage.content[0]._type === "roo_notify_closed") {
-          // this means, prev msg should be assistant calling this 'notify' tool
+          // this means, prev msg should be assistant calling 'notify' or 'attempt_completion' tool
           const prevEntry = this.apiConversationHistory[this.apiConversationHistory.length - 1]
           const isPrevMsgToolCall =
             prevEntry.role === "assistant" &&
             Array.isArray(prevEntry.content) &&
-            !!prevEntry.content.find((c) => c.type === "tool_use" && c.name === "notify")
+            !!prevEntry.content.find((c) => c.type === "tool_use" && ["notify", "attempt_completion"].includes(c.name))
 
           const prePrevEntry: RooMessageExtended = this.apiConversationHistory[this.apiConversationHistory.length - 2]
           const isPrePrevRooError =
             prePrevEntry.role === "user" &&
             Array.isArray(prePrevEntry.content) &&
-            prePrevEntry.content[0]._type === "roo_err"
+            prePrevEntry.content[0]._type === "roo_err" // automated SYSTEM ERROR goes always alone, no env_det or anything
 
           // removing SYSTEM ERROR roo_err and following tool call, no need to keep those in history
           if (isPrevMsgToolCall && isPrePrevRooError) {
             this.apiConversationHistory.pop()
             this.apiConversationHistory.pop()
 
-            validatedMessage.content.shift() // "roo_notify_closed" tag goes first, so we drop it too
+            validatedMessage.content.shift() // "roo_notify_closed" tag goes first, so we drop it too, to avoid orphaned tool result
           }
         }
       }

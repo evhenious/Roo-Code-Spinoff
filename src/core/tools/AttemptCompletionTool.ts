@@ -106,7 +106,7 @@ export class AttemptCompletionTool extends BaseTool<"attempt_completion"> {
               if (delegation === "delegated") {
                 this.emitTaskCompleted(task)
               }
-              if (delegation !== "continue") return
+              if (delegation !== "continue") return // TODO seems 'continue' is not used?
             } else {
               // Unexpected status (undefined or "delegated") - log error and skip delegation
               // undefined indicates a bug in status persistence during child creation
@@ -138,8 +138,17 @@ export class AttemptCompletionTool extends BaseTool<"attempt_completion"> {
       // User provided feedback - push tool result to continue the conversation
       await task.renderUIMessage("user_feedback", text ?? "", images)
 
+      // adding tool 'result' first, then user msg and after this images if any. This order should work
+      pushToolResult(formatResponse.toolResult(JSON.stringify({ success: true })), "roo_notify_closed")
+
       const feedbackText = `<usr>\n${text}\n</usr>`
-      pushToolResult(formatResponse.toolResult(feedbackText, images))
+      task.userMessageContent.push(
+        {
+          type: "text",
+          text: feedbackText,
+        },
+        ...formatResponse.imageBlocks(images),
+      )
     } catch (error) {
       await handleError("inspecting site", error as Error)
     }
