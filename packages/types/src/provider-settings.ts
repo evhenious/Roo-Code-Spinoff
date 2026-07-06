@@ -122,39 +122,13 @@ export const isProviderName = (key: unknown): key is ProviderName =>
   typeof key === "string" && providerNames.includes(key as ProviderName)
 
 /**
- * RetiredProviderName
- */
-
-export const retiredProviderNames = [
-  "cerebras",
-  "chutes",
-  "deepinfra",
-  "doubao",
-  "featherless",
-  "groq",
-  "huggingface",
-  "io-intelligence",
-] as const
-
-export const retiredProviderNamesSchema = z.enum(retiredProviderNames)
-
-export type RetiredProviderName = z.infer<typeof retiredProviderNamesSchema>
-
-export const isRetiredProvider = (value: string): value is RetiredProviderName =>
-  retiredProviderNames.includes(value as RetiredProviderName)
-
-export const providerNamesWithRetiredSchema = z.union([providerNamesSchema, retiredProviderNamesSchema])
-
-export type ProviderNameWithRetired = z.infer<typeof providerNamesWithRetiredSchema>
-
-/**
  * ProviderSettingsEntry
  */
 
 export const providerSettingsEntrySchema = z.object({
   id: z.string(),
   name: z.string(),
-  apiProvider: providerNamesWithRetiredSchema.optional(),
+  apiProvider: providerNamesSchema.optional(),
   modelId: z.string().optional(),
 })
 
@@ -381,7 +355,7 @@ export const providerSettingsSchemaDiscriminated = z.discriminatedUnion("apiProv
 ])
 
 export const providerSettingsSchema = z.object({
-  apiProvider: providerNamesWithRetiredSchema.optional(),
+  apiProvider: providerNamesSchema.optional(),
   ...anthropicSchema.shape,
   ...openRouterSchema.shape,
   ...bedrockSchema.shape,

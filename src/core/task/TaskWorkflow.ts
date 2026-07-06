@@ -8,7 +8,6 @@ import {
   type ToolName,
   getApiProtocol,
   getModelId,
-  isRetiredProvider,
 } from "@roo-code/types"
 
 import { GroundingSource } from "../../api/transform/stream"
@@ -51,10 +50,7 @@ export class TaskWorkflow {
     // Cache API protocol once per iteration (optimization)
     const modelId = getModelId(this.deps.apiConfiguration)
     const apiProvider = this.deps.apiConfiguration.apiProvider
-    const apiProtocol = getApiProtocol(
-      apiProvider && !isRetiredProvider(apiProvider) ? apiProvider : undefined,
-      modelId,
-    )
+    const apiProtocol = getApiProtocol(apiProvider, modelId)
 
     while (stack.length > 0) {
       const currentItem = stack.pop()!

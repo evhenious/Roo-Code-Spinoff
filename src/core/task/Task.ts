@@ -49,7 +49,6 @@ import {
   isIdleAsk,
   isInteractiveAsk,
   isResumableAsk,
-  isRetiredProvider,
 } from "@roo-code/types"
 
 // api
@@ -894,10 +893,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
       // and require round-tripping the signature in their own format.
       const modelId = getModelId(this.apiConfiguration)
       const apiProvider = this.apiConfiguration.apiProvider
-      const apiProtocol = getApiProtocol(
-        apiProvider && !isRetiredProvider(apiProvider) ? apiProvider : undefined,
-        modelId,
-      )
+      const apiProtocol = getApiProtocol(apiProvider, modelId)
       const isAnthropicProtocol = apiProtocol === "anthropic"
 
       // Start from the original assistant message
