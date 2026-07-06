@@ -57,7 +57,7 @@ const TaskItem = ({
       data-testid={`task-item-${item.id}`}
       className={cn(
         "cursor-pointer group relative overflow-hidden",
-        "text-vscode-foreground/80 hover:text-vscode-foreground hover:bg-amber-50/80 transition-colors",
+        "text-vscode-foreground/80 hover:text-vscode-foreground transition-colors",
         hasSubtasks ? "rounded-t-xl" : "rounded-xl",
         className,
       )}
