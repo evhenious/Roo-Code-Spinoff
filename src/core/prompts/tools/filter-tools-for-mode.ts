@@ -299,6 +299,18 @@ export function filterNativeToolsForMode(
     allowedToolNames.delete("access_mcp_resource")
   }
 
+  if (modeSlug === "ask") {
+    allowedToolNames.delete("attempt_completion") // ASK should use 'notify'
+  }
+
+  if (modeSlug !== "ask") {
+    allowedToolNames.delete("switch_mode") // only ASK could initiate swithc mode now
+  }
+
+  if (modeSlug === "code") {
+    allowedToolNames.delete("new_task") // CODE is final worker, not expected to spawn tasks
+  }
+
   // Filter native tools based on allowed tool names and apply alias renames
   const filteredTools: OpenAI.Chat.ChatCompletionTool[] = []
 
