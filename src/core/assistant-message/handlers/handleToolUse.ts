@@ -323,7 +323,7 @@ export async function handleToolUse(taskInstance: Task, block: any) {
       type: "tool_result",
       tool_use_id: sanitizeToolUseId(toolCallId),
       content: resultContent,
-      ...(rooTag ? { _tag: rooTag } : {}),
+      ...(rooTag ? { _type: rooTag } : {}),
     })
 
     if (imageBlocks.length > 0) {
