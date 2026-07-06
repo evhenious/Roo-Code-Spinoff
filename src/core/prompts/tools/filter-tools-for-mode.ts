@@ -368,12 +368,21 @@ export function isToolAllowedInMode(
 ): boolean {
   const modeSlug = mode ?? defaultModeSlug
 
+  // todo: do we really need this tool?
+  if (toolName === "switch_mode" && modeSlug !== "ask") {
+    return false // let's restrict Architect and Code from switching themselves
+  }
+
+  if (toolName === "attempt_completion" && modeSlug === "ask") {
+    return false // no need to confuse model, ASK could use only 'notify' for simplicity
+  }
+
+  if (toolName === "new_task" && modeSlug === "code") {
+    return false // no need to confuse model, CODE is a terminal mode itself, and delegates through user if need
+  }
+
   // Check if it's an always-available tool
   if (ALWAYS_AVAILABLE_TOOLS.includes(toolName)) {
-    if (toolName === "switch_mode" && modeSlug !== "ask") {
-      return false // let's restrict Architect and Code from switching
-    }
-
     // But still check for conditional exclusions
     if (toolName === "codebase_search") {
       return !!(
@@ -383,15 +392,19 @@ export function isToolAllowedInMode(
         codeIndexManager.isInitialized
       )
     }
+
     if (toolName === "update_todo_list") {
       return settings?.todoListEnabled !== false
     }
+
     if (toolName === "generate_image") {
       return experiments?.imageGeneration === true
     }
+
     if (toolName === "run_slash_command") {
       return experiments?.runSlashCommand === true
     }
+
     return true
   }
 

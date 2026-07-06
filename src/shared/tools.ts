@@ -262,45 +262,11 @@ export interface GenerateImageToolUse extends ToolUse<"generate_image"> {
 }
 
 // Define tool group configuration
-export type ToolGroupConfig = {
+type ToolGroupConfig = {
   tools: readonly string[]
   alwaysAvailable?: boolean // Whether this group is always available and shouldn't show in prompts view
   customTools?: readonly string[] // Opt-in only tools - only available when explicitly included via model's includedTools
 }
-
-export const TOOL_DISPLAY_NAMES: Record<ToolName, string> = {
-  execute_command: "run commands",
-  search_and_replace: "apply changes using search and replace",
-  search_replace: "apply single search and replace",
-  search_files: "search files",
-  list_files: "list files",
-  codebase_search: "codebase search",
-  ast_grep: "search code using AST patterns",
-  //
-  read_file: "read files",
-  read_command_output: "read command output",
-  //
-  write_to_file: "write files",
-  apply_diff: "apply changes",
-  edit: "edit files",
-  edit_file: "edit files using search and replace",
-  apply_patch: "apply patches using codex format",
-  //
-  use_mcp_tool: "use mcp tools",
-  access_mcp_resource: "access mcp resources",
-  //
-  ask_followup_question: "ask questions",
-  attempt_completion: "complete tasks",
-  notify: "notify user you finished answering",
-  switch_mode: "switch modes",
-  new_task: "create new task",
-  update_todo_list: "update todo list",
-  run_slash_command: "run slash command",
-  skill: "load skill",
-  generate_image: "generate images",
-  //
-  custom_tool: "use custom tools",
-} as const
 
 // Define available tool groups.
 export const TOOL_GROUPS: Record<ToolGroup, ToolGroupConfig> = {
