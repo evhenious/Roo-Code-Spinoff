@@ -751,6 +751,20 @@ export const webviewMessageHandler = async (provider: ClineProvider, message: We
     case "showTaskWithId":
       provider.showTaskWithId(message.text!)
       break
+    case "updateTaskTitle": {
+      const { taskId, title } = message
+      if (!taskId || !title) {
+        console.error("[updateTaskTitle] Missing taskId or title")
+        break
+      }
+      const historyItem = provider.taskHistoryStore.get(taskId)
+      if (!historyItem) {
+        console.error(`[updateTaskTitle] Task not found: ${taskId}`)
+        break
+      }
+      await provider.updateTaskHistory({ ...historyItem, title })
+      break
+    }
     case "condenseTaskContextRequest":
       provider.condenseTaskContext(message.text!)
       break

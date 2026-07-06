@@ -1502,6 +1502,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
       {task ? (
         <>
           <TaskHeader
+            taskTitle={currentTaskItem?.title}
             task={task}
             tokensIn={apiMetrics.totalTokensIn}
             tokensOut={apiMetrics.totalTokensOut}
