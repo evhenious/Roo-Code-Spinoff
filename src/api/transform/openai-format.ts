@@ -281,6 +281,9 @@ export interface ConvertToOpenAiMessagesOptions {
 
 type RooTextBlockParam = Anthropic.TextBlockParam & { _type?: "env" | "roo_err" }
 
+/**
+ * This fn used to filter and convert incoming messages before sending to LLM api for OpenAI Compatible provider
+ */
 export function convertToOpenAiMessages(
   anthropicMessages: Anthropic.Messages.MessageParam[],
   options?: ConvertToOpenAiMessagesOptions,

@@ -4,10 +4,6 @@ import * as diff from "diff"
 import { RooIgnoreController, LOCK_TEXT_SYMBOL } from "../ignore/RooIgnoreController"
 import { RooProtectedController } from "../protect/RooProtectedController"
 
-const toolIstructions = `# Reminder: Tool Use
-
-Refer to the tool definitions provided in your system instructions for the correct parameter structure.`
-
 export const formatResponse = {
   toolDenied: () =>
     JSON.stringify({
@@ -52,14 +48,15 @@ export const formatResponse = {
 **Note:** this is automated message, do not discuss it or answer conversationally.`
     }
 
-    return `[SYSTEM ERROR]: Tool Use Rules violation. You must call at least one tool per response.
-
-### Required action:
-* **If you have completed the user's task:** use the \`attempt_completion\` or \`notify\` tool.
-* **If you require additional info from the user:** you must use a tool. Either:
-  - ask the question naturally and use \`notify\` tool to end your turn
-  - use the \`ask_followup_question\` tool
-* **Otherwise:** proceed with the most appropriate tool to continue your current task.`
+    return `[SYSTEM ERROR]: Tool Use Rules violation.
+**Reason:** 0 tools called in your last response.
+### Next steps:
+1. **If you have completed the user's task:** use \`attempt_completion\` ${mode === "code" ? "" : "or `notify` "}tool.
+2. **If you need additional info from the user:** use relevant tool. Options:
+   - use \`ask_followup_question\` tool
+   - ask the question naturally and use \`notify\` tool to properly end your turn
+3. **Otherwise:** proceed with the most appropriate tool to continue your current task.
+**Note:** this is automated message, do not discuss it or answer conversationally.`
   },
 
   tooManyMistakes: (feedback?: string) =>
@@ -69,9 +66,7 @@ export const formatResponse = {
     }),
 
   missingToolParameterError: (paramName: string) => {
-    return `Missing value for required parameter '${paramName}'. Please retry with complete response.
-
-${toolIstructions}`
+    return `Missing value for required parameter '${paramName}'. Check tool definitions provided in your system instructions for correct parameter structure, and retry with complete response.`
   },
 
   invalidMcpToolArgumentError: (serverName: string, toolName: string) =>
