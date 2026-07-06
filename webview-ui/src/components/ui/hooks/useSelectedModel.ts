@@ -241,7 +241,8 @@ function getSelectedModel({
       const info = mistralModels[id as keyof typeof mistralModels]
       return { id, info }
     }
-    case "openai": {
+    case "openai":
+    case "openai-compatible": {
       const id = apiConfiguration.openAiModelId ?? ""
       const customInfo = apiConfiguration?.openAiCustomModelInfo
       const info = customInfo ?? openAiModelInfoSaneDefaults

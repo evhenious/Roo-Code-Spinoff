@@ -123,7 +123,6 @@ import { TaskWorkflow } from "./TaskWorkflow"
 import { createWorkflowDependencies } from "./util/createWorkflowDependencies"
 import { validateAndFixToolResultIds } from "./validateToolResultIds"
 import { ContentBlockParam, TextBlockParam } from "@anthropic-ai/sdk/resources/index.mjs"
-import c from "../../services/tree-sitter/queries/c"
 
 const MAX_EXPONENTIAL_BACKOFF_SECONDS = 600 // 10 minutes
 const DEFAULT_USAGE_COLLECTION_TIMEOUT_MS = 5000 // 5 seconds

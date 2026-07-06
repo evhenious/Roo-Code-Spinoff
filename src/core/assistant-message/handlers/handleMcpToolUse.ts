@@ -39,7 +39,7 @@ export async function handleMcpTool(taskInstance: Task, mcpBlock: McpToolUse) {
   // Store approval feedback to merge into tool result (GitHub #10465)
   let approvalFeedback: { text: string; images?: string[] } | undefined
 
-  const pushToolResult = (content: ToolResponse, feedbackImages?: string[]) => {
+  const pushToolResult = (content: ToolResponse) => {
     if (hasToolResult) {
       console.warn(`[presentAssistantMessage] Skipping duplicate tool_result for mcp_tool_use: ${toolCallId}`)
       return

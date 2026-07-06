@@ -281,7 +281,7 @@ describe("Grace Retry Error Handling", () => {
         startTask: false,
       })
 
-      const saySpy = vi.spyOn(task, "say").mockResolvedValue(undefined)
+      const saySpy = vi.spyOn(task, "renderUIMessage").mockResolvedValue(undefined)
 
       // Simulate first empty response - should NOT show error
       task.consecutiveNoAssistantMessagesCount = 0
@@ -305,7 +305,7 @@ describe("Grace Retry Error Handling", () => {
         startTask: false,
       })
 
-      const saySpy = vi.spyOn(task, "say").mockResolvedValue(undefined)
+      const saySpy = vi.spyOn(task, "renderUIMessage").mockResolvedValue(undefined)
 
       // Simulate second consecutive empty response
       task.consecutiveNoAssistantMessagesCount = 1
@@ -329,7 +329,7 @@ describe("Grace Retry Error Handling", () => {
         startTask: false,
       })
 
-      const saySpy = vi.spyOn(task, "say").mockResolvedValue(undefined)
+      const saySpy = vi.spyOn(task, "renderUIMessage").mockResolvedValue(undefined)
 
       // Simulate third consecutive empty response
       task.consecutiveNoAssistantMessagesCount = 2
@@ -401,7 +401,7 @@ describe("Grace Retry Error Handling", () => {
         startTask: false,
       })
 
-      const saySpy = vi.spyOn(task, "say").mockResolvedValue(undefined)
+      const saySpy = vi.spyOn(task, "renderUIMessage").mockResolvedValue(undefined)
 
       // Simulate the error condition (2 consecutive failures)
       task.consecutiveNoAssistantMessagesCount = 2
