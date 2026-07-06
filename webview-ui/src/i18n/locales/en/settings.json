@@ -877,7 +877,7 @@
     "cacheReadsPrice": "Cache reads price",
     "cacheWritesPrice": "Cache writes price",
     "enableStreaming": "Enable streaming",
-    "useDeveloperRole": "Use `developer` role messages for service msgs like environment details",
+    "useDeveloperRole": "Use `developer` role to send environment details",
     "enableR1Format": "Enable R1 model parameters",
     "enableR1FormatTips": "Must be enabled when using R1 models such as QWQ to prevent 400 errors",
     "useAzure": "Use Azure",

@@ -99,6 +99,7 @@ export const PROVIDERS_WITH_CUSTOM_MODEL_UI: ProviderName[] = [
   "openrouter",
   "requesty",
   "openai", // OpenAI Compatible
+  "openai-compatible",
   "openai-codex", // OpenAI Codex has custom UI with auth and rate limits
   "litellm",
   "vercel-ai-gateway",

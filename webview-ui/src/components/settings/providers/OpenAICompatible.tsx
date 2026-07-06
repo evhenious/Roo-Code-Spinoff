@@ -83,8 +83,6 @@ export const OpenAICompatible = ({
     setCustomHeaders((prev) => prev.filter((_, i) => i !== index))
   }, [])
 
-  // Helper to convert array of tuples to object
-
   // Add effect to update the parent component's state when local headers change
   useEffect(() => {
     const timer = setTimeout(() => {
