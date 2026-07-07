@@ -599,9 +599,23 @@ export class TaskWorkflow {
         // CRITICAL: Save assistant message to API history BEFORE executing tools.
         const hasTextContent = assistantMessage.length > 0
 
-        const hasToolUses = this.deps.assistantMessageContent.some(
+        let hasToolUses = this.deps.assistantMessageContent.some(
           (block) => block.type === "tool_use" || block.type === "mcp_tool_use",
         )
+
+        // these 2 guys are allowed to forget a tool.
+        if (!hasToolUses && ["ask", "architect"].includes(currentMode)) {
+          // emulating 'notify tool
+          this.deps.assistantMessageContent.push({
+            type: "tool_use" as const,
+            id: `${Date.now()}`,
+            name: "notify",
+            params: {},
+            nativeArgs: {},
+            partial: false,
+          })
+          hasToolUses = true
+        }
 
         if (hasTextContent || hasToolUses) {
           this.deps.setConsecutiveNoAssistantMessagesCount(0)
@@ -628,6 +642,7 @@ export class TaskWorkflow {
           const toolUseBlocks = this.deps.assistantMessageContent.filter(
             (block) => block.type === "tool_use" || block.type === "mcp_tool_use",
           )
+
           for (const block of toolUseBlocks) {
             if (block.type === "mcp_tool_use") {
               const mcpBlock = block as McpToolUse
@@ -710,17 +725,13 @@ export class TaskWorkflow {
 
         if (partialBlocks.length > 0) {
           assistantMessageSaved = true
-          await this.deps.presentAssistantMessage()
+          await this.deps.presentAssistantMessage() //! <- THIS is where called tools get executed
         }
 
         if (hasTextContent || hasToolUses) {
           await pWaitFor(() => this.deps.userMessageContentReady)
 
-          const usedSomeTools = this.deps.assistantMessageContent.some(
-            (block) => block.type === "tool_use" || block.type === "mcp_tool_use",
-          )
-
-          if (!usedSomeTools) {
+          if (!hasToolUses) {
             this.deps.setConsecutiveNoToolUseCount(this.deps.consecutiveNoToolUseCount + 1)
             this.deps.setConsecutiveMistakeCount(this.deps.consecutiveMistakeCount + 1)
 
