@@ -283,7 +283,7 @@ export interface Command {
 
 export type ClineAskResponse = "yesButtonClicked" | "noButtonClicked" | "messageResponse" | "objectResponse"
 
-export type AudioType = "notification" | "celebration" | "progress_loop"
+export type AudioType = "notification" | "progress_loop"
 
 export interface UpdateTodoListPayload {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

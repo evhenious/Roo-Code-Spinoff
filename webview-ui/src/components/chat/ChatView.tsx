@@ -184,7 +184,6 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 
   const volume = typeof soundVolume === "number" ? soundVolume : 0.5
   const [playNotification] = useSound(`${audioBaseUri}/notification.wav`, { volume, soundEnabled, interrupt: true })
-  const [playCelebration] = useSound(`${audioBaseUri}/celebration.wav`, { volume, soundEnabled, interrupt: true })
   const [playProgressLoop] = useSound(`${audioBaseUri}/progress_loop.wav`, { volume, soundEnabled, interrupt: true })
 
   const lastPlayedRef = useRef<Record<string, number>>({})
@@ -206,9 +205,6 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
         case "notification":
           playNotification()
           break
-        case "celebration":
-          playCelebration()
-          break
         case "progress_loop":
           playProgressLoop()
           break
@@ -216,7 +212,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
           console.warn(`Unknown audio type: ${audioType}`)
       }
     },
-    [soundEnabled, playNotification, playCelebration, playProgressLoop],
+    [soundEnabled, playNotification, playProgressLoop],
   )
 
   function playTts(text: string) {
@@ -340,9 +336,9 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
               break
             case "completion_result":
               // Extension waiting for feedback, but we can just present a new task button.
-              // Only play celebration sound if there are no queued messages.
+              // Only play sound if there are no queued messages.
               if (!isPartial && messageQueue.length === 0) {
-                playSound("celebration")
+                playSound("notification")
               }
               setSendingDisabled(isPartial)
               setClineAsk("completion_result")
