@@ -75,7 +75,7 @@ async function generatePrompt(
 
 ${roleDefinition}
 ${getRulesSection(cwd, shouldIncludeMcp, hasCommandGroup, mode, useDeveloperRole)}
-${getSharedToolUseSection()}
+${getSharedToolUseSection(mode)}
 ${markdownFormattingSection()}
 ${skillsSection ? `\n${skillsSection}` : ""}
 ${getSystemInfoSection()}
