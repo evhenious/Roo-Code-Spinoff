@@ -603,7 +603,7 @@ export class TaskWorkflow {
           (block) => block.type === "tool_use" || block.type === "mcp_tool_use",
         )
 
-        // these 2 guys are allowed to forget a tool.
+        //! these 2 guys are allowed to forget a tool.
         if (!hasToolUses && ["ask", "architect"].includes(currentMode)) {
           // emulating 'notify tool
           this.deps.assistantMessageContent.push({
@@ -613,7 +613,8 @@ export class TaskWorkflow {
             params: {},
             nativeArgs: {},
             partial: false,
-          })
+            _roo_emulated: true,
+          } as any)
           hasToolUses = true
         }
 
@@ -682,7 +683,8 @@ export class TaskWorkflow {
                   id: sanitizedId,
                   name: toolNameForHistory,
                   input,
-                })
+                  ...((block as any)._roo_emulated ? { _roo_emulated: true } : {}),
+                } as any)
               }
             }
           }
@@ -716,6 +718,7 @@ export class TaskWorkflow {
             }
           }
 
+          // saving assistant response to API convo history for further use
           await this.deps.addToApiConversationHistory(
             { role: "assistant", content: assistantContent },
             reasoningMessage || undefined,

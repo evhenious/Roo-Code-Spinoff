@@ -122,6 +122,7 @@ import { TaskWorkflow } from "./TaskWorkflow"
 import { createWorkflowDependencies } from "./util/createWorkflowDependencies"
 import { validateAndFixToolResultIds } from "./validateToolResultIds"
 import { ContentBlockParam, TextBlockParam } from "@anthropic-ai/sdk/resources/index.mjs"
+import { removeCompletionToolCalls, removePreviousEnvDetailsBlock } from "./util/apiConvoHistoryUtils"
 
 const MAX_EXPONENTIAL_BACKOFF_SECONDS = 600 // 10 minutes
 const DEFAULT_USAGE_COLLECTION_TIMEOUT_MS = 5000 // 5 seconds
@@ -1020,7 +1021,10 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
         }
       }
 
-      type RooContentBlockParam = ContentBlockParam & { _type?: "roo_err" | "env" | "roo_notify_closed" }
+      type RooContentBlockParam = ContentBlockParam & {
+        _type?: "roo_err" | "env" | "roo_notify_closed"
+        _roo_emulated?: boolean
+      }
 
       interface RooMessageExtended extends Anthropic.Messages.MessageParam {
         content: string | RooContentBlockParam[]
@@ -1028,48 +1032,9 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 
       const validatedMessage: RooMessageExtended = validateAndFixToolResultIds(messageToAdd, historyForValidation)
 
-      if (validatedMessage.role === "user" && Array.isArray(validatedMessage.content)) {
-        // 1. if we try to add new env details...
-        if (validatedMessage.content.some((c) => c._type === "env")) {
-          // ...need to remove old env details from history. Looking for only one prev entry as we expect to keep only one
-          const lastEnvItemIndx = this.apiConversationHistory.findLastIndex(
-            (ach) =>
-              ach.role === "user" &&
-              Array.isArray(ach.content) &&
-              ach.content.some((c: RooContentBlockParam) => c._type === "env"),
-          )
-
-          if (lastEnvItemIndx >= 0) {
-            this.apiConversationHistory[lastEnvItemIndx].content = (
-              this.apiConversationHistory[lastEnvItemIndx].content as RooContentBlockParam[]
-            ).filter((c) => c._type !== "env")
-          }
-        }
-
-        // 2. if we try to handle the case when
-        //  user: YOU FORGOT THE TOOL => assistant: calls the tool => user answers right after 'notify' or 'attempt_completion' result
-        if (validatedMessage.content[0]._type === "roo_notify_closed") {
-          // this means, prev msg should be assistant calling 'notify' or 'attempt_completion' tool
-          const prevEntry = this.apiConversationHistory[this.apiConversationHistory.length - 1]
-          const isPrevMsgToolCall =
-            prevEntry.role === "assistant" &&
-            Array.isArray(prevEntry.content) &&
-            !!prevEntry.content.find((c) => c.type === "tool_use" && ["notify", "attempt_completion"].includes(c.name))
-
-          const prePrevEntry: RooMessageExtended = this.apiConversationHistory[this.apiConversationHistory.length - 2]
-          const isPrePrevRooError =
-            prePrevEntry.role === "user" &&
-            Array.isArray(prePrevEntry.content) &&
-            prePrevEntry.content[0]._type === "roo_err" // automated SYSTEM ERROR goes always alone, no env_det or anything
-
-          // removing SYSTEM ERROR roo_err and following tool call, no need to keep those in history
-          if (isPrevMsgToolCall && isPrePrevRooError) {
-            this.apiConversationHistory.pop()
-            this.apiConversationHistory.pop()
-
-            validatedMessage.content.shift() // "roo_notify_closed" tag goes first, so we drop it too, to avoid orphaned tool result
-          }
-        }
+      if (validatedMessage.role === "user") {
+        removePreviousEnvDetailsBlock(validatedMessage, this)
+        removeCompletionToolCalls(validatedMessage, this)
       }
 
       const messageWithTs = { ...validatedMessage, ts: Date.now() }
@@ -2125,6 +2090,11 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
       if (existingApiConversationHistory.length > 0) {
         const lastMessage = existingApiConversationHistory[existingApiConversationHistory.length - 1]
 
+        //! resume the task after last assistant msg. Clean completion tool calls
+        if ((lastMessage.content as Array<any>).find((item) => item._roo_emulated)) {
+          lastMessage.content = (lastMessage.content as Array<any>).filter((item) => item._roo_emulated !== true)
+        }
+
         if (lastMessage.isSummary) {
           // IMPORTANT: If the last message is a condensation summary, we must preserve it
           // intact. The summary message carries critical metadata (isSummary, condenseId)
@@ -2145,11 +2115,13 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
             const toolUseBlocks = content.filter(
               (block) => block.type === "tool_use",
             ) as Anthropic.Messages.ToolUseBlock[]
+
             const toolResponses: Anthropic.ToolResultBlockParam[] = toolUseBlocks.map((block) => ({
               type: "tool_result",
               tool_use_id: block.id,
               content: "Task was interrupted before this tool call could be completed.",
             }))
+
             modifiedApiConversationHistory = [...existingApiConversationHistory] // no changes
             modifiedOldUserContent = [...toolResponses]
           } else {

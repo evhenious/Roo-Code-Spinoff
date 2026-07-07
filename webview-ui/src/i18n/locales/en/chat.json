@@ -318,7 +318,7 @@
     "hasQuestion": "Roo has a question"
   },
   "taskCompleted": "Task Completed",
-  "turnEnded": "Roo says, 'your turn to say something'",
+  "turnEnded": "Roo says, 'your turn'",
   "error": "Error",
   "modelResponseIncomplete": "Model Response Incomplete",
   "modelResponseErrors": {
