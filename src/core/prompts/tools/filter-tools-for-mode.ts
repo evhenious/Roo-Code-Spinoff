@@ -284,6 +284,11 @@ export function filterNativeToolsForMode(
     allowedToolNames.delete("run_slash_command")
   }
 
+  // Conditionally exclude ast_grep if experiment is not enabled
+  if (!experiments?.astGrepTool) {
+    allowedToolNames.delete("ast_grep")
+  }
+
   // Remove tools that are explicitly disabled via the disabledTools setting
   if (settings?.disabledTools?.length) {
     for (const toolName of settings.disabledTools) {
@@ -379,6 +384,11 @@ export function isToolAllowedInMode(
   settings?: Record<string, any>,
 ): boolean {
   const modeSlug = mode ?? defaultModeSlug
+
+  // Conditionally exclude ast_grep if experiment is not enabled
+  if (!experiments?.astGrepTool && toolName === "ast_grep") {
+    return false
+  }
 
   // todo: do we really need this tool?
   if (toolName === "switch_mode" && modeSlug !== "ask") {

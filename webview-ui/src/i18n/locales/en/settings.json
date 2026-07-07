@@ -854,6 +854,10 @@
       "refreshSuccess": "Tools refreshed successfully",
       "refreshError": "Failed to refresh tools",
       "toolParameters": "Parameters"
+    },
+    "AST_GREP_TOOL": {
+      "name": "Use ast-grep tool",
+      "description": "Enable AST-based code search via ast-grep (sg). Allows searching code using structural AST patterns instead of plain text or regex."
     }
   },
   "promptCaching": {
