@@ -305,10 +305,13 @@ export const ChatRowContent = ({
               : t("chat:mcp.wantsToAccessResource", { serverName: mcpServerUse.serverName })}
           </span>,
         ]
+      // used by attempt_completion and notify
       case "completion_result":
         return [
           <span className="codicon codicon-check" style={{ color: successColor, marginBottom: "-1.5px" }}></span>,
-          <span style={{ color: successColor, fontWeight: "bold" }}>{t("chat:taskCompleted")}</span>,
+          <span style={{ color: successColor, fontWeight: "bold" }}>
+            {message.text ? t("chat:taskCompleted") : t("chat:turnEnded")}
+          </span>,
         ]
       case "api_req_rate_limit_wait":
         return []
@@ -1285,6 +1288,7 @@ export const ChatRowContent = ({
 
           // Fallback for generic errors
           return <ErrorRow type="error" message={message.text || t("chat:error")} errorDetails={message.text} />
+        // used by both attempt_completion & notify
         case "completion_result":
           return (
             <div className="group">
@@ -1292,11 +1296,13 @@ export const ChatRowContent = ({
                 {icon}
                 {title}
                 <div style={{ flexGrow: 1 }} />
-                <OpenMarkdownPreviewButton markdown={message.text} />
+                {message.text && <OpenMarkdownPreviewButton markdown={message.text} />}
               </div>
-              <div className="border-l border-green-600/30 ml-2 pl-4 pb-1">
-                <Markdown markdown={message.text} />
-              </div>
+              {message.text && (
+                <div className="border-l border-green-600/30 ml-2 pl-4 pb-1">
+                  <Markdown markdown={message.text} />
+                </div>
+              )}
             </div>
           )
         case "shell_integration_warning":

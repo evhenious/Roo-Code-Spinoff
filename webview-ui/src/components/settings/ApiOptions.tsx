@@ -7,7 +7,6 @@ import { ExternalLinkIcon } from "@radix-ui/react-icons"
 import {
   type ProviderName,
   type ProviderSettings,
-  isRetiredProvider,
   DEFAULT_CONSECUTIVE_MISTAKE_LIMIT,
   openRouterDefaultModelId,
   poeDefaultModelId,
@@ -169,11 +168,7 @@ const ApiOptions = ({
     id: selectedModelId,
     info: selectedModelInfo,
   } = useSelectedModel(apiConfiguration)
-  const activeSelectedProvider: ProviderName | undefined = isRetiredProvider(selectedProvider)
-    ? undefined
-    : selectedProvider
-  const isRetiredSelectedProvider =
-    typeof apiConfiguration.apiProvider === "string" && isRetiredProvider(apiConfiguration.apiProvider)
+  const activeSelectedProvider: ProviderName | undefined = selectedProvider
 
   const { data: routerModels, refetch: refetchRouterModels } = useRouterModels()
 
@@ -191,16 +186,12 @@ const ApiOptions = ({
 
   // Update `apiModelId` whenever `selectedModelId` changes.
   useEffect(() => {
-    if (isRetiredSelectedProvider) {
-      return
-    }
-
     if (selectedModelId && apiConfiguration.apiModelId !== selectedModelId) {
       // Pass false as third parameter to indicate this is not a user action
       // This is an internal sync, not a user-initiated change
       setApiConfigurationField("apiModelId", selectedModelId, false)
     }
-  }, [selectedModelId, setApiConfigurationField, apiConfiguration.apiModelId, isRetiredSelectedProvider])
+  }, [selectedModelId, setApiConfigurationField, apiConfiguration.apiModelId])
 
   // Debounced refresh model updates, only executed 250ms after the user
   // stops typing.
@@ -246,14 +237,9 @@ const ApiOptions = ({
   )
 
   useEffect(() => {
-    if (isRetiredSelectedProvider) {
-      setErrorMessage(undefined)
-      return
-    }
-
     const apiValidationResult = validateApiConfigurationExcludingModelErrors(apiConfiguration, routerModels)
     setErrorMessage(apiValidationResult)
-  }, [apiConfiguration, routerModels, setErrorMessage, isRetiredSelectedProvider])
+  }, [apiConfiguration, routerModels, setErrorMessage])
 
   const onProviderChange = useCallback(
     (value: ProviderName) => {
@@ -450,13 +436,7 @@ const ApiOptions = ({
 
       {errorMessage && <ApiErrorMessage errorMessage={errorMessage} />}
 
-      {isRetiredSelectedProvider ? (
-        <div
-          className="rounded-md border border-vscode-panel-border px-3 py-2 text-sm text-vscode-descriptionForeground"
-          data-testid="retired-provider-message">
-          {t("settings:providers.retiredProviderMessage")}
-        </div>
-      ) : (
+      {
         <>
           {selectedProvider === "openrouter" && (
             <OpenRouter
@@ -744,7 +724,7 @@ const ApiOptions = ({
             </Collapsible>
           )}
         </>
-      )}
+      }
     </div>
   )
 }

@@ -24,7 +24,6 @@ import {
   BEDROCK_1M_CONTEXT_MODEL_IDS,
   VERTEX_1M_CONTEXT_MODEL_IDS,
   isDynamicProvider,
-  isRetiredProvider,
   getProviderDefaultModelId,
 } from "@roo-code/types"
 
@@ -47,7 +46,7 @@ function getValidatedModelId(
 
 export const useSelectedModel = (apiConfiguration?: ProviderSettings) => {
   const provider = apiConfiguration?.apiProvider || "anthropic"
-  const activeProvider: ProviderName | undefined = isRetiredProvider(provider) ? undefined : provider
+  const activeProvider: ProviderName | undefined = provider
   const dynamicProvider = activeProvider && isDynamicProvider(activeProvider) ? activeProvider : undefined
   const openRouterModelId = activeProvider === "openrouter" ? apiConfiguration?.openRouterModelId : undefined
   const lmStudioModelId = activeProvider === "lmstudio" ? apiConfiguration?.lmStudioModelId : undefined
@@ -241,7 +240,8 @@ function getSelectedModel({
       const info = mistralModels[id as keyof typeof mistralModels]
       return { id, info }
     }
-    case "openai": {
+    case "openai":
+    case "openai-compatible": {
       const id = apiConfiguration.openAiModelId ?? ""
       const customInfo = apiConfiguration?.openAiCustomModelInfo
       const info = customInfo ?? openAiModelInfoSaneDefaults

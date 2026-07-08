@@ -27,7 +27,7 @@ describe("AstGrepTool", () => {
       consecutiveMistakeCount: 0,
       didToolFailInCurrentTurn: false,
       sayAndCreateMissingParamError: vi.fn().mockResolvedValue("Missing parameter error"),
-      say: vi.fn().mockResolvedValue(undefined),
+      renderUIMessage: vi.fn().mockResolvedValue(undefined),
       providerRef: {
         deref: () => undefined,
         [Symbol.toStringTag]: "WeakRef",

@@ -15,7 +15,17 @@ import type { ApiStreamChunk } from "./stream"
  * @param messages - Array of Anthropic message parameters
  * @returns Array of AI SDK ModelMessage objects
  */
-export function convertToAiSdkMessages(messages: Anthropic.Messages.MessageParam[]): ModelMessage[] {
+export interface ConvertToAiSdkMessagesOptions {
+  /**
+   * If true, split env_det text blocks from user content into separate `role: "developer"` messages.
+   */
+  useDeveloperRole?: boolean
+}
+
+export function convertToAiSdkMessages(
+  messages: Anthropic.Messages.MessageParam[],
+  options?: ConvertToAiSdkMessagesOptions,
+): ModelMessage[] {
   const modelMessages: ModelMessage[] = []
 
   // First pass: build a map of tool call IDs to tool names from assistant messages
@@ -43,7 +53,7 @@ export function convertToAiSdkMessages(messages: Anthropic.Messages.MessageParam
     }
 
     if (message.role === "user") {
-      const msg = processUserPart(message, toolCallIdToName)
+      const msg = processUserPart(message, toolCallIdToName, options)
       if (msg) modelMessages.push(...msg)
     }
 
@@ -73,14 +83,37 @@ type ToolCall = {
   input: unknown
 }
 
-function processUserPart(message: Anthropic.Messages.MessageParam, toolCallIdToName: Map<string, string>) {
+function processUserPart(
+  message: Anthropic.Messages.MessageParam,
+  toolCallIdToName: Map<string, string>,
+  options?: ConvertToAiSdkMessagesOptions,
+) {
   if (message.role !== "user" || typeof message.content === "string") return
 
   const parts: Array<{ type: "text"; text: string } | { type: "image"; image: string; mimeType?: string }> = []
+  const developerParts: { type: "text"; text: string }[] = []
   const toolResults: ToolCallResp[] = []
 
   for (const part of message.content) {
     if (part.type === "text") {
+      if (options?.useDeveloperRole && typeof part.text === "string") {
+        // Check if this is an env_det or usr block that should be split out
+        const messageBlock = part.text.trim()
+
+        // developer role messages are perceived as informational context and will NOT force LLM to react
+        // e.g. sending here error for not used tool is acknowledged by LLM but no action is forced to take
+        if (messageBlock.startsWith("<env_det>") && messageBlock.endsWith("</env_det>")) {
+          developerParts.push({ type: "text", text: part.text.replace("<env_det>", "").replace("</env_det>", "") })
+          continue
+        }
+
+        if (messageBlock.startsWith("<usr>") && messageBlock.endsWith("</usr>")) {
+          parts.push({ type: "text", text: part.text.replace("<usr>", "").replace("</usr>", "") })
+          continue
+        }
+      }
+
+      // all rest text goes into std parts by default
       parts.push({ type: "text", text: part.text })
     }
 
@@ -142,7 +175,12 @@ function processUserPart(message: Anthropic.Messages.MessageParam, toolCallIdToN
     } as ModelMessage)
   }
 
-  // Add user message with only text/image content (no tool results)
+  // Add developer message for env_det blocks (if any)
+  if (developerParts.length > 0) {
+    result.push({ role: "developer", content: developerParts.map((p) => p.text).join("\n") } as unknown as ModelMessage)
+  }
+
+  // Add user message with only text/image content (no tool results, no env_det)
   if (parts.length > 0) {
     result.push({
       role: "user",

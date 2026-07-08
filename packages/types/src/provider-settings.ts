@@ -107,6 +107,7 @@ export const providerNames = [
   "mistral",
   "moonshot",
   "minimax",
+  "openai-compatible",
   "openai-codex",
   "openai-native",
   "qwen-code",
@@ -121,39 +122,13 @@ export const isProviderName = (key: unknown): key is ProviderName =>
   typeof key === "string" && providerNames.includes(key as ProviderName)
 
 /**
- * RetiredProviderName
- */
-
-export const retiredProviderNames = [
-  "cerebras",
-  "chutes",
-  "deepinfra",
-  "doubao",
-  "featherless",
-  "groq",
-  "huggingface",
-  "io-intelligence",
-] as const
-
-export const retiredProviderNamesSchema = z.enum(retiredProviderNames)
-
-export type RetiredProviderName = z.infer<typeof retiredProviderNamesSchema>
-
-export const isRetiredProvider = (value: string): value is RetiredProviderName =>
-  retiredProviderNames.includes(value as RetiredProviderName)
-
-export const providerNamesWithRetiredSchema = z.union([providerNamesSchema, retiredProviderNamesSchema])
-
-export type ProviderNameWithRetired = z.infer<typeof providerNamesWithRetiredSchema>
-
-/**
  * ProviderSettingsEntry
  */
 
 export const providerSettingsEntrySchema = z.object({
   id: z.string(),
   name: z.string(),
-  apiProvider: providerNamesWithRetiredSchema.optional(),
+  apiProvider: providerNamesSchema.optional(),
   modelId: z.string().optional(),
 })
 
@@ -238,6 +213,7 @@ const openAiSchema = baseProviderSettingsSchema.extend({
   openAiStreamingEnabled: z.boolean().optional(),
   openAiHostHeader: z.string().optional(), // Keep temporarily for backward compatibility during migration.
   openAiHeaders: z.record(z.string(), z.string()).optional(),
+  useDeveloperRole: z.boolean().optional(),
 })
 
 const ollamaSchema = baseProviderSettingsSchema.extend({
@@ -356,6 +332,7 @@ export const providerSettingsSchemaDiscriminated = z.discriminatedUnion("apiProv
   bedrockSchema.merge(z.object({ apiProvider: z.literal("bedrock") })),
   vertexSchema.merge(z.object({ apiProvider: z.literal("vertex") })),
   openAiSchema.merge(z.object({ apiProvider: z.literal("openai") })),
+  openAiSchema.merge(z.object({ apiProvider: z.literal("openai-compatible") })),
   ollamaSchema.merge(z.object({ apiProvider: z.literal("ollama") })),
   vsCodeLmSchema.merge(z.object({ apiProvider: z.literal("vscode-lm") })),
   lmStudioSchema.merge(z.object({ apiProvider: z.literal("lmstudio") })),
@@ -378,7 +355,7 @@ export const providerSettingsSchemaDiscriminated = z.discriminatedUnion("apiProv
 ])
 
 export const providerSettingsSchema = z.object({
-  apiProvider: providerNamesWithRetiredSchema.optional(),
+  apiProvider: providerNamesSchema.optional(),
   ...anthropicSchema.shape,
   ...openRouterSchema.shape,
   ...bedrockSchema.shape,
@@ -454,6 +431,7 @@ export const modelIdKeysByProvider: Record<TypicalProvider, ModelIdKey> = {
   openrouter: "openRouterModelId",
   bedrock: "apiModelId",
   vertex: "apiModelId",
+  "openai-compatible": "openAiModelId",
   "openai-codex": "apiModelId",
   "openai-native": "openAiModelId",
   ollama: "ollamaModelId",
@@ -544,6 +522,7 @@ export const MODELS_BY_PROVIDER: Record<
     label: "MiniMax",
     models: Object.keys(minimaxModels),
   },
+  "openai-compatible": { id: "openai-compatible", label: "OpenAI Compatible", models: [] },
   "openai-codex": {
     id: "openai-codex",
     label: "OpenAI - ChatGPT Plus/Pro",

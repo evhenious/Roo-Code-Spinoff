@@ -29,32 +29,33 @@ export async function getSkillsSection(
   const skills = skillsManager.getSkillsForMode(currentMode)
   if (skills.length === 0) return ""
 
-  const skillsDescr = skills
-    .map((skill) => {
+  const skillsDescr = [
+    "| skill name | skill description |",
+    "| ---------- | ----------------- |",
+    ...skills.map((skill, i) => {
       const name = escapeXml(skill.name)
       const description = escapeXml(skill.description)
-      const locationLine = escapeXml(skill.path)
-      return `### ${name}\n - Description: ${description}\n - Location: ${locationLine}\n`
-    })
-    .join("\n")
+      // const locationLine = escapeXml(skill.path) // highly doubt the path needed
+      return `| ${name} | ${description} |`
+    }),
+  ].join("\n")
 
-  return `====
-
-AVAILABLE SKILLS
+  return `# AVAILABLE SKILLS
 
 "Skills" are high-level procedural workflows and specific domain guidelines. Do not rely solely on available tools and native capabilities if a specialized skill exists for the task.
 
-For every user request, you MUST:
-1. Evaluate the request against ALL skill Descriptions provided in the list below. Determine whether at least one skill clearly applies.
+For every user's request which is not trivial or purely conversational, or when it requires specific domain knowledge, you MUST:
+
+1. Evaluate the request against ALL skill Descriptions provided in the table below. Determine whether at least one skill clearly applies.
 2. If any skills apply:
-  - Select EXACTLY ONE skill (prefer the most specific match)
-  - Load selected skill using the \`skill\` tool BEFORE executing any other tools, read its instructions fully, and follow them precisely. Do NOT take actions outside the skill-defined flow.
+   - Select EXACTLY ONE skill (prefer the most specific match)
+   - Load selected skill by name using the \`skill\` tool BEFORE executing any other tools, read its instructions fully, and follow them precisely. Do NOT take actions outside the skill-defined flow.
 3. If no skills could apply - proceed with other available tools.
 
-The skills list:
-
 ${skillsDescr}
-CONSTRAINTS: 
+
+## Constraints
+
 - Do NOT load every skill up front. Load skills ONLY after selection. 
 - Do NOT reload a skill already loaded. Do NOT skip this check. FAILURE to perform this check is an error.
 - When a skill is loaded, follow its instructions while respecting all system-level constraints and mode rules.

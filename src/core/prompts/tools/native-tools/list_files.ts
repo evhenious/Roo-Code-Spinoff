@@ -1,18 +1,8 @@
 import type OpenAI from "openai"
 
-const LIST_FILES_DESCRIPTION = `Request to list files and directories within a directory. Use recursive=true for nested listing.
+const LIST_FILES_DESCRIPTION = `Request to list files and directories within a directory.
 
-Do not use this tool to confirm the existence of files you may have created, as the user will let you know if the files were created successfully or not.
-
-Parameters:
-- path: (required) Directory path to list, relative to workspace
-- recursive: (required) true for nested listing, false for top-level only
-
-Example: Listing all files in the current directory (top-level only)
-{ "path": ".", "recursive": false }
-
-Example: Listing all files recursively in src directory
-{ "path": "src", "recursive": true }`
+Do not use this tool to confirm the existence of files you may have created, as the user will let you know if the files were created successfully or not.`
 
 const PATH_PARAMETER_DESCRIPTION = `Directory path to list, relative to workspace`
 

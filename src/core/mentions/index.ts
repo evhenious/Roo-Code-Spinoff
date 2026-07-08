@@ -161,21 +161,33 @@ export async function parseMentions(
   // Content will be provided as separate blocks that look like read_file results
   parsedText = parsedText.replace(mentionRegexGlobal, (match, mention) => {
     mentions.add(mention)
+
     if (mention.startsWith("http")) {
       return `'${mention}'`
-    } else if (mention.startsWith("/")) {
+    }
+
+    if (mention.startsWith("/")) {
       // Clean path reference - no "see below" since we format like tool results
       const mentionPath = mention.slice(1)
       return mentionPath.endsWith("/") ? `'${mentionPath}'` : `'${mentionPath}'`
-    } else if (mention === "problems") {
+    }
+
+    if (mention === "problems") {
       return `Workspace Problems (see below for diagnostics)`
-    } else if (mention === "git-changes") {
+    }
+
+    if (mention === "git-changes") {
       return `Working directory changes (see below for details)`
-    } else if (/^[a-f0-9]{7,40}$/.test(mention)) {
+    }
+
+    if (/^[a-f0-9]{7,40}$/.test(mention)) {
       return `Git commit '${mention}' (see below for commit info)`
-    } else if (mention === "terminal") {
+    }
+
+    if (mention === "terminal") {
       return `Terminal Output (see below for output)`
     }
+
     return match
   })
 
@@ -190,7 +202,10 @@ export async function parseMentions(
           showRooIgnoredFiles,
           fileContextTracker,
         )
-        contentBlocks.push(fileResult)
+        contentBlocks.push({
+          ...fileResult,
+          _type: "roo-mention",
+        } as any)
       } catch (error) {
         const errorMsg = error instanceof Error ? error.message : String(error)
         contentBlocks.push({

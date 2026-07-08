@@ -1,4 +1,4 @@
-import { memo, useRef, useState, useMemo } from "react"
+import { memo, useRef, useState, useMemo, useEffect } from "react"
 import { useTranslation } from "react-i18next"
 import { ChevronUp, ChevronDown, HardDriveDownload, HardDriveUpload, FoldVertical, ArrowLeft } from "lucide-react"
 import prettyBytes from "pretty-bytes"
@@ -23,6 +23,7 @@ import { TodoListDisplay } from "./TodoListDisplay"
 import { LucideIconButton } from "./LucideIconButton"
 
 export interface TaskHeaderProps {
+  taskTitle?: string
   task: ClineMessage
   tokensIn: number
   tokensOut: number
@@ -40,6 +41,7 @@ export interface TaskHeaderProps {
 }
 
 const TaskHeader = ({
+  taskTitle,
   task,
   tokensIn,
   tokensOut,
@@ -59,6 +61,24 @@ const TaskHeader = ({
   const { apiConfiguration, currentTaskItem } = useExtensionState()
   const { id: modelId, info: model } = useSelectedModel(apiConfiguration)
   const [isTaskExpanded, setIsTaskExpanded] = useState(false)
+  const [editingTitle, setEditingTitle] = useState("")
+  const [isEditingActive, setIsEditingActive] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  // Sync editingTitle when taskTitle prop changes (e.g., after saving from another tab or switching tasks)
+  useEffect(() => {
+    if (!isEditingActive) {
+      setEditingTitle(taskTitle || "")
+    }
+  }, [taskTitle, isTaskExpanded, isEditingActive])
+
+  // Focus input when entering edit mode
+  useEffect(() => {
+    if (isEditingActive && isTaskExpanded) {
+      inputRef.current?.focus()
+      inputRef.current?.select()
+    }
+  }, [isEditingActive, isTaskExpanded])
 
   const textContainerRef = useRef<HTMLDivElement>(null)
   const textRef = useRef<HTMLDivElement>(null)
@@ -131,6 +151,7 @@ const TaskHeader = ({
           if (
             e.target instanceof Element &&
             (e.target.closest("button") ||
+              e.target.closest("input") ||
               e.target.closest('[role="button"]') ||
               e.target.closest("[data-radix-popper-content-wrapper]") ||
               e.target.closest("img") ||
@@ -150,10 +171,52 @@ const TaskHeader = ({
         <div className="flex justify-between items-center gap-0">
           <div className="flex items-center select-none grow min-w-0">
             <div className="grow min-w-0">
-              {isTaskExpanded && <span className="font-bold">{t("chat:task.title")}</span>}
+              {isTaskExpanded && (
+                <div className="flex flex-col">
+                  <span className="font-bold">{t("chat:task.title")}</span>
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={editingTitle}
+                    placeholder="type task title"
+                    className={`w-full bg-vscode-input-background text-vscode-input-foreground border rounded px-2 py-1 text-md outline-none ${
+                      isEditingActive
+                        ? "border-vscode-focusBorder"
+                        : "border-transparent hover:bg-amber-50/80 cursor-text"
+                    }`}
+                    onChange={(e) => setEditingTitle(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        // Save the title
+                        if (currentTaskItem?.id) {
+                          vscode.postMessage({
+                            type: "updateTaskTitle",
+                            taskId: currentTaskItem.id,
+                            title: editingTitle.trim(),
+                          })
+                        }
+                        setIsEditingActive(false)
+                      }
+                      if (e.key === "Escape") {
+                        // Revert to saved value
+                        setEditingTitle(taskTitle || "")
+                        setIsEditingActive(false)
+                      }
+                    }}
+                    onBlur={() => {
+                      // On blur, revert to saved title and exit edit mode
+                      if (editingTitle.trim() !== (taskTitle || "").trim()) {
+                        setEditingTitle(taskTitle || "")
+                      }
+                      setIsEditingActive(false)
+                    }}
+                    onFocus={() => setIsEditingActive(true)}
+                  />
+                </div>
+              )}
               {!isTaskExpanded && (
                 <div className="flex items-center gap-2 whitespace-nowrap overflow-hidden text-ellipsis">
-                  <Mention text={task.text} />
+                  {taskTitle ? taskTitle : <Mention text={task.text} />}
                 </div>
               )}
             </div>

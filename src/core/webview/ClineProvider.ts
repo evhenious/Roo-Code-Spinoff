@@ -14,7 +14,6 @@ import {
   RooCodeEventName,
   getModelId,
   globalSettingsSchema,
-  isRetiredProvider,
   openRouterDefaultModelId,
   requestyDefaultModelId,
   type CodeActionId,
@@ -1975,8 +1974,7 @@ export class ClineProvider
     const customModes = await this.customModesManager.getCustomModes()
 
     // Determine apiProvider with the same logic as before, while filtering retired providers.
-    const apiProvider: ProviderName =
-      stateValues.apiProvider && !isRetiredProvider(stateValues.apiProvider) ? stateValues.apiProvider : "anthropic"
+    const apiProvider: ProviderName = stateValues.apiProvider || "anthropic"
 
     // Build the apiConfiguration object combining state values and secrets.
     const providerSettings = this.contextProxy.getProviderSettings()

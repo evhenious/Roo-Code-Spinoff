@@ -12,7 +12,7 @@ import { isToolAllowedForMode } from "../../../core/tools/validateToolUse"
  * Built once at module load from the central TOOL_ALIASES constant.
  */
 const ALIAS_TO_CANONICAL: Map<string, string> = new Map(
-	Object.entries(TOOL_ALIASES).map(([alias, canonical]) => [alias, canonical]),
+  Object.entries(TOOL_ALIASES).map(([alias, canonical]) => [alias, canonical]),
 )
 
 /**
@@ -23,9 +23,9 @@ const CANONICAL_TO_ALIASES: Map<string, string[]> = new Map()
 
 // Build the reverse mapping (canonical -> aliases)
 for (const [alias, canonical] of Object.entries(TOOL_ALIASES)) {
-	const existing = CANONICAL_TO_ALIASES.get(canonical) ?? []
-	existing.push(alias)
-	CANONICAL_TO_ALIASES.set(canonical, existing)
+  const existing = CANONICAL_TO_ALIASES.get(canonical) ?? []
+  existing.push(alias)
+  CANONICAL_TO_ALIASES.set(canonical, existing)
 }
 
 /**
@@ -36,13 +36,13 @@ const ALIAS_GROUPS: Map<string, readonly string[]> = new Map()
 
 // Build alias groups for all tools
 for (const [canonical, aliases] of CANONICAL_TO_ALIASES.entries()) {
-	const group = Object.freeze([canonical, ...aliases])
-	// Map canonical to group
-	ALIAS_GROUPS.set(canonical, group)
-	// Map each alias to the same group
-	for (const alias of aliases) {
-		ALIAS_GROUPS.set(alias, group)
-	}
+  const group = Object.freeze([canonical, ...aliases])
+  // Map canonical to group
+  ALIAS_GROUPS.set(canonical, group)
+  // Map each alias to the same group
+  for (const alias of aliases) {
+    ALIAS_GROUPS.set(alias, group)
+  }
 }
 
 /**
@@ -61,28 +61,28 @@ const RENAMED_TOOL_CACHE: Map<string, OpenAI.Chat.ChatCompletionTool> = new Map(
  * @returns Cached or newly created renamed tool definition
  */
 function getOrCreateRenamedTool(
-	tool: OpenAI.Chat.ChatCompletionTool,
-	aliasName: string,
+  tool: OpenAI.Chat.ChatCompletionTool,
+  aliasName: string,
 ): OpenAI.Chat.ChatCompletionTool {
-	if (!("function" in tool) || !tool.function) {
-		return tool
-	}
+  if (!("function" in tool) || !tool.function) {
+    return tool
+  }
 
-	const cacheKey = `${tool.function.name}:${aliasName}`
-	let renamedTool = RENAMED_TOOL_CACHE.get(cacheKey)
+  const cacheKey = `${tool.function.name}:${aliasName}`
+  let renamedTool = RENAMED_TOOL_CACHE.get(cacheKey)
 
-	if (!renamedTool) {
-		renamedTool = {
-			...tool,
-			function: {
-				...tool.function,
-				name: aliasName,
-			},
-		}
-		RENAMED_TOOL_CACHE.set(cacheKey, renamedTool)
-	}
+  if (!renamedTool) {
+    renamedTool = {
+      ...tool,
+      function: {
+        ...tool.function,
+        name: aliasName,
+      },
+    }
+    RENAMED_TOOL_CACHE.set(cacheKey, renamedTool)
+  }
 
-	return renamedTool
+  return renamedTool
 }
 
 /**
@@ -94,8 +94,8 @@ function getOrCreateRenamedTool(
  * @returns The canonical tool name
  */
 export function resolveToolAlias(toolName: string): string {
-	const canonical = ALIAS_TO_CANONICAL.get(toolName)
-	return canonical ?? toolName
+  const canonical = ALIAS_TO_CANONICAL.get(toolName)
+  return canonical ?? toolName
 }
 
 /**
@@ -106,14 +106,14 @@ export function resolveToolAlias(toolName: string): string {
  * @returns Set with aliases resolved to canonical names
  */
 export function applyToolAliases(allowedTools: Set<string>): Set<string> {
-	const result = new Set<string>()
+  const result = new Set<string>()
 
-	for (const tool of allowedTools) {
-		// Resolve alias to canonical name
-		result.add(resolveToolAlias(tool))
-	}
+  for (const tool of allowedTools) {
+    // Resolve alias to canonical name
+    result.add(resolveToolAlias(tool))
+  }
 
-	return result
+  return result
 }
 
 /**
@@ -124,7 +124,7 @@ export function applyToolAliases(allowedTools: Set<string>): Set<string> {
  * @returns Array of all tool names in the alias group, or just the tool if not aliased
  */
 export function getToolAliasGroup(toolName: string): readonly string[] {
-	return ALIAS_GROUPS.get(toolName) ?? [toolName]
+  return ALIAS_GROUPS.get(toolName) ?? [toolName]
 }
 
 /**
@@ -144,69 +144,69 @@ export function getToolAliasGroup(toolName: string): readonly string[] {
  * Contains the set of allowed tools and any alias renames to apply.
  */
 interface ModelToolCustomizationResult {
-	allowedTools: Set<string>
-	/** Maps canonical tool name to alias name for tools that should be renamed */
-	aliasRenames: Map<string, string>
+  allowedTools: Set<string>
+  /** Maps canonical tool name to alias name for tools that should be renamed */
+  aliasRenames: Map<string, string>
 }
 
 export function applyModelToolCustomization(
-	allowedTools: Set<string>,
-	modeConfig: ModeConfig,
-	modelInfo?: ModelInfo,
+  allowedTools: Set<string>,
+  modeConfig: ModeConfig,
+  modelInfo?: ModelInfo,
 ): ModelToolCustomizationResult {
-	if (!modelInfo) {
-		return { allowedTools, aliasRenames: new Map() }
-	}
+  if (!modelInfo) {
+    return { allowedTools, aliasRenames: new Map() }
+  }
 
-	const result = new Set(allowedTools)
-	const aliasRenames = new Map<string, string>()
+  const result = new Set(allowedTools)
+  const aliasRenames = new Map<string, string>()
 
-	// Apply excluded tools (remove from allowed set)
-	if (modelInfo.excludedTools && modelInfo.excludedTools.length > 0) {
-		modelInfo.excludedTools.forEach((tool) => {
-			const resolvedTool = resolveToolAlias(tool)
-			result.delete(resolvedTool)
-		})
-	}
+  // Apply excluded tools (remove from allowed set)
+  if (modelInfo.excludedTools && modelInfo.excludedTools.length > 0) {
+    modelInfo.excludedTools.forEach((tool) => {
+      const resolvedTool = resolveToolAlias(tool)
+      result.delete(resolvedTool)
+    })
+  }
 
-	// Apply included tools (add to allowed set, but only if they belong to an allowed group)
-	if (modelInfo.includedTools && modelInfo.includedTools.length > 0) {
-		// Build a map of tool -> group for all tools in TOOL_GROUPS (including customTools)
-		const toolToGroup = new Map<string, ToolGroup>()
-		for (const [groupName, groupConfig] of Object.entries(TOOL_GROUPS)) {
-			// Add regular tools
-			groupConfig.tools.forEach((tool) => {
-				toolToGroup.set(tool, groupName as ToolGroup)
-			})
-			// Add customTools (opt-in only tools)
-			if (groupConfig.customTools) {
-				groupConfig.customTools.forEach((tool) => {
-					toolToGroup.set(tool, groupName as ToolGroup)
-				})
-			}
-		}
+  // Apply included tools (add to allowed set, but only if they belong to an allowed group)
+  if (modelInfo.includedTools && modelInfo.includedTools.length > 0) {
+    // Build a map of tool -> group for all tools in TOOL_GROUPS (including customTools)
+    const toolToGroup = new Map<string, ToolGroup>()
+    for (const [groupName, groupConfig] of Object.entries(TOOL_GROUPS)) {
+      // Add regular tools
+      groupConfig.tools.forEach((tool) => {
+        toolToGroup.set(tool, groupName as ToolGroup)
+      })
+      // Add customTools (opt-in only tools)
+      if (groupConfig.customTools) {
+        groupConfig.customTools.forEach((tool) => {
+          toolToGroup.set(tool, groupName as ToolGroup)
+        })
+      }
+    }
 
-		// Get the list of allowed groups for this mode
-		const allowedGroups = new Set(
-			modeConfig.groups.map((groupEntry) => (Array.isArray(groupEntry) ? groupEntry[0] : groupEntry)),
-		)
+    // Get the list of allowed groups for this mode
+    const allowedGroups = new Set(
+      modeConfig.groups.map((groupEntry) => (Array.isArray(groupEntry) ? groupEntry[0] : groupEntry)),
+    )
 
-		// Add included tools only if they belong to an allowed group
-		// If the tool was specified as an alias, track the rename
-		modelInfo.includedTools.forEach((tool) => {
-			const resolvedTool = resolveToolAlias(tool)
-			const toolGroup = toolToGroup.get(resolvedTool)
-			if (toolGroup && allowedGroups.has(toolGroup)) {
-				result.add(resolvedTool)
-				// If the tool was specified as an alias, rename it in the API
-				if (tool !== resolvedTool) {
-					aliasRenames.set(resolvedTool, tool)
-				}
-			}
-		})
-	}
+    // Add included tools only if they belong to an allowed group
+    // If the tool was specified as an alias, track the rename
+    modelInfo.includedTools.forEach((tool) => {
+      const resolvedTool = resolveToolAlias(tool)
+      const toolGroup = toolToGroup.get(resolvedTool)
+      if (toolGroup && allowedGroups.has(toolGroup)) {
+        result.add(resolvedTool)
+        // If the tool was specified as an alias, rename it in the API
+        if (tool !== resolvedTool) {
+          aliasRenames.set(resolvedTool, tool)
+        }
+      }
+    })
+  }
 
-	return { allowedTools: result, aliasRenames }
+  return { allowedTools: result, aliasRenames }
 }
 
 /**
@@ -223,118 +223,144 @@ export function applyModelToolCustomization(
  * @returns Filtered array of tools allowed for the mode
  */
 export function filterNativeToolsForMode(
-	nativeTools: OpenAI.Chat.ChatCompletionTool[],
-	mode: string | undefined,
-	customModes: ModeConfig[] | undefined,
-	experiments: Record<string, boolean> | undefined,
-	codeIndexManager?: CodeIndexManager,
-	settings?: Record<string, any>,
-	mcpHub?: McpHub,
+  nativeTools: OpenAI.Chat.ChatCompletionTool[],
+  mode: string | undefined,
+  customModes: ModeConfig[] | undefined,
+  experiments: Record<string, boolean> | undefined,
+  codeIndexManager?: CodeIndexManager,
+  settings?: Record<string, any>,
+  mcpHub?: McpHub,
 ): OpenAI.Chat.ChatCompletionTool[] {
-	// Get mode configuration and all tools for this mode
-	const modeSlug = mode ?? defaultModeSlug
-	let modeConfig = getModeBySlug(modeSlug, customModes)
+  // Get mode configuration and all tools for this mode
+  const modeSlug = mode ?? defaultModeSlug
+  let modeConfig = getModeBySlug(modeSlug, customModes)
 
-	// Fallback to default mode if current mode config is not found
-	// This ensures the agent always has functional tools even if a custom mode is deleted
-	// or configuration becomes corrupted
-	if (!modeConfig) {
-		modeConfig = getModeBySlug(defaultModeSlug, customModes)!
-	}
+  // Fallback to default mode if current mode config is not found
+  // This ensures the agent always has functional tools even if a custom mode is deleted
+  // or configuration becomes corrupted
+  if (!modeConfig) {
+    modeConfig = getModeBySlug(defaultModeSlug, customModes)!
+  }
 
-	// Get all tools for this mode (including always-available tools)
-	const allToolsForMode = getToolsForMode(modeConfig.groups)
+  // Get all tools for this mode (including always-available tools)
+  const allToolsForMode = getToolsForMode(modeConfig.groups)
 
-	// Filter to only tools that pass permission checks
-	let allowedToolNames = new Set(
-		allToolsForMode.filter((tool) =>
-			isToolAllowedForMode(
-				tool as ToolName,
-				modeSlug,
-				customModes ?? [],
-				undefined,
-				undefined,
-				experiments ?? {},
-			),
-		),
-	)
+  // Filter to only tools that pass permission checks
+  let allowedToolNames = new Set(
+    allToolsForMode.filter((tool) =>
+      isToolAllowedForMode(tool as ToolName, modeSlug, customModes ?? [], undefined, undefined, experiments ?? {}),
+    ),
+  )
 
-	// Apply model-specific tool customization
-	const modelInfo = settings?.modelInfo as ModelInfo | undefined
-	const { allowedTools: customizedTools, aliasRenames } = applyModelToolCustomization(
-		allowedToolNames,
-		modeConfig,
-		modelInfo,
-	)
-	allowedToolNames = customizedTools
+  // Apply model-specific tool customization
+  const modelInfo = settings?.modelInfo as ModelInfo | undefined
+  const { allowedTools: customizedTools, aliasRenames } = applyModelToolCustomization(
+    allowedToolNames,
+    modeConfig,
+    modelInfo,
+  )
+  allowedToolNames = customizedTools
 
-	// Conditionally exclude codebase_search if feature is disabled or not configured
-	if (
-		!codeIndexManager ||
-		!(codeIndexManager.isFeatureEnabled && codeIndexManager.isFeatureConfigured && codeIndexManager.isInitialized)
-	) {
-		allowedToolNames.delete("codebase_search")
-	}
+  // Conditionally exclude codebase_search if feature is disabled or not configured
+  if (
+    !codeIndexManager ||
+    !(codeIndexManager.isFeatureEnabled && codeIndexManager.isFeatureConfigured && codeIndexManager.isInitialized)
+  ) {
+    allowedToolNames.delete("codebase_search")
+  }
 
-	// Conditionally exclude update_todo_list if disabled in settings
-	if (settings?.todoListEnabled === false) {
-		allowedToolNames.delete("update_todo_list")
-	}
+  // Conditionally exclude update_todo_list if disabled in settings
+  if (settings?.todoListEnabled === false) {
+    allowedToolNames.delete("update_todo_list")
+  }
 
-	// Conditionally exclude generate_image if experiment is not enabled
-	if (!experiments?.imageGeneration) {
-		allowedToolNames.delete("generate_image")
-	}
+  // Conditionally exclude generate_image if experiment is not enabled
+  if (!experiments?.imageGeneration) {
+    allowedToolNames.delete("generate_image")
+  }
 
-	// Conditionally exclude run_slash_command if experiment is not enabled
-	if (!experiments?.runSlashCommand) {
-		allowedToolNames.delete("run_slash_command")
-	}
+  // Conditionally exclude run_slash_command if experiment is not enabled
+  if (!experiments?.runSlashCommand) {
+    allowedToolNames.delete("run_slash_command")
+  }
 
-	// Remove tools that are explicitly disabled via the disabledTools setting
-	if (settings?.disabledTools?.length) {
-		for (const toolName of settings.disabledTools) {
-			// Normalize aliases so disabling a legacy alias (e.g. "search_and_replace")
-			// also disables the canonical tool (e.g. "edit").
-			const resolvedToolName = resolveToolAlias(toolName)
-			allowedToolNames.delete(resolvedToolName)
-		}
-	}
+  // Conditionally exclude ast_grep if experiment is not enabled
+  if (!experiments?.astGrepTool) {
+    allowedToolNames.delete("ast_grep")
+  }
 
-	// Conditionally exclude access_mcp_resource if MCP is not enabled or there are no resources
-	if (!mcpHub || !hasAnyMcpResources(mcpHub)) {
-		allowedToolNames.delete("access_mcp_resource")
-	}
+  // Remove tools that are explicitly disabled via the disabledTools setting
+  if (settings?.disabledTools?.length) {
+    for (const toolName of settings.disabledTools) {
+      // Normalize aliases so disabling a legacy alias (e.g. "search_and_replace")
+      // also disables the canonical tool (e.g. "edit").
+      const resolvedToolName = resolveToolAlias(toolName)
+      allowedToolNames.delete(resolvedToolName)
+    }
+  }
 
-	// Filter native tools based on allowed tool names and apply alias renames
-	const filteredTools: OpenAI.Chat.ChatCompletionTool[] = []
+  // Conditionally exclude access_mcp_resource if MCP is not enabled or there are no resources
+  if (!mcpHub || !hasAnyMcpResources(mcpHub)) {
+    allowedToolNames.delete("access_mcp_resource")
+  }
 
-	for (const tool of nativeTools) {
-		// Handle both ChatCompletionTool and ChatCompletionCustomTool
-		if ("function" in tool && tool.function) {
-			const toolName = tool.function.name
-			if (allowedToolNames.has(toolName)) {
-				// Check if this tool should be renamed to an alias
-				const aliasName = aliasRenames.get(toolName)
-				if (aliasName) {
-					// Use cached renamed tool definition to avoid per-message object allocation
-					filteredTools.push(getOrCreateRenamedTool(tool, aliasName))
-				} else {
-					filteredTools.push(tool)
-				}
-			}
-		}
-	}
+  if (modeSlug === "ask") {
+    allowedToolNames.delete("attempt_completion") // ASK should use 'notify'
+  }
 
-	return filteredTools
+  if (modeSlug !== "ask") {
+    allowedToolNames.delete("switch_mode") // only ASK could initiate swithc mode now
+  }
+
+  if (modeSlug === "code") {
+    allowedToolNames.delete("new_task") // CODE is final worker, not expected to spawn tasks
+  }
+
+  // Filter native tools based on allowed tool names and apply alias renames
+  const filteredTools: OpenAI.Chat.ChatCompletionTool[] = []
+
+  for (const tool of nativeTools) {
+    // Handle both ChatCompletionTool and ChatCompletionCustomTool
+    if ("function" in tool && tool.function) {
+      const toolName = tool.function.name
+      if (allowedToolNames.has(toolName)) {
+        // Create a new object to avoid mutating the shared tool definition
+        let currentTool: OpenAI.Chat.ChatCompletionTool = tool
+
+        // allowing ASK to use some git via execute_command
+        if (toolName === "execute_command" && modeSlug === "ask") {
+          currentTool = {
+            ...currentTool,
+            function: {
+              ...currentTool.function,
+              description:
+                currentTool.function.description +
+                "\n\n⚠️ RESTRICTED MODE: Only 'git status', 'git log', and 'git diff' commands are allowed.",
+            },
+          }
+        }
+
+        // Check if this tool should be renamed to an alias
+        const aliasName = aliasRenames.get(toolName)
+        if (aliasName) {
+          // Use cached renamed tool definition to avoid per-message object allocation
+          filteredTools.push(getOrCreateRenamedTool(currentTool, aliasName))
+        } else {
+          filteredTools.push(currentTool)
+        }
+      }
+    }
+  }
+
+  return filteredTools
 }
 
 /**
  * Helper function to check if any MCP server has resources available
  */
 function hasAnyMcpResources(mcpHub: McpHub): boolean {
-	const servers = mcpHub.getServers()
-	return servers.some((server) => server.resources && server.resources.length > 0)
+  const servers = mcpHub.getServers()
+  return servers.some((server) => server.resources && server.resources.length > 0)
 }
 
 /**
@@ -350,49 +376,71 @@ function hasAnyMcpResources(mcpHub: McpHub): boolean {
  * @returns true if the tool is allowed in the mode, false otherwise
  */
 export function isToolAllowedInMode(
-	toolName: ToolName,
-	mode: string | undefined,
-	customModes: ModeConfig[] | undefined,
-	experiments: Record<string, boolean> | undefined,
-	codeIndexManager?: CodeIndexManager,
-	settings?: Record<string, any>,
+  toolName: ToolName,
+  mode: string | undefined,
+  customModes: ModeConfig[] | undefined,
+  experiments: Record<string, boolean> | undefined,
+  codeIndexManager?: CodeIndexManager,
+  settings?: Record<string, any>,
 ): boolean {
-	const modeSlug = mode ?? defaultModeSlug
+  const modeSlug = mode ?? defaultModeSlug
 
-	// Check if it's an always-available tool
-	if (ALWAYS_AVAILABLE_TOOLS.includes(toolName)) {
-		// But still check for conditional exclusions
-		if (toolName === "codebase_search") {
-			return !!(
-				codeIndexManager &&
-				codeIndexManager.isFeatureEnabled &&
-				codeIndexManager.isFeatureConfigured &&
-				codeIndexManager.isInitialized
-			)
-		}
-		if (toolName === "update_todo_list") {
-			return settings?.todoListEnabled !== false
-		}
-		if (toolName === "generate_image") {
-			return experiments?.imageGeneration === true
-		}
-		if (toolName === "run_slash_command") {
-			return experiments?.runSlashCommand === true
-		}
-		return true
-	}
+  // Conditionally exclude ast_grep if experiment is not enabled
+  if (!experiments?.astGrepTool && toolName === "ast_grep") {
+    return false
+  }
 
-	// Check if the tool is allowed by the mode's groups
-	// Resolve to canonical name and check that single value
-	const canonicalTool = resolveToolAlias(toolName)
-	return isToolAllowedForMode(
-		canonicalTool as ToolName,
-		modeSlug,
-		customModes ?? [],
-		undefined,
-		undefined,
-		experiments ?? {},
-	)
+  // todo: do we really need this tool?
+  if (toolName === "switch_mode" && modeSlug !== "ask") {
+    return false // let's restrict Architect and Code from switching themselves
+  }
+
+  if (toolName === "attempt_completion" && modeSlug === "ask") {
+    return false // no need to confuse model, ASK could use only 'notify' for simplicity
+  }
+
+  if (toolName === "new_task" && modeSlug === "code") {
+    return false // no need to confuse model, CODE is a terminal mode itself, and delegates through user if need
+  }
+
+  // Check if it's an always-available tool
+  if (ALWAYS_AVAILABLE_TOOLS.includes(toolName)) {
+    // But still check for conditional exclusions
+    if (toolName === "codebase_search") {
+      return !!(
+        codeIndexManager &&
+        codeIndexManager.isFeatureEnabled &&
+        codeIndexManager.isFeatureConfigured &&
+        codeIndexManager.isInitialized
+      )
+    }
+
+    if (toolName === "update_todo_list") {
+      return settings?.todoListEnabled !== false
+    }
+
+    if (toolName === "generate_image") {
+      return experiments?.imageGeneration === true
+    }
+
+    if (toolName === "run_slash_command") {
+      return experiments?.runSlashCommand === true
+    }
+
+    return true
+  }
+
+  // Check if the tool is allowed by the mode's groups
+  // Resolve to canonical name and check that single value
+  const canonicalTool = resolveToolAlias(toolName)
+  return isToolAllowedForMode(
+    canonicalTool as ToolName,
+    modeSlug,
+    customModes ?? [],
+    undefined,
+    undefined,
+    experiments ?? {},
+  )
 }
 
 /**
@@ -408,21 +456,21 @@ export function isToolAllowedInMode(
  * @returns Array of tool names that are available from the group
  */
 export function getAvailableToolsInGroup(
-	groupName: ToolGroup,
-	mode: string | undefined,
-	customModes: ModeConfig[] | undefined,
-	experiments: Record<string, boolean> | undefined,
-	codeIndexManager?: CodeIndexManager,
-	settings?: Record<string, any>,
+  groupName: ToolGroup,
+  mode: string | undefined,
+  customModes: ModeConfig[] | undefined,
+  experiments: Record<string, boolean> | undefined,
+  codeIndexManager?: CodeIndexManager,
+  settings?: Record<string, any>,
 ): ToolName[] {
-	const toolGroup = TOOL_GROUPS[groupName]
-	if (!toolGroup) {
-		return []
-	}
+  const toolGroup = TOOL_GROUPS[groupName]
+  if (!toolGroup) {
+    return []
+  }
 
-	return toolGroup.tools.filter((tool) =>
-		isToolAllowedInMode(tool as ToolName, mode, customModes, experiments, codeIndexManager, settings),
-	) as ToolName[]
+  return toolGroup.tools.filter((tool) =>
+    isToolAllowedInMode(tool as ToolName, mode, customModes, experiments, codeIndexManager, settings),
+  ) as ToolName[]
 }
 
 /**
@@ -435,22 +483,22 @@ export function getAvailableToolsInGroup(
  * @returns Filtered array of MCP tools if use_mcp_tool is allowed, empty array otherwise
  */
 export function filterMcpToolsForMode(
-	mcpTools: OpenAI.Chat.ChatCompletionTool[],
-	mode: string | undefined,
-	customModes: ModeConfig[] | undefined,
-	experiments: Record<string, boolean> | undefined,
+  mcpTools: OpenAI.Chat.ChatCompletionTool[],
+  mode: string | undefined,
+  customModes: ModeConfig[] | undefined,
+  experiments: Record<string, boolean> | undefined,
 ): OpenAI.Chat.ChatCompletionTool[] {
-	const modeSlug = mode ?? defaultModeSlug
+  const modeSlug = mode ?? defaultModeSlug
 
-	// MCP tools are always in the mcp group, check if use_mcp_tool is allowed
-	const isMcpAllowed = isToolAllowedForMode(
-		"use_mcp_tool",
-		modeSlug,
-		customModes ?? [],
-		undefined,
-		undefined,
-		experiments ?? {},
-	)
+  // MCP tools are always in the mcp group, check if use_mcp_tool is allowed
+  const isMcpAllowed = isToolAllowedForMode(
+    "use_mcp_tool",
+    modeSlug,
+    customModes ?? [],
+    undefined,
+    undefined,
+    experiments ?? {},
+  )
 
-	return isMcpAllowed ? mcpTools : []
+  return isMcpAllowed ? mcpTools : []
 }

@@ -283,7 +283,7 @@ export interface Command {
 
 export type ClineAskResponse = "yesButtonClicked" | "noButtonClicked" | "messageResponse" | "objectResponse"
 
-export type AudioType = "notification" | "celebration" | "progress_loop"
+export type AudioType = "notification" | "progress_loop"
 
 export interface UpdateTodoListPayload {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -291,6 +291,11 @@ export interface UpdateTodoListPayload {
 }
 
 export type EditQueuedMessagePayload = Pick<QueuedMessage, "id" | "text" | "images">
+
+export interface UpdateTaskTitlePayload {
+  taskId: string
+  title: string
+}
 
 export interface WebviewMessage {
   type:
@@ -314,6 +319,7 @@ export interface WebviewMessage {
     | "exportCurrentTask"
     | "shareCurrentTask"
     | "showTaskWithId"
+    | "updateTaskTitle"
     | "deleteTaskWithId"
     | "exportTaskWithId"
     | "importSettings"
@@ -443,6 +449,7 @@ export interface WebviewMessage {
     | "updateSkillModes"
     | "openSkillFile"
   text?: string
+  title?: string
   taskId?: string
   editedMessageContent?: string
   tab?: "settings" | "history" | "mcp" | "modes" | "chat"

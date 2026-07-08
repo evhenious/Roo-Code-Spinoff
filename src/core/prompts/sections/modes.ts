@@ -17,18 +17,15 @@ export async function getModesSection(context: vscode.ExtensionContext, currentM
     .map((mode: ModeConfig) => {
       const description = mode.description ?? mode.roleDefinition.split(".")[0]
       const isCurrentMode = mode.slug === currentMode
-      const prefix = isCurrentMode ? "**CURRENT MODE** " : "  "
+      const prefix = isCurrentMode ? "**ACTIVE MODE** " : "  "
       return `  * ${prefix}"${mode.name}" mode (${mode.slug}) - ${description}`
     })
     .join("\n")
 
   const modesContent = `
-====
+# AVAILABLE MODES
 
-AVAILABLE MODES
-
-${modesList}
-`
+${modesList}`
 
   return modesContent
 }

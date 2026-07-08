@@ -1,24 +1,12 @@
 import type OpenAI from "openai"
 
-const ASK_FOLLOWUP_QUESTION_DESCRIPTION = `Ask the user a question to gather additional information needed to proceed.
-
-Parameters:
-- question: (required) The question to ask
-- follow_up: (required) An array of 2-4 suggested answers
-
-Example: Asking for file path
-{ "question": "What is the preferred path to the config.json file?", "follow_up": [{ "text": "./src/config.json", "mode": null }, { "text": "./config/config.json", "mode": null }, { "text": "./config.json", "mode": null }] }
-
-Example: Asking with mode switch
-{ "question": "Would you like me to implement this feature?", "follow_up": [{ "text": "Yes, implement it now", "mode": "code" }, { "text": "No, just plan it out", "mode": "architect" }] }`
+const ASK_FOLLOWUP_QUESTION_DESCRIPTION = `Ask the user a question when you want to offer predefined choices.`
 
 const QUESTION_PARAMETER_DESCRIPTION = `The question to ask`
 
 const FOLLOW_UP_PARAMETER_DESCRIPTION = `Array of 2-4 suggested answers`
 
 const FOLLOW_UP_TEXT_DESCRIPTION = `Suggested answer text`
-
-const FOLLOW_UP_MODE_DESCRIPTION = `Optional mode slug to switch to (e.g 'code', 'architect')`
 
 export default {
   type: "function",
@@ -42,10 +30,6 @@ export default {
               text: {
                 type: "string",
                 description: FOLLOW_UP_TEXT_DESCRIPTION,
-              },
-              mode: {
-                type: ["string", "null"],
-                description: FOLLOW_UP_MODE_DESCRIPTION,
               },
             },
             required: ["text", "mode"],

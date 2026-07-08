@@ -2,7 +2,7 @@ import * as vscode from "vscode"
 
 import { RooCodeEventName, type HistoryItem } from "@roo-code/types"
 
-import { Task } from "../task/Task"
+import type { Task } from "../task/Task"
 import { formatResponse } from "../prompts/responses"
 import { Package } from "../../shared/package"
 import type { ToolUse } from "../../shared/tools"
@@ -43,7 +43,7 @@ export class AttemptCompletionTool extends BaseTool<"attempt_completion"> {
     if (task.didToolFailInCurrentTurn) {
       const errorMsg = t("common:errors.attempt_completion_tool_failed")
 
-      await task.say("error", errorMsg)
+      await task.renderUIMessage("error", errorMsg)
       pushToolResult(formatResponse.toolError(errorMsg))
       return
     }
@@ -77,7 +77,7 @@ export class AttemptCompletionTool extends BaseTool<"attempt_completion"> {
 
       task.consecutiveMistakeCount = 0
 
-      await task.say("completion_result", result, undefined, false)
+      await task.renderUIMessage("completion_result", result, undefined, false)
 
       // Check for subtask using parentTaskId (metadata-driven delegation)
       if (task.parentTaskId) {
@@ -106,7 +106,7 @@ export class AttemptCompletionTool extends BaseTool<"attempt_completion"> {
               if (delegation === "delegated") {
                 this.emitTaskCompleted(task)
               }
-              if (delegation !== "continue") return
+              if (delegation !== "continue") return // TODO seems 'continue' is not used?
             } else {
               // Unexpected status (undefined or "delegated") - log error and skip delegation
               // undefined indicates a bug in status persistence during child creation
@@ -136,10 +136,19 @@ export class AttemptCompletionTool extends BaseTool<"attempt_completion"> {
       }
 
       // User provided feedback - push tool result to continue the conversation
-      await task.say("user_feedback", text ?? "", images)
+      await task.renderUIMessage("user_feedback", text ?? "", images)
+
+      // adding tool 'result' first, then user msg and after this images if any. This order should work
+      pushToolResult(formatResponse.toolResult(JSON.stringify({ success: true })), "roo_notify_closed")
 
       const feedbackText = `<usr>\n${text}\n</usr>`
-      pushToolResult(formatResponse.toolResult(feedbackText, images))
+      task.userMessageContent.push(
+        {
+          type: "text",
+          text: feedbackText,
+        },
+        ...formatResponse.imageBlocks(images),
+      )
     } catch (error) {
       await handleError("inspecting site", error as Error)
     }
@@ -187,11 +196,11 @@ export class AttemptCompletionTool extends BaseTool<"attempt_completion"> {
       if (lastMessage && lastMessage.ask === "command") {
         await task.ask("command", command ?? "", block.partial).catch(() => {})
       } else {
-        await task.say("completion_result", result ?? "", undefined, false)
+        await task.renderUIMessage("completion_result", result ?? "", undefined, false)
         await task.ask("command", command ?? "", block.partial).catch(() => {})
       }
     } else {
-      await task.say("completion_result", result ?? "", undefined, block.partial)
+      await task.renderUIMessage("completion_result", result ?? "", undefined, block.partial)
     }
   }
 

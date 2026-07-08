@@ -5,22 +5,13 @@ Prefer complex CLI commands over creating executable scripts for flexibility.
 Use relative paths when possible.
 Make sure you use correct syntax for current OS.
 
-Parameters:
-- command: (required) The CLI command to execute.
-- cwd: (optional) The working directory for the command.
-- timeout: (optional) Timeout in seconds. When exceeded, the command keeps running in the background and you receive the output so far. Use for long-running processes like dev servers.
-
-Example: Basic command
-{ "command": "npm run dev", "cwd": null, "timeout": null }
-
-Example: With working directory and timeout
-{ "command": "npm run build", "cwd": "./backend", "timeout": 30 }`
+Note: When timeout was set and exceeded, the command keeps running in the background and you receive the output so far. Use for long-running processes like dev servers.`
 
 const COMMAND_PARAMETER_DESCRIPTION = `Shell command to execute`
 
 const CWD_PARAMETER_DESCRIPTION = `Working directory for the command`
 
-const TIMEOUT_PARAMETER_DESCRIPTION = `Timeout in seconds; command continues in background when exceeded`
+const TIMEOUT_PARAMETER_DESCRIPTION = `Timeout in seconds`
 
 export default {
   type: "function",

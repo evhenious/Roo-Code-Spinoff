@@ -39,19 +39,24 @@ export const formatResponse = {
       suggestion: "Try to continue without this file, or ask the user to update the .rooignore file",
     }),
 
-  noToolsUsed: () => {
-    const instructions = getToolInstructionsReminder()
+  // these messages should be in 'user' role block, sending them as 'developer' role allows model to ignore it
+  noToolsUsed: (mode: string) => {
+    if (mode === "ask") {
+      return `[SYSTEM ERROR]: Tool Use Rules violation detected.
+**Reason:** 0 tools called in your last response.
+**Suggested action:** if you want to properly close your turn in the conversation, use \`notify\` tool.
+**Note:** this is automated message, do not discuss it or answer conversationally.`
+    }
 
-    return `[ERROR] You did not use a tool in your previous response!
-
-${instructions}
-
-# Next Steps
-
-1. If you have completed the user's task, use the attempt_completion tool.
-2. If you require additional information from the user, use the ask_followup_question tool.
-3. Otherwise, proceed with the next step of the task.
-(This is an automated message, so do not respond to it conversationally.)`
+    return `[SYSTEM ERROR]: Tool Use Rules violation.
+**Reason:** 0 tools called in your last response.
+### Next steps:
+1. **If you have completed the user's task:** use \`attempt_completion\` ${mode === "code" ? "" : "or `notify` "}tool.
+2. **If you need additional info from the user:** use relevant tool. Options:
+   - use \`ask_followup_question\` tool
+   - ask the question naturally and use \`notify\` tool to properly end your turn
+3. **Otherwise:** proceed with the most appropriate tool to continue your current task.
+**Note:** this is automated message, do not discuss it or answer conversationally.`
   },
 
   tooManyMistakes: (feedback?: string) =>
@@ -61,9 +66,7 @@ ${instructions}
     }),
 
   missingToolParameterError: (paramName: string) => {
-    const instructions = getToolInstructionsReminder()
-
-    return `Missing value for required parameter '${paramName}'. Please retry with complete response.\n\n${instructions}`
+    return `Missing value for required parameter '${paramName}'. Check tool definitions provided in your system instructions for correct parameter structure, and retry with complete response.`
   },
 
   invalidMcpToolArgumentError: (serverName: string, toolName: string) =>
@@ -182,7 +185,7 @@ ${instructions}
     if (didHitLimit) {
       return `${rooIgnoreParsed.join(
         "\n",
-      )}\n\n(File list truncated. Use list_files on specific subdirectories if you need to explore further.)`
+      )}\n\n(File list truncated. Use \`list_files\` on specific subdirectories if you need to explore further.)`
     } else if (rooIgnoreParsed.length === 0 || (rooIgnoreParsed.length === 1 && rooIgnoreParsed[0] === "")) {
       return "No files found."
     } else {
@@ -214,13 +217,4 @@ const formatImagesIntoBlocks = (images?: string[]): Anthropic.ImageBlockParam[] 
         } as Anthropic.ImageBlockParam
       })
     : []
-}
-
-/**
- * Gets the tool use instructions reminder.
- */
-function getToolInstructionsReminder(): string {
-  return `# Reminder: Instructions for Tool Use
-
-Refer to the tool definitions provided in your system instructions for the correct parameter structure and usage examples.`
 }

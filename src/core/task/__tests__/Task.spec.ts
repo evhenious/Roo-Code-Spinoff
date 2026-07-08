@@ -186,7 +186,7 @@ vi.mock("../../../utils/fs", () => ({
 const mockMessages = [
   {
     ts: Date.now(),
-    type: "say",
+    type: "renderUIMessage",
     say: "text",
     text: "historical task",
   },
@@ -633,7 +633,7 @@ describe("Cline", () => {
         vi.spyOn(await import("delay"), "default").mockImplementation(mockDelay)
 
         // Mock say to track messages
-        const saySpy = vi.spyOn(cline, "say")
+        const saySpy = vi.spyOn(cline, "renderUIMessage")
 
         // Create a stream that fails on first chunk
         const mockError = new Error("API Error")
@@ -752,7 +752,7 @@ describe("Cline", () => {
         vi.spyOn(await import("delay"), "default").mockImplementation(mockDelay)
 
         // Mock say to track messages
-        const saySpy = vi.spyOn(cline, "say")
+        const saySpy = vi.spyOn(cline, "renderUIMessage")
 
         // Create a stream that fails on first chunk
         const mockError = new Error("API Error")
@@ -1036,7 +1036,7 @@ describe("Cline", () => {
         vi.spyOn(child as any, "getSystemPrompt").mockResolvedValue("mock system prompt")
 
         // Spy on child.say to verify the emitted message type
-        const saySpy = vi.spyOn(child, "say")
+        const saySpy = vi.spyOn(child, "renderUIMessage")
 
         // Mock the child's API stream
         const childMockStream = {

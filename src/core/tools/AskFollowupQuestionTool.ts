@@ -1,4 +1,4 @@
-import { Task } from "../task/Task"
+import type { Task } from "../task/Task"
 import { formatResponse } from "../prompts/responses"
 import type { ToolUse } from "../../shared/tools"
 
@@ -42,12 +42,12 @@ export class AskFollowupQuestionTool extends BaseTool<"ask_followup_question"> {
       // Transform follow_up suggestions to the format expected by task.ask
       const follow_up_json = {
         question,
-        suggest: follow_up.map((s) => ({ answer: s.text, mode: s.mode })),
+        suggest: follow_up.map((s) => ({ answer: s.text, mode: null })), // we don't switch modes here
       }
 
       task.consecutiveMistakeCount = 0
       const { text, images } = await task.ask("followup", JSON.stringify(follow_up_json), false)
-      await task.say("user_feedback", text ?? "", images)
+      await task.renderUIMessage("user_feedback", text ?? "", images)
       pushToolResult(formatResponse.toolResult(`<usr>\n${text}\n</usr>`, images))
     } catch (error) {
       await handleError("asking question", error as Error)

@@ -8,7 +8,6 @@ import {
   type ToolName,
   getApiProtocol,
   getModelId,
-  isRetiredProvider,
 } from "@roo-code/types"
 
 import { GroundingSource } from "../../api/transform/stream"
@@ -23,6 +22,13 @@ import { calculateApiCostAnthropic, calculateApiCostOpenAI } from "../../shared/
 import type { McpToolUse, ToolUse } from "../../shared/tools"
 import { processUserContentMentions } from "../mentions/processUserContentMentions"
 import { TaskWorkflowDependencies } from "./interface"
+
+interface StackItem {
+  userContent: Anthropic.Messages.ContentBlockParam[]
+  includeFileDetails: boolean
+  retryAttempt?: number
+  userMessageWasRemoved?: boolean
+}
 
 export class TaskWorkflow {
   constructor(private deps: TaskWorkflowDependencies) {}
@@ -39,22 +45,12 @@ export class TaskWorkflow {
     userContent: Anthropic.Messages.ContentBlockParam[],
     includeFileDetails: boolean = false,
   ): Promise<boolean> {
-    interface StackItem {
-      userContent: Anthropic.Messages.ContentBlockParam[]
-      includeFileDetails: boolean
-      retryAttempt?: number
-      userMessageWasRemoved?: boolean
-    }
-
     const stack: StackItem[] = [{ userContent, includeFileDetails, retryAttempt: 0 }]
 
     // Cache API protocol once per iteration (optimization)
     const modelId = getModelId(this.deps.apiConfiguration)
     const apiProvider = this.deps.apiConfiguration.apiProvider
-    const apiProtocol = getApiProtocol(
-      apiProvider && !isRetiredProvider(apiProvider) ? apiProvider : undefined,
-      modelId,
-    )
+    const apiProtocol = getApiProtocol(apiProvider, modelId)
 
     while (stack.length > 0) {
       const currentItem = stack.pop()!
@@ -137,25 +133,38 @@ export class TaskWorkflow {
         this._lastSentMode = currentMode
       }
 
-      const environmentDetails = await getEnvironmentDetails(
-        //
-        this.deps.taskForEnvironmentDetails,
-        currentIncludeFileDetails, // controlling git history and some more stuff visibility
-        modeChanged, // controlling mode details visibility
-      )
-
-      // Remove any existing environment_details blocks before adding fresh ones.
-      const contentWithoutEnvDetails = parsedUserContent.filter((block) => {
+      // Remove any existing environment_details blocks before adding fresh ones (does NOT lookbehind, only current message)
+      let finalUserContent = parsedUserContent.filter((block) => {
         if (block.type === "text" && typeof block.text === "string") {
-          const isEnvironmentDetailsBlock =
-            block.text.trim().startsWith("<env_det>") && block.text.trim().endsWith("</env_det>")
-          return !isEnvironmentDetailsBlock
+          return (block as any)._type !== "env"
         }
         return true
       })
 
-      // Add environment details as its own text block, separate from tool results.
-      let finalUserContent = [...contentWithoutEnvDetails, { type: "text" as const, text: environmentDetails }]
+      let autoErrorIndx = finalUserContent.findIndex((fc: any) => fc._type === "roo_err")
+      if (autoErrorIndx >= 0 && finalUserContent.length > 1) {
+        // defensive: not sending roo_err in the same msg with new user content, should be single separate msg always
+        finalUserContent = finalUserContent.filter((fc: any) => fc._type !== "roo_err")
+        autoErrorIndx = -1
+      }
+
+      if (autoErrorIndx < 0) {
+        const environmentDetails = await getEnvironmentDetails(
+          // not adding env details if auto error
+          this.deps.taskForEnvironmentDetails,
+          currentIncludeFileDetails, // controlling git history and some more stuff visibility
+          modeChanged, // controlling mode details visibility
+        )
+        // Add environment details as its own text block, separate from tool results.
+        const envBlock = {
+          type: "text" as const,
+          text: environmentDetails,
+          _type: "env", //! <-- new flag
+        }
+
+        finalUserContent.push(envBlock)
+      }
+
       // Only add user message to conversation history if:
       // 1. This is the first attempt (retryAttempt === 0), AND
       // 2. The original userContent was not empty, OR
@@ -163,7 +172,9 @@ export class TaskWorkflow {
       const isEmptyUserContent = currentUserContent.length === 0
       const shouldAddUserMessage =
         ((currentItem.retryAttempt ?? 0) === 0 && !isEmptyUserContent) || currentItem.userMessageWasRemoved
+
       if (shouldAddUserMessage) {
+        //! here we save the new message to the api history, which is sent to LLM after!
         await this.deps.addToApiConversationHistory({ role: "user", content: finalUserContent })
       }
 
@@ -174,7 +185,7 @@ export class TaskWorkflow {
         apiProtocol,
       } satisfies ClineApiReqInfo)
 
-      await this.deps.saveClineMessages()
+      await this.deps.saveClineMessages() // saves UI history to show in the chat
       await this.deps.postStateToWebviewWithoutTaskHistory()
 
       try {
@@ -361,7 +372,11 @@ export class TaskWorkflow {
                     this.deps.assistantMessageContent.push(partialToolUse)
                     this.deps.setUserMessageContentReady(false)
                     await this.deps.presentAssistantMessage()
-                  } else if (event.type === "tool_call_delta") {
+
+                    continue
+                  }
+
+                  if (event.type === "tool_call_delta") {
                     const partialToolUse = NativeToolCallParser.processStreamingChunk(event.id, event.delta)
 
                     if (partialToolUse) {
@@ -372,7 +387,11 @@ export class TaskWorkflow {
                         await this.deps.presentAssistantMessage()
                       }
                     }
-                  } else if (event.type === "tool_call_end") {
+
+                    continue
+                  }
+
+                  if (event.type === "tool_call_end") {
                     const finalToolUse = NativeToolCallParser.finalizeStreamingToolCall(event.id)
                     const toolUseIndex = this.deps.streamingToolCallIndices.get(event.id)
 
@@ -394,8 +413,12 @@ export class TaskWorkflow {
                       this.deps.setUserMessageContentReady(false)
                       await this.deps.presentAssistantMessage()
                     }
+
+                    continue
                   }
-                }
+                } // 'for' loop ends
+
+                // break after all tool chunks processed
                 break
               }
 
@@ -576,9 +599,24 @@ export class TaskWorkflow {
         // CRITICAL: Save assistant message to API history BEFORE executing tools.
         const hasTextContent = assistantMessage.length > 0
 
-        const hasToolUses = this.deps.assistantMessageContent.some(
+        let hasToolUses = this.deps.assistantMessageContent.some(
           (block) => block.type === "tool_use" || block.type === "mcp_tool_use",
         )
+
+        //! these 2 guys are allowed to forget a tool.
+        if (!hasToolUses && ["ask", "architect"].includes(currentMode)) {
+          // emulating 'notify tool
+          this.deps.assistantMessageContent.push({
+            type: "tool_use" as const,
+            id: `${Date.now()}`,
+            name: "notify",
+            params: {},
+            nativeArgs: {},
+            partial: false,
+            _roo_emulated: true,
+          } as any)
+          hasToolUses = true
+        }
 
         if (hasTextContent || hasToolUses) {
           this.deps.setConsecutiveNoAssistantMessagesCount(0)
@@ -605,6 +643,7 @@ export class TaskWorkflow {
           const toolUseBlocks = this.deps.assistantMessageContent.filter(
             (block) => block.type === "tool_use" || block.type === "mcp_tool_use",
           )
+
           for (const block of toolUseBlocks) {
             if (block.type === "mcp_tool_use") {
               const mcpBlock = block as McpToolUse
@@ -644,7 +683,8 @@ export class TaskWorkflow {
                   id: sanitizedId,
                   name: toolNameForHistory,
                   input,
-                })
+                  ...((block as any)._roo_emulated ? { _roo_emulated: true } : {}),
+                } as any)
               }
             }
           }
@@ -678,6 +718,7 @@ export class TaskWorkflow {
             }
           }
 
+          // saving assistant response to API convo history for further use
           await this.deps.addToApiConversationHistory(
             { role: "assistant", content: assistantContent },
             reasoningMessage || undefined,
@@ -687,17 +728,13 @@ export class TaskWorkflow {
 
         if (partialBlocks.length > 0) {
           assistantMessageSaved = true
-          await this.deps.presentAssistantMessage()
+          await this.deps.presentAssistantMessage() //! <- THIS is where called tools get executed
         }
 
         if (hasTextContent || hasToolUses) {
           await pWaitFor(() => this.deps.userMessageContentReady)
 
-          const usedSomeTools = this.deps.assistantMessageContent.some(
-            (block) => block.type === "tool_use" || block.type === "mcp_tool_use",
-          )
-
-          if (!usedSomeTools) {
+          if (!hasToolUses) {
             this.deps.setConsecutiveNoToolUseCount(this.deps.consecutiveNoToolUseCount + 1)
             this.deps.setConsecutiveMistakeCount(this.deps.consecutiveMistakeCount + 1)
 
@@ -709,8 +746,9 @@ export class TaskWorkflow {
               ...this.deps.userMessageContent,
               {
                 type: "text",
-                text: formatResponse.noToolsUsed(),
-              },
+                text: formatResponse.noToolsUsed(currentMode),
+                _type: "roo_err",
+              } as any,
             ])
           } else {
             this.deps.setConsecutiveNoToolUseCount(0)

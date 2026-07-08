@@ -49,7 +49,6 @@ import {
   isIdleAsk,
   isInteractiveAsk,
   isResumableAsk,
-  isRetiredProvider,
 } from "@roo-code/types"
 
 // api
@@ -122,6 +121,8 @@ import { mergeConsecutiveApiMessages } from "./mergeConsecutiveApiMessages"
 import { TaskWorkflow } from "./TaskWorkflow"
 import { createWorkflowDependencies } from "./util/createWorkflowDependencies"
 import { validateAndFixToolResultIds } from "./validateToolResultIds"
+import { ContentBlockParam, TextBlockParam } from "@anthropic-ai/sdk/resources/index.mjs"
+import { removeCompletionToolCalls, removePreviousEnvDetailsBlock } from "./util/apiConvoHistoryUtils"
 
 const MAX_EXPONENTIAL_BACKOFF_SECONDS = 600 // 10 minutes
 const DEFAULT_USAGE_COLLECTION_TIMEOUT_MS = 5000 // 5 seconds
@@ -303,7 +304,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
   didEditFile: boolean = false
 
   // LLM Messages & Chat Messages
-  apiConversationHistory: ApiMessage[] = []
+  apiConversationHistory: ApiMessage[] = [] //! <--------------
   clineMessages: ClineMessage[] = []
 
   // Ask
@@ -893,10 +894,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
       // and require round-tripping the signature in their own format.
       const modelId = getModelId(this.apiConfiguration)
       const apiProvider = this.apiConfiguration.apiProvider
-      const apiProtocol = getApiProtocol(
-        apiProvider && !isRetiredProvider(apiProvider) ? apiProvider : undefined,
-        modelId,
-      )
+      const apiProtocol = getApiProtocol(apiProvider, modelId)
       const isAnthropicProtocol = apiProtocol === "anthropic"
 
       // Start from the original assistant message
@@ -1023,7 +1021,22 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
         }
       }
 
-      const validatedMessage = validateAndFixToolResultIds(messageToAdd, historyForValidation)
+      type RooContentBlockParam = ContentBlockParam & {
+        _type?: "roo_err" | "env" | "roo_notify_closed"
+        _roo_emulated?: boolean
+      }
+
+      interface RooMessageExtended extends Anthropic.Messages.MessageParam {
+        content: string | RooContentBlockParam[]
+      }
+
+      const validatedMessage: RooMessageExtended = validateAndFixToolResultIds(messageToAdd, historyForValidation)
+
+      if (validatedMessage.role === "user") {
+        removePreviousEnvDetailsBlock(validatedMessage, this)
+        removeCompletionToolCalls(validatedMessage, this)
+      }
+
       const messageWithTs = { ...validatedMessage, ts: Date.now() }
       this.apiConversationHistory.push(messageWithTs)
     }
@@ -1475,6 +1488,9 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
     return result
   }
 
+  /**
+   * Handles response to the LLMs request, e.g. it used a tool which required users approve
+   */
   handleWebviewAskResponse(askResponse: ClineAskResponse, text?: string, images?: string[]) {
     // Clear any pending auto-approval timeout when user responds
     this.cancelAutoApprovalTimeout()
@@ -1573,31 +1589,32 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 
       const provider = this.providerRef.deref()
 
-      if (provider) {
-        if (mode) {
-          await provider.setMode(mode)
-        }
-
-        if (providerProfile) {
-          await provider.setProviderProfile(providerProfile)
-
-          // Update this task's API configuration to match the new profile
-          // This ensures the parser state is synchronized with the selected model
-          const newState = await provider.getState()
-          if (newState?.apiConfiguration) {
-            this.updateApiConfiguration(newState.apiConfiguration)
-          }
-        }
-
-        this.emit(RooCodeEventName.TaskUserMessage, this.taskId)
-
-        // Handle the message directly instead of routing through the webview.
-        // This avoids a race condition where the webview's message state hasn't
-        // hydrated yet, causing it to interpret the message as a new task request.
-        this.handleWebviewAskResponse("messageResponse", text, images)
-      } else {
+      if (!provider) {
         console.error("[Task#submitUserMessage] Provider reference lost")
+        return
       }
+
+      if (mode) {
+        await provider.setMode(mode)
+      }
+
+      if (providerProfile) {
+        await provider.setProviderProfile(providerProfile)
+
+        // Update this task's API configuration to match the new profile
+        // This ensures the parser state is synchronized with the selected model
+        const newState = await provider.getState()
+        if (newState?.apiConfiguration) {
+          this.updateApiConfiguration(newState.apiConfiguration)
+        }
+      }
+
+      this.emit(RooCodeEventName.TaskUserMessage, this.taskId)
+
+      // Handle the message directly instead of routing through the webview.
+      // This avoids a race condition where the webview's message state hasn't
+      // hydrated yet, causing it to interpret the message as a new task request.
+      this.handleWebviewAskResponse("messageResponse", text, images)
     } catch (error) {
       console.error("[Task#submitUserMessage] Failed to submit user message:", error)
     }
@@ -1692,7 +1709,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
       rooIgnoreController: this.rooIgnoreController,
     })
     if (error) {
-      await this.say(
+      await this.renderUIMessage(
         "condense_context_error",
         error,
         undefined /* images */,
@@ -1712,7 +1729,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
       prevContextTokens,
       condenseId: condenseId!,
     }
-    await this.say(
+    await this.renderUIMessage(
       "condense_context",
       undefined /* text */,
       undefined /* images */,
@@ -1734,7 +1751,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
    * - User messages (via userMessageContent array)
    * - API conversation history (via addToApiConversationHistory)
    */
-  async say(
+  async renderUIMessage(
     type: ClineSay,
     text?: string,
     images?: string[],
@@ -1849,7 +1866,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
   }
 
   async sayAndCreateMissingParamError(toolName: ToolName, paramName: string, relPath?: string) {
-    await this.say(
+    await this.renderUIMessage(
       "error",
       `Roo tried to use ${toolName}${
         relPath ? ` for '${relPath.toPosix()}'` : ""
@@ -1932,12 +1949,12 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 
       await this.providerRef.deref()?.postStateToWebviewWithoutTaskHistory()
 
-      await this.say("text", task, images)
+      await this.renderUIMessage("text", task, images)
 
       // Check for too many MCP tools and warn the user
       const { enabledToolCount, enabledServerCount } = await this.getEnabledMcpToolsCount()
       if (enabledToolCount > MAX_MCP_TOOLS_THRESHOLD) {
-        await this.say(
+        await this.renderUIMessage(
           "too_many_tools_warning",
           JSON.stringify({
             toolCount: enabledToolCount,
@@ -2051,7 +2068,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
       let responseImages: string[] | undefined
 
       if (response === "messageResponse") {
-        await this.say("user_feedback", text, images)
+        await this.renderUIMessage("user_feedback", text, images)
         responseText = text
         responseImages = images
       }
@@ -2073,6 +2090,11 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
       if (existingApiConversationHistory.length > 0) {
         const lastMessage = existingApiConversationHistory[existingApiConversationHistory.length - 1]
 
+        //! resume the task after last assistant msg. Clean completion tool calls
+        if ((lastMessage.content as Array<any>).find((item) => item._roo_emulated)) {
+          lastMessage.content = (lastMessage.content as Array<any>).filter((item) => item._roo_emulated !== true)
+        }
+
         if (lastMessage.isSummary) {
           // IMPORTANT: If the last message is a condensation summary, we must preserve it
           // intact. The summary message carries critical metadata (isSummary, condenseId)
@@ -2093,11 +2115,13 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
             const toolUseBlocks = content.filter(
               (block) => block.type === "tool_use",
             ) as Anthropic.Messages.ToolUseBlock[]
+
             const toolResponses: Anthropic.ToolResultBlockParam[] = toolUseBlocks.map((block) => ({
               type: "tool_result",
               tool_use_id: block.id,
               content: "Task was interrupted before this tool call could be completed.",
             }))
+
             modifiedApiConversationHistory = [...existingApiConversationHistory] // no changes
             modifiedOldUserContent = [...toolResponses]
           } else {
@@ -2423,7 +2447,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 
   private async initiateTaskLoop(userContent: Anthropic.Messages.ContentBlockParam[]): Promise<void> {
     // Kicks off the checkpoints initialization process in the background.
-    getCheckpointService(this)
+    getCheckpointService(this) // todo should await, maybe?
 
     let nextUserContent = userContent
     let includeFileDetails = true
@@ -2450,7 +2474,9 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
         // the user hits max requests and denies resetting the count.
         break
       } else {
-        nextUserContent = [{ type: "text", text: formatResponse.noToolsUsed() }]
+        nextUserContent = [
+          { type: "text", text: formatResponse.noToolsUsed(this.taskMode), _type: "roo_err" } as TextBlockParam,
+        ]
       }
     }
   }
@@ -2531,6 +2557,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
           isStealthModel: modelInfo?.isStealthModel,
         },
         provider.getSkillsManager(),
+        apiConfiguration?.useDeveloperRole ?? false,
       )
     })()
   }
@@ -2627,7 +2654,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
       if (truncateResult.summary) {
         const { summary, cost, prevContextTokens, newContextTokens = 0 } = truncateResult
         const contextCondense: ContextCondense = { summary, cost, newContextTokens, prevContextTokens }
-        await this.say(
+        await this.renderUIMessage(
           "condense_context",
           undefined /* text */,
           undefined /* images */,
@@ -2645,7 +2672,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
           prevContextTokens: truncateResult.prevContextTokens,
           newContextTokens: truncateResult.newContextTokensAfterTruncation ?? 0,
         }
-        await this.say(
+        await this.renderUIMessage(
           "sliding_window_truncation",
           undefined /* text */,
           undefined /* images */,
@@ -2689,11 +2716,11 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
       for (let i = rateLimitDelay; i > 0; i--) {
         // Send structured JSON data for i18n-safe transport
         const delayMessage = JSON.stringify({ seconds: i })
-        await this.say("api_req_rate_limit_wait", delayMessage, undefined, true)
+        await this.renderUIMessage("api_req_rate_limit_wait", delayMessage, undefined, true)
         await delay(1000)
       }
       // Finalize the partial message so the UI doesn't keep rendering an in-progress spinner.
-      await this.say("api_req_rate_limit_wait", undefined, undefined, false)
+      await this.renderUIMessage("api_req_rate_limit_wait", undefined, undefined, false)
     }
   }
 
@@ -2846,7 +2873,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
           await this.overwriteApiConversationHistory(truncateResult.messages)
         }
         if (truncateResult.error) {
-          await this.say("condense_context_error", truncateResult.error)
+          await this.renderUIMessage("condense_context_error", truncateResult.error)
         }
         if (truncateResult.summary) {
           const { summary, cost, prevContextTokens, newContextTokens = 0, condenseId } = truncateResult
@@ -2857,7 +2884,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
             prevContextTokens,
             condenseId,
           }
-          await this.say(
+          await this.renderUIMessage(
             "condense_context",
             undefined /* text */,
             undefined /* images */,
@@ -2875,7 +2902,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
             prevContextTokens: truncateResult.prevContextTokens,
             newContextTokens: truncateResult.newContextTokensAfterTruncation ?? 0,
           }
-          await this.say(
+          await this.renderUIMessage(
             "sliding_window_truncation",
             undefined /* text */,
             undefined /* images */,
@@ -3066,7 +3093,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
           throw new Error("API request failed")
         }
 
-        await this.say("api_req_retried")
+        await this.renderUIMessage("api_req_retried")
 
         // Delegate generator output from the recursive call.
         yield* this.attemptApiRequest()
@@ -3146,11 +3173,16 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
           throw new Error(`[Task#${this.taskId}] Aborted during retry countdown`)
         }
 
-        await this.say("api_req_retry_delayed", `${headerText}<retry_timer>${i}</retry_timer>`, undefined, true)
+        await this.renderUIMessage(
+          "api_req_retry_delayed",
+          `${headerText}<retry_timer>${i}</retry_timer>`,
+          undefined,
+          true,
+        )
         await delay(1000)
       }
 
-      await this.say("api_req_retry_delayed", headerText, undefined, false)
+      await this.renderUIMessage("api_req_retry_delayed", headerText, undefined, false)
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err)
 
@@ -3309,6 +3341,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 
     return cleanConversationHistory
   }
+
   public async checkpointRestore(options: CheckpointRestoreOptions) {
     return checkpointRestore(this, options)
   }
