@@ -35,20 +35,17 @@
     "header": "{{count}} file(s) changed in this conversation"
   },
   "retry": {
-    "title": "Retry",
-    "tooltip": "Try the operation again"
+    "title": "Retry"
   },
   "startNewTask": {
     "title": "Start New Task",
     "tooltip": "Begin a new task"
   },
   "proceedAnyways": {
-    "title": "Proceed Anyways",
-    "tooltip": "Continue while command executes"
+    "title": "Proceed Anyways"
   },
   "save": {
-    "title": "Save",
-    "tooltip": "Save the message changes"
+    "title": "Save"
   },
   "tokenProgress": {
     "availableSpace": "Available space: {{amount}} tokens",
@@ -64,8 +61,7 @@
   },
   "completeSubtaskAndReturn": "Complete subtask and keep going",
   "approve": {
-    "title": "Approve",
-    "tooltip": "Allow this action to happen"
+    "title": "Approve"
   },
   "read-batch": {
     "approve": {
@@ -92,20 +88,17 @@
     }
   },
   "runCommand": {
-    "title": "Run",
-    "tooltip": "Execute this command"
+    "title": "Run Command"
   },
   "proceedWhileRunning": {
-    "title": "Continue While Running",
-    "tooltip": "Keep going despite warnings"
+    "title": "Continue While Running"
   },
   "killCommand": {
     "title": "Kill Command",
     "tooltip": "Kill the current command"
   },
   "resumeTask": {
-    "title": "Continue",
-    "tooltip": "Resume the current task"
+    "title": "Resume the task"
   },
   "terminate": {
     "title": "New task",

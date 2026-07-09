@@ -1606,32 +1606,13 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
               ) : (
                 <>
                   {primaryButtonText && primaryButtonText !== "New task" && (
-                    <StandardTooltip
-                      content={
-                        primaryButtonText === t("chat:retry.title")
-                          ? t("chat:retry.tooltip")
-                          : primaryButtonText === t("chat:save.title")
-                            ? t("chat:save.tooltip")
-                            : primaryButtonText === t("chat:approve.title")
-                              ? t("chat:approve.tooltip")
-                              : primaryButtonText === t("chat:runCommand.title")
-                                ? t("chat:runCommand.tooltip")
-                                : primaryButtonText === t("chat:resumeTask.title")
-                                  ? t("chat:resumeTask.tooltip")
-                                  : primaryButtonText === t("chat:proceedAnyways.title")
-                                    ? t("chat:proceedAnyways.tooltip")
-                                    : primaryButtonText === t("chat:proceedWhileRunning.title")
-                                      ? t("chat:proceedWhileRunning.tooltip")
-                                      : undefined
-                      }>
-                      <Button
-                        variant="primary"
-                        disabled={!enableButtons}
-                        className={secondaryButtonText ? "flex-1 mr-[6px]" : "flex-[2] mr-0"}
-                        onClick={() => handlePrimaryButtonClick(inputValue, selectedImages)}>
-                        {primaryButtonText}
-                      </Button>
-                    </StandardTooltip>
+                    <Button
+                      variant="primary"
+                      disabled={!enableButtons}
+                      className={secondaryButtonText ? "flex-1 mr-[6px]" : "flex-[2] mr-0"}
+                      onClick={() => handlePrimaryButtonClick(inputValue, selectedImages)}>
+                      {primaryButtonText}
+                    </Button>
                   )}
                   {secondaryButtonText && secondaryButtonText !== "New task" && (
                     <Button
