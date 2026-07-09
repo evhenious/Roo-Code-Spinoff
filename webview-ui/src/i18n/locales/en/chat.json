@@ -390,14 +390,6 @@
       "button": "Reset and Continue"
     }
   },
-  "indexingStatus": {
-    "ready": "Index ready",
-    "indexing": "Indexing {{percentage}}%",
-    "indexed": "Indexed",
-    "error": "Index error",
-    "status": "Index status",
-    "stopping": "Stopping indexing..."
-  },
   "versionIndicator": {
     "ariaLabel": "Version {{version}}"
   },

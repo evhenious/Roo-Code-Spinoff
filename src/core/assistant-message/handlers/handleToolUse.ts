@@ -7,7 +7,6 @@ import { applyPatchTool } from "../../tools/ApplyPatchTool"
 import { askFollowupQuestionTool } from "../../tools/AskFollowupQuestionTool"
 import { astGrepTool } from "../../tools/AstGrepTool"
 import { AttemptCompletionCallbacks, attemptCompletionTool } from "../../tools/AttemptCompletionTool"
-import { codebaseSearchTool } from "../../tools/CodebaseSearchTool"
 import { editFileTool } from "../../tools/EditFileTool"
 import { editTool } from "../../tools/EditTool"
 import { executeCommandTool } from "../../tools/ExecuteCommandTool"
@@ -110,9 +109,6 @@ const toolMap = {
   list_files: {
     tool: listFilesTool,
   },
-  codebase_search: {
-    tool: codebaseSearchTool,
-  },
   ast_grep: {
     tool: astGrepTool,
   },
@@ -194,8 +190,6 @@ const toolDescription = (block: any, customModes: ModeConfig[] | undefined): str
       return `[${block.name}]`
     case "switch_mode":
       return `[${block.name} to '${block.params.mode_slug}'${block.params.reason ? ` because: ${block.params.reason}` : ""}]`
-    case "codebase_search":
-      return `[${block.name} for '${block.params.query}']`
     case "ast_grep":
       return `[${block.name} for '${block.params.query}'${block.params.lang ? ` in '${block.params.lang}'` : ""}]`
     case "read_command_output":

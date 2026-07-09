@@ -491,15 +491,6 @@ export class NativeToolCallParser {
         }
         break
 
-      case "codebase_search":
-        if (partialArgs.query !== undefined) {
-          nativeArgs = {
-            query: partialArgs.query,
-            path: partialArgs.path,
-          }
-        }
-        break
-
       case "ast_grep":
         if (partialArgs.query !== undefined) {
           nativeArgs = {
@@ -833,15 +824,6 @@ export class NativeToolCallParser {
             nativeArgs = {
               question: args.question,
               follow_up: args.follow_up,
-            } as NativeArgsFor<TName>
-          }
-          break
-
-        case "codebase_search":
-          if (args.query !== undefined) {
-            nativeArgs = {
-              query: args.query,
-              path: args.path,
             } as NativeArgsFor<TName>
           }
           break

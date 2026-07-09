@@ -109,7 +109,6 @@ export type NativeToolArgs = {
     question: string
     follow_up: Array<{ text: string; mode?: string }>
   }
-  codebase_search: { query: string; path?: string }
   generate_image: GenerateImageParams
   run_slash_command: { command: string; args?: string }
   skill: { skill: string; args?: string }
@@ -201,11 +200,6 @@ export interface WriteToFileToolUse extends ToolUse<"write_to_file"> {
   params: Partial<Pick<Record<ToolParamName, string>, "path" | "content">>
 }
 
-export interface CodebaseSearchToolUse extends ToolUse<"codebase_search"> {
-  name: "codebase_search"
-  params: Partial<Pick<Record<ToolParamName, string>, "query" | "path">>
-}
-
 export interface SearchFilesToolUse extends ToolUse<"search_files"> {
   name: "search_files"
   params: Partial<Pick<Record<ToolParamName, string>, "path" | "regex" | "file_pattern">>
@@ -271,7 +265,7 @@ type ToolGroupConfig = {
 // Define available tool groups.
 export const TOOL_GROUPS: Record<ToolGroup, ToolGroupConfig> = {
   read: {
-    tools: ["read_file", "search_files", "list_files", "codebase_search", "ast_grep"],
+    tools: ["read_file", "search_files", "list_files", "ast_grep"],
   },
   edit: {
     tools: ["apply_diff", "write_to_file", "generate_image"],

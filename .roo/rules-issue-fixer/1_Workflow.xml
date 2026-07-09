@@ -69,7 +69,7 @@
   <step number="3">
     <name>Explore Codebase and Related Files</name>
     <instructions>
-      Use codebase_search FIRST to understand the codebase structure and find ALL related files:
+      Search codebase FIRST to understand the codebase structure and find ALL related files:
       
       For Bug Fixes:
       - Search for the broken functionality

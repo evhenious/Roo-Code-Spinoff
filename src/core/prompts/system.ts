@@ -61,9 +61,6 @@ async function generatePrompt(
   const shouldIncludeMcp = hasMcpGroup && !!hasMcpServers
   const hasCommandGroup = modeConfig.groups.some((groupEntry) => getGroupName(groupEntry) === "command")
 
-  // TODO cleanup ?
-  // const codeIndexManager = CodeIndexManager.getInstance(context, cwd)
-
   const [modesSection, skillsSection] = await Promise.all([
     getModesSection(context, mode),
     getSkillsSection(skillsManager, mode as string),

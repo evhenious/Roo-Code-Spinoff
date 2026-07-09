@@ -3,7 +3,6 @@ import type { ModeConfig, ToolName, ToolGroup, ModelInfo } from "@roo-code/types
 import { getModeBySlug, getToolsForMode } from "../../../shared/modes"
 import { TOOL_GROUPS, ALWAYS_AVAILABLE_TOOLS, TOOL_ALIASES } from "../../../shared/tools"
 import { defaultModeSlug } from "../../../shared/modes"
-import type { CodeIndexManager } from "../../../services/code-index/manager"
 import type { McpHub } from "../../../services/mcp/McpHub"
 import { isToolAllowedForMode } from "../../../core/tools/validateToolUse"
 
@@ -217,7 +216,6 @@ export function applyModelToolCustomization(
  * @param mode - Current mode slug
  * @param customModes - Custom mode configurations
  * @param experiments - Experiment flags
- * @param codeIndexManager - Code index manager for codebase_search feature check
  * @param settings - Additional settings for tool filtering (includes modelInfo for model-specific customization)
  * @param mcpHub - MCP hub for checking available resources
  * @returns Filtered array of tools allowed for the mode
@@ -227,7 +225,6 @@ export function filterNativeToolsForMode(
   mode: string | undefined,
   customModes: ModeConfig[] | undefined,
   experiments: Record<string, boolean> | undefined,
-  codeIndexManager?: CodeIndexManager,
   settings?: Record<string, any>,
   mcpHub?: McpHub,
 ): OpenAI.Chat.ChatCompletionTool[] {
@@ -260,14 +257,6 @@ export function filterNativeToolsForMode(
     modelInfo,
   )
   allowedToolNames = customizedTools
-
-  // Conditionally exclude codebase_search if feature is disabled or not configured
-  if (
-    !codeIndexManager ||
-    !(codeIndexManager.isFeatureEnabled && codeIndexManager.isFeatureConfigured && codeIndexManager.isInitialized)
-  ) {
-    allowedToolNames.delete("codebase_search")
-  }
 
   // Conditionally exclude update_todo_list if disabled in settings
   if (settings?.todoListEnabled === false) {
@@ -371,7 +360,6 @@ function hasAnyMcpResources(mcpHub: McpHub): boolean {
  * @param mode - Current mode slug
  * @param customModes - Custom mode configurations
  * @param experiments - Experiment flags
- * @param codeIndexManager - Code index manager for codebase_search feature check
  * @param settings - Additional settings for tool filtering
  * @returns true if the tool is allowed in the mode, false otherwise
  */
@@ -380,7 +368,6 @@ export function isToolAllowedInMode(
   mode: string | undefined,
   customModes: ModeConfig[] | undefined,
   experiments: Record<string, boolean> | undefined,
-  codeIndexManager?: CodeIndexManager,
   settings?: Record<string, any>,
 ): boolean {
   const modeSlug = mode ?? defaultModeSlug
@@ -406,15 +393,6 @@ export function isToolAllowedInMode(
   // Check if it's an always-available tool
   if (ALWAYS_AVAILABLE_TOOLS.includes(toolName)) {
     // But still check for conditional exclusions
-    if (toolName === "codebase_search") {
-      return !!(
-        codeIndexManager &&
-        codeIndexManager.isFeatureEnabled &&
-        codeIndexManager.isFeatureConfigured &&
-        codeIndexManager.isInitialized
-      )
-    }
-
     if (toolName === "update_todo_list") {
       return settings?.todoListEnabled !== false
     }
@@ -451,7 +429,6 @@ export function isToolAllowedInMode(
  * @param mode - Current mode slug
  * @param customModes - Custom mode configurations
  * @param experiments - Experiment flags
- * @param codeIndexManager - Code index manager for codebase_search feature check
  * @param settings - Additional settings for tool filtering
  * @returns Array of tool names that are available from the group
  */
@@ -460,7 +437,6 @@ export function getAvailableToolsInGroup(
   mode: string | undefined,
   customModes: ModeConfig[] | undefined,
   experiments: Record<string, boolean> | undefined,
-  codeIndexManager?: CodeIndexManager,
   settings?: Record<string, any>,
 ): ToolName[] {
   const toolGroup = TOOL_GROUPS[groupName]
@@ -469,7 +445,7 @@ export function getAvailableToolsInGroup(
   }
 
   return toolGroup.tools.filter((tool) =>
-    isToolAllowedInMode(tool as ToolName, mode, customModes, experiments, codeIndexManager, settings),
+    isToolAllowedInMode(tool as ToolName, mode, customModes, experiments, settings),
   ) as ToolName[]
 }
 

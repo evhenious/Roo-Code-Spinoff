@@ -47,7 +47,6 @@ import { CommandExecution } from "./CommandExecution"
 import { CommandExecutionError } from "./CommandExecutionError"
 import { AutoApprovedRequestLimitWarning } from "./AutoApprovedRequestLimitWarning"
 import { InProgressRow, CondensationResultRow, CondensationErrorRow, TruncationResultRow } from "./context-management"
-import CodebaseSearchResultsDisplay from "./CodebaseSearchResultsDisplay"
 import { appendImages } from "@src/utils/imageUtils"
 import { McpExecution } from "./McpExecution"
 import { ChatTextArea } from "./ChatTextArea"
@@ -1339,36 +1338,6 @@ export const ChatRowContent = ({
             return <TruncationResultRow data={message.contextTruncation} />
           }
           return null
-        case "codebase_search_result":
-          let parsed: {
-            content: {
-              query: string
-              results: Array<{
-                filePath: string
-                score: number
-                startLine: number
-                endLine: number
-                codeChunk: string
-              }>
-            }
-          } | null = null
-
-          try {
-            if (message.text) {
-              parsed = JSON.parse(message.text)
-            }
-          } catch (error) {
-            console.error("Failed to parse codebaseSearch content:", error)
-          }
-
-          if (parsed && !parsed?.content) {
-            console.error("Invalid codebaseSearch content structure:", parsed.content)
-            return <div>Error displaying search results.</div>
-          }
-
-          const { results = [] } = parsed?.content || {}
-
-          return <CodebaseSearchResultsDisplay results={results} />
         case "user_edit_todos":
           return <UpdateTodoListToolBlock userEdited onChange={() => {}} />
         case "tool" as any:

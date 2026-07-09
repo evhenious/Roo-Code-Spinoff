@@ -1,7 +1,6 @@
 import { z } from "zod"
 
 import { modelInfoSchema, reasoningEffortSettingSchema, verbosityLevelsSchema, serviceTierSchema } from "./model.js"
-import { codebaseIndexProviderSchema } from "./codebase-index.js"
 import {
   anthropicModels,
   basetenModels,
@@ -379,7 +378,6 @@ export const providerSettingsSchema = z.object({
   ...litellmSchema.shape,
   ...qwenCodeSchema.shape,
   ...vercelAiGatewaySchema.shape,
-  ...codebaseIndexProviderSchema.shape,
 })
 
 export type ProviderSettings = z.infer<typeof providerSettingsSchema>

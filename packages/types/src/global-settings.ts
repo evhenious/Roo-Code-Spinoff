@@ -8,7 +8,6 @@ import {
   providerSettingsSchema,
 } from "./provider-settings.js"
 import { historyItemSchema } from "./history.js"
-import { codebaseIndexModelsSchema, codebaseIndexConfigSchema } from "./codebase-index.js"
 import { experimentsSchema } from "./experiment.js"
 import { modeConfigSchema } from "./mode.js"
 import { customModePromptsSchema, customSupportPromptsSchema } from "./mode.js"
@@ -178,9 +177,6 @@ export const globalSettingsSchema = z.object({
     runSlashCommand: false,
   }),
 
-  codebaseIndexModels: codebaseIndexModelsSchema.optional(),
-  codebaseIndexConfig: codebaseIndexConfigSchema.optional(),
-
   language: languagesSchema,
 
   mcpEnabled: z.boolean().default(true),
@@ -259,13 +255,6 @@ export const SECRET_STATE_KEYS = [
   "minimaxApiKey",
   "requestyApiKey",
   "litellmApiKey",
-  "codeIndexOpenAiKey",
-  "codeIndexQdrantApiKey",
-  "codebaseIndexOpenAiCompatibleApiKey",
-  "codebaseIndexGeminiApiKey",
-  "codebaseIndexMistralApiKey",
-  "codebaseIndexVercelAiGatewayApiKey",
-  "codebaseIndexOpenRouterApiKey",
   "vercelAiGatewayApiKey",
   "basetenApiKey",
 ] as const
