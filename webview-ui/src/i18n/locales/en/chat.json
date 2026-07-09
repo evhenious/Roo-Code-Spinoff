@@ -130,12 +130,12 @@
   "onboarding": "What would you like to do?",
   "rooTips": {
     "customizableModes": {
-      "title": "Customizable modes that don't swerve",
-      "description": "Specialized personas that stay on-task and deliver."
+      "title": "Customizable modes",
+      "description": "specialized personas that stay on-task and deliver."
     },
     "modelAgnostic": {
-      "title": "Bring your own model, no markup or lock-in",
-      "description": "Use your own provider key or even run local inference — Roo doesn't charge for it"
+      "title": "Use your own model on your terms",
+      "description": "your own provider key or local inference"
     }
   },
   "selectMode": "Select mode for interaction",
