@@ -29,7 +29,7 @@ export async function getCheckpointService(task: Task, { interval = 250 }: { int
     return undefined
   }
 
-  if (task.checkpointService) {
+  if (task.checkpointService && task.checkpointService.isInitialized) {
     return task.checkpointService
   }
 
