@@ -9,15 +9,13 @@ When to Use:
 
 Do not use when:
 - You need simple text or regex search — use search_files instead
-- Searching for a literal string that doesn't appear in the code (AST requires valid syntax)
+- Searching for a literal string that doesn't appear in the code (AST requires valid syntax)`
 
-CRITICAL: Refer to the 'ast-grep' skill for full query syntax rules, meta-variable rules, and usage examples.`
+const QUERY_PARAMETER_DESCRIPTION = `Inline YAML rule definition as a single string (required fields: id, language, rule.pattern).`
 
-const QUERY_PARAMETER_DESCRIPTION = `Inline YAML rule definition (required fields: id, language, rule.pattern). See ast-grep skill for syntax.`
+const PATH_PARAMETER_DESCRIPTION = `Search directory (workspace root is default)`
 
-const PATH_PARAMETER_DESCRIPTION = `Optional directory (relative to workspace) to limit the search scope`
-
-const FILE_PATTERN_PARAMETER_DESCRIPTION = `Optional glob pattern to filter files (e.g., "*.{ts,tsx}")`
+const FILE_PATTERN_PARAMETER_DESCRIPTION = `Glob pattern to filter files (e.g., "*.{ts,tsx}")`
 
 export default {
   type: "function",
