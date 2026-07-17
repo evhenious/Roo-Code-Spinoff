@@ -13,7 +13,6 @@ import {
   openAiNativeModels,
   qwenCodeModels,
   vertexModels,
-  vscodeLlmModels,
   minimaxModels,
 } from "./providers/index.js"
 
@@ -49,20 +48,6 @@ export type LocalProvider = (typeof localProviders)[number]
 export const isLocalProvider = (key: string): key is LocalProvider => localProviders.includes(key as LocalProvider)
 
 /**
- * InternalProvider
- *
- * Internal providers require internal VSCode API calls in order to get the
- * model list.
- */
-
-export const internalProviders = ["vscode-lm"] as const
-
-export type InternalProvider = (typeof internalProviders)[number]
-
-export const isInternalProvider = (key: string): key is InternalProvider =>
-  internalProviders.includes(key as InternalProvider)
-
-/**
  * CustomProvider
  *
  * Custom providers are completely configurable within Roo Code settings.
@@ -94,7 +79,6 @@ export const isFauxProvider = (key: string): key is FauxProvider => fauxProvider
 export const providerNames = [
   ...dynamicProviders,
   ...localProviders,
-  ...internalProviders,
   ...customProviders,
   ...fauxProviders,
   "anthropic",
@@ -222,17 +206,6 @@ const ollamaSchema = baseProviderSettingsSchema.extend({
   ollamaNumCtx: z.number().int().min(128).optional(),
 })
 
-const vsCodeLmSchema = baseProviderSettingsSchema.extend({
-  vsCodeLmModelSelector: z
-    .object({
-      vendor: z.string().optional(),
-      family: z.string().optional(),
-      version: z.string().optional(),
-      id: z.string().optional(),
-    })
-    .optional(),
-})
-
 const lmStudioSchema = baseProviderSettingsSchema.extend({
   lmStudioModelId: z.string().optional(),
   lmStudioBaseUrl: z.string().optional(),
@@ -333,7 +306,6 @@ export const providerSettingsSchemaDiscriminated = z.discriminatedUnion("apiProv
   openAiSchema.merge(z.object({ apiProvider: z.literal("openai") })),
   openAiSchema.merge(z.object({ apiProvider: z.literal("openai-compatible") })),
   ollamaSchema.merge(z.object({ apiProvider: z.literal("ollama") })),
-  vsCodeLmSchema.merge(z.object({ apiProvider: z.literal("vscode-lm") })),
   lmStudioSchema.merge(z.object({ apiProvider: z.literal("lmstudio") })),
   geminiSchema.merge(z.object({ apiProvider: z.literal("gemini") })),
   geminiCliSchema.merge(z.object({ apiProvider: z.literal("gemini-cli") })),
@@ -361,7 +333,6 @@ export const providerSettingsSchema = z.object({
   ...vertexSchema.shape,
   ...openAiSchema.shape,
   ...ollamaSchema.shape,
-  ...vsCodeLmSchema.shape,
   ...lmStudioSchema.shape,
   ...geminiSchema.shape,
   ...geminiCliSchema.shape,
@@ -419,10 +390,10 @@ export const getModelId = (settings: ProviderSettings): string | undefined => {
  * TypicalProvider
  */
 
-export type TypicalProvider = Exclude<ProviderName, InternalProvider | CustomProvider | FauxProvider>
+export type TypicalProvider = Exclude<ProviderName, CustomProvider | FauxProvider>
 
 export const isTypicalProvider = (key: unknown): key is TypicalProvider =>
-  isProviderName(key) && !isInternalProvider(key) && !isCustomProvider(key) && !isFauxProvider(key)
+  isProviderName(key) && !isCustomProvider(key) && !isFauxProvider(key)
 
 export const modelIdKeysByProvider: Record<TypicalProvider, ModelIdKey> = {
   anthropic: "apiModelId",
@@ -536,11 +507,6 @@ export const MODELS_BY_PROVIDER: Record<
     id: "vertex",
     label: "GCP Vertex AI",
     models: Object.keys(vertexModels),
-  },
-  "vscode-lm": {
-    id: "vscode-lm",
-    label: "VS Code LM API",
-    models: Object.keys(vscodeLlmModels),
   },
   baseten: { id: "baseten", label: "Baseten", models: Object.keys(basetenModels) },
 

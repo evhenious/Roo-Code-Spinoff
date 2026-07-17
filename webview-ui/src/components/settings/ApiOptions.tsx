@@ -76,7 +76,6 @@ import {
   QwenCode,
   Requesty,
   Vertex,
-  VSCodeLM,
   VercelAiGateway,
   MiniMax,
 } from "./providers"
@@ -214,8 +213,6 @@ const ApiOptions = ({
         vscode.postMessage({ type: "requestOllamaModels" })
       } else if (selectedProvider === "lmstudio") {
         vscode.postMessage({ type: "requestLmStudioModels" })
-      } else if (selectedProvider === "vscode-lm") {
-        vscode.postMessage({ type: "requestVsCodeLmModels" })
       } else if (selectedProvider === "litellm" || selectedProvider === "poe") {
         vscode.postMessage({ type: "requestRouterModels" })
       }
@@ -560,10 +557,6 @@ const ApiOptions = ({
 
           {selectedProvider === "minimax" && (
             <MiniMax apiConfiguration={apiConfiguration} setApiConfigurationField={setApiConfigurationField} />
-          )}
-
-          {selectedProvider === "vscode-lm" && (
-            <VSCodeLM apiConfiguration={apiConfiguration} setApiConfigurationField={setApiConfigurationField} />
           )}
 
           {selectedProvider === "ollama" && (

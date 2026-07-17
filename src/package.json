@@ -308,20 +308,6 @@
           "default": false,
           "description": "%commands.preventCompletionWithOpenTodos.description%"
         },
-        "roo-distilled.vsCodeLmModelSelector": {
-          "type": "object",
-          "properties": {
-            "vendor": {
-              "type": "string",
-              "description": "%settings.vsCodeLmModelSelector.vendor.description%"
-            },
-            "family": {
-              "type": "string",
-              "description": "%settings.vsCodeLmModelSelector.family.description%"
-            }
-          },
-          "description": "%settings.vsCodeLmModelSelector.description%"
-        },
         "roo-distilled.customStoragePath": {
           "type": "string",
           "default": "",

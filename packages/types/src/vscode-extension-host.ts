@@ -37,8 +37,6 @@ export interface ExtensionMessage {
     | "openAiModels"
     | "ollamaModels"
     | "lmStudioModels"
-    | "vsCodeLmModels"
-    | "vsCodeLmApiAvailable"
     | "updatePrompt"
     | "systemPrompt"
     | "autoApprovalEnabled"
@@ -116,7 +114,6 @@ export interface ExtensionMessage {
   openAiModels?: string[]
   ollamaModels?: ModelRecord
   lmStudioModels?: ModelRecord
-  vsCodeLmModels?: { vendor?: string; family?: string; version?: string; id?: string }[]
   mcpServers?: McpServer[]
   commits?: GitCommit[]
   listApiConfig?: ProviderSettingsEntry[]
@@ -325,7 +322,6 @@ export interface WebviewMessage {
     | "requestOpenAiModels"
     | "requestOllamaModels"
     | "requestLmStudioModels"
-    | "requestVsCodeLmModels"
     | "openImage"
     | "saveImage"
     | "openFile"

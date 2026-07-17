@@ -245,7 +245,6 @@
     "noProviderMatchFound": "No providers found",
     "noMatchFound": "No matching profiles found",
     "retiredProviderMessage": "Sorry, this provider is no longer supported. We saw very few Roo users actually using it and we need to reduce the surface area of our codebase so we can keep shipping fast and serving our community well in this space. It was a really hard decision but it lets us focus on what matters most to you. It sucks, we know.",
-    "vscodeLmDescription": " The VS Code Language Model API allows you to run models provided by other VS Code extensions (including but not limited to GitHub Copilot). The easiest way to get started is to install the Copilot and Copilot Chat extensions from the VS Code Marketplace.",
     "awsCustomArnUse": "Enter a valid Amazon Bedrock ARN for the model you want to use. Format examples:",
     "awsCustomArnDesc": "Make sure the region in the ARN matches your selected AWS Region above.",
     "openRouterApiKey": "OpenRouter API Key",
@@ -362,8 +361,6 @@
     "enablePromptCaching": "Enable prompt caching",
     "enablePromptCachingTitle": "Enable prompt caching to improve performance and reduce costs for supported models.",
     "cacheUsageNote": "Note: If you don't see cache usage, try selecting a different model and then selecting your desired model again.",
-    "vscodeLmModel": "Language Model",
-    "vscodeLmWarning": "Note: Models accessed via the VS Code Language Model API may be wrapped or fine-tuned by the provider, so behavior can differ from using the same model directly from a typical provider or router. To use a model from the Language Model dropdown, first switch to that model and then click Accept in the Copilot Chat prompt; otherwise you may see an error such as 400 \"The requested model is not supported\".",
     "googleCloudSetup": {
       "title": "To use Google Cloud Vertex AI, you need to:",
       "step1": "1. Create a Google Cloud account, enable the Vertex AI API & enable the desired Claude models.",

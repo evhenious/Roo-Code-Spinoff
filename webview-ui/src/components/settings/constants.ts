@@ -42,7 +42,6 @@ export const PROVIDERS = [
   { value: "qwen-code", label: "Qwen Code", proxy: false },
   { value: "vertex", label: "GCP Vertex AI", proxy: false },
   { value: "bedrock", label: "Amazon Bedrock", proxy: false },
-  { value: "vscode-lm", label: "VS Code LM API", proxy: false },
   { value: "mistral", label: "Mistral", proxy: false },
   { value: "lmstudio", label: "LM Studio", proxy: true },
   { value: "ollama", label: "Ollama", proxy: true },

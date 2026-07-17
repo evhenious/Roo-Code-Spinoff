@@ -52,7 +52,6 @@ import { playTts, setTtsEnabled, setTtsSpeed, stopTts } from "../../utils/tts"
 import { searchCommits } from "../../utils/git"
 import { exportSettings, importSettingsWithFeedback } from "../config/importExport"
 import { getOpenAiModels } from "../../api/providers/openai"
-import { getVsCodeLmModels } from "../../api/providers/vscode-lm"
 import { openMention } from "../mentions"
 import { resolveImageMentions } from "../mentions/resolveImageMentions"
 import { RooIgnoreController } from "../ignore/RooIgnoreController"
@@ -1052,11 +1051,6 @@ export const webviewMessageHandler = async (provider: ClineProvider, message: We
         provider.postMessageToWebview({ type: "openAiModels", openAiModels })
       }
 
-      break
-    case "requestVsCodeLmModels":
-      const vsCodeLmModels = await getVsCodeLmModels()
-      // TODO: Cache like we do for OpenRouter, etc?
-      provider.postMessageToWebview({ type: "vsCodeLmModels", vsCodeLmModels })
       break
     case "openImage":
       openImage(message.text!, { values: message.values })

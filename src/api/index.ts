@@ -20,7 +20,6 @@ import {
   DeepSeekHandler,
   MoonshotHandler,
   MistralHandler,
-  VsCodeLmHandler,
   RequestyHandler,
   FakeAIHandler,
   LiteLLMHandler,
@@ -133,8 +132,6 @@ export function buildApiHandler(configuration: ProviderSettings): ApiHandler {
       return new QwenCodeHandler(options)
     case "moonshot":
       return new MoonshotHandler(options)
-    case "vscode-lm":
-      return new VsCodeLmHandler(options)
     case "mistral":
       return new MistralHandler(options)
     case "requesty":

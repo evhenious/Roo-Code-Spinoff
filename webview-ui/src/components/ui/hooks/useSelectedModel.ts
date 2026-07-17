@@ -14,8 +14,6 @@ import {
   openAiModelInfoSaneDefaults,
   openAiNativeModels,
   vertexModels,
-  vscodeLlmModels,
-  vscodeLlmDefaultModelId,
   openAiCodexModels,
   basetenModels,
   qwenCodeModels,
@@ -268,14 +266,6 @@ function getSelectedModel({
         id,
         info: modelInfo ? { ...lMStudioDefaultModelInfo, ...modelInfo } : undefined,
       }
-    }
-    case "vscode-lm": {
-      const id = apiConfiguration?.vsCodeLmModelSelector
-        ? `${apiConfiguration.vsCodeLmModelSelector.vendor}/${apiConfiguration.vsCodeLmModelSelector.family}`
-        : vscodeLlmDefaultModelId
-      const modelFamily = apiConfiguration?.vsCodeLmModelSelector?.family ?? vscodeLlmDefaultModelId
-      const info = vscodeLlmModels[modelFamily as keyof typeof vscodeLlmModels]
-      return { id, info: { ...openAiModelInfoSaneDefaults, ...info, supportsImages: false } } // VSCode LM API currently doesn't support images.
     }
     case "poe": {
       const id = apiConfiguration.apiModelId ?? defaultModelId

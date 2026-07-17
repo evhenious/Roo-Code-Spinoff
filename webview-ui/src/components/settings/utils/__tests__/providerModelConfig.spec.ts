@@ -38,13 +38,6 @@ describe("providerModelConfig", () => {
         serviceUrl: "https://lmstudio.ai/docs",
       })
     })
-
-    it("contains service config for vscode-lm", () => {
-      expect(PROVIDER_SERVICE_CONFIG["vscode-lm"]).toEqual({
-        serviceName: "VS Code LM",
-        serviceUrl: "https://code.visualstudio.com/api/extension-guides/language-model",
-      })
-    })
   })
 
   describe("getProviderServiceConfig", () => {
@@ -122,7 +115,6 @@ describe("providerModelConfig", () => {
       expect(PROVIDERS_WITH_CUSTOM_MODEL_UI).toContain("openrouter")
       expect(PROVIDERS_WITH_CUSTOM_MODEL_UI).toContain("ollama")
       expect(PROVIDERS_WITH_CUSTOM_MODEL_UI).toContain("lmstudio")
-      expect(PROVIDERS_WITH_CUSTOM_MODEL_UI).toContain("vscode-lm")
     })
 
     it("does not include static providers using generic picker", () => {
@@ -144,7 +136,6 @@ describe("providerModelConfig", () => {
       expect(shouldUseGenericModelPicker("openrouter")).toBe(false)
       expect(shouldUseGenericModelPicker("ollama")).toBe(false)
       expect(shouldUseGenericModelPicker("lmstudio")).toBe(false)
-      expect(shouldUseGenericModelPicker("vscode-lm")).toBe(false)
     })
 
     it("returns false for providers without static models", () => {

@@ -16,7 +16,6 @@ export * from "./poe.js"
 export * from "./qwen-code.js"
 export * from "./requesty.js"
 export * from "./vertex.js"
-export * from "./vscode-llm.js"
 export * from "./vercel-ai-gateway.js"
 export * from "./minimax.js"
 
@@ -34,7 +33,6 @@ import { poeDefaultModelId } from "./poe.js"
 import { qwenCodeDefaultModelId } from "./qwen-code.js"
 import { requestyDefaultModelId } from "./requesty.js"
 import { vertexDefaultModelId } from "./vertex.js"
-import { vscodeLlmDefaultModelId } from "./vscode-llm.js"
 import { vercelAiGatewayDefaultModelId } from "./vercel-ai-gateway.js"
 import { minimaxDefaultModelId } from "./minimax.js"
 
@@ -80,8 +78,6 @@ export function getProviderDefaultModelId(provider: ProviderName): string {
       return "" // Ollama uses dynamic model selection
     case "lmstudio":
       return "" // LMStudio uses dynamic model selection
-    case "vscode-lm":
-      return vscodeLlmDefaultModelId
     case "qwen-code":
       return qwenCodeDefaultModelId
     case "poe":
