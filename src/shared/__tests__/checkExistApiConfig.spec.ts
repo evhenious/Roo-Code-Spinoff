@@ -71,11 +71,4 @@ describe("checkExistKey", () => {
     }
     expect(checkExistKey(config)).toBe(true)
   })
-
-  it("should return true for qwen-code provider without API key", () => {
-    const config: ProviderSettings = {
-      apiProvider: "qwen-code",
-    }
-    expect(checkExistKey(config)).toBe(true)
-  })
 })

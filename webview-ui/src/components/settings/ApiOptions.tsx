@@ -15,7 +15,6 @@ import {
   openAiNativeDefaultModelId,
   openAiCodexDefaultModelId,
   anthropicDefaultModelId,
-  qwenCodeDefaultModelId,
   geminiDefaultModelId,
   deepSeekDefaultModelId,
   moonshotDefaultModelId,
@@ -73,7 +72,6 @@ import {
   OpenAICodex,
   OpenRouter,
   Poe,
-  QwenCode,
   Requesty,
   Vertex,
   VercelAiGateway,
@@ -302,7 +300,6 @@ const ApiOptions = ({
         litellm: { field: "litellmModelId", default: litellmDefaultModelId },
         anthropic: { field: "apiModelId", default: anthropicDefaultModelId },
         "openai-codex": { field: "apiModelId", default: openAiCodexDefaultModelId },
-        "qwen-code": { field: "apiModelId", default: qwenCodeDefaultModelId },
         "openai-native": { field: "apiModelId", default: openAiNativeDefaultModelId },
         gemini: { field: "apiModelId", default: geminiDefaultModelId },
         deepseek: { field: "apiModelId", default: deepSeekDefaultModelId },
@@ -533,14 +530,6 @@ const ApiOptions = ({
 
           {selectedProvider === "deepseek" && (
             <DeepSeek
-              apiConfiguration={apiConfiguration}
-              setApiConfigurationField={setApiConfigurationField}
-              simplifySettings={fromWelcomeView}
-            />
-          )}
-
-          {selectedProvider === "qwen-code" && (
-            <QwenCode
               apiConfiguration={apiConfiguration}
               setApiConfigurationField={setApiConfigurationField}
               simplifySettings={fromWelcomeView}

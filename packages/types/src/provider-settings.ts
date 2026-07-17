@@ -11,7 +11,6 @@ import {
   moonshotModels,
   openAiCodexModels,
   openAiNativeModels,
-  qwenCodeModels,
   vertexModels,
   minimaxModels,
 } from "./providers/index.js"
@@ -93,7 +92,6 @@ export const providerNames = [
   "openai-compatible",
   "openai-codex",
   "openai-native",
-  "qwen-code",
   "vertex",
 ] as const
 
@@ -281,10 +279,6 @@ const litellmSchema = baseProviderSettingsSchema.extend({
   litellmUsePromptCache: z.boolean().optional(),
 })
 
-const qwenCodeSchema = apiModelIdProviderModelSchema.extend({
-  qwenCodeOauthPath: z.string().optional(),
-})
-
 const vercelAiGatewaySchema = baseProviderSettingsSchema.extend({
   vercelAiGatewayApiKey: z.string().optional(),
   vercelAiGatewayModelId: z.string().optional(),
@@ -320,7 +314,6 @@ export const providerSettingsSchemaDiscriminated = z.discriminatedUnion("apiProv
   fakeAiSchema.merge(z.object({ apiProvider: z.literal("fake-ai") })),
   basetenSchema.merge(z.object({ apiProvider: z.literal("baseten") })),
   litellmSchema.merge(z.object({ apiProvider: z.literal("litellm") })),
-  qwenCodeSchema.merge(z.object({ apiProvider: z.literal("qwen-code") })),
   vercelAiGatewaySchema.merge(z.object({ apiProvider: z.literal("vercel-ai-gateway") })),
   defaultSchema,
 ])
@@ -347,7 +340,6 @@ export const providerSettingsSchema = z.object({
   ...fakeAiSchema.shape,
   ...basetenSchema.shape,
   ...litellmSchema.shape,
-  ...qwenCodeSchema.shape,
   ...vercelAiGatewaySchema.shape,
 })
 
@@ -412,7 +404,6 @@ export const modelIdKeysByProvider: Record<TypicalProvider, ModelIdKey> = {
   minimax: "apiModelId",
   deepseek: "apiModelId",
   poe: "apiModelId",
-  "qwen-code": "apiModelId",
   requesty: "requestyModelId",
   baseten: "apiModelId",
   litellm: "litellmModelId",
@@ -502,7 +493,6 @@ export const MODELS_BY_PROVIDER: Record<
     label: "OpenAI",
     models: Object.keys(openAiNativeModels),
   },
-  "qwen-code": { id: "qwen-code", label: "Qwen Code", models: Object.keys(qwenCodeModels) },
   vertex: {
     id: "vertex",
     label: "GCP Vertex AI",

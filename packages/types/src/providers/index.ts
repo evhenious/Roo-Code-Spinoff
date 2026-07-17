@@ -13,7 +13,6 @@ export * from "./openai-codex.js"
 export * from "./openai-codex-rate-limits.js"
 export * from "./openrouter.js"
 export * from "./poe.js"
-export * from "./qwen-code.js"
 export * from "./requesty.js"
 export * from "./vertex.js"
 export * from "./vercel-ai-gateway.js"
@@ -30,7 +29,6 @@ import { moonshotDefaultModelId } from "./moonshot.js"
 import { openAiCodexDefaultModelId } from "./openai-codex.js"
 import { openRouterDefaultModelId } from "./openrouter.js"
 import { poeDefaultModelId } from "./poe.js"
-import { qwenCodeDefaultModelId } from "./qwen-code.js"
 import { requestyDefaultModelId } from "./requesty.js"
 import { vertexDefaultModelId } from "./vertex.js"
 import { vercelAiGatewayDefaultModelId } from "./vercel-ai-gateway.js"
@@ -78,8 +76,6 @@ export function getProviderDefaultModelId(provider: ProviderName): string {
       return "" // Ollama uses dynamic model selection
     case "lmstudio":
       return "" // LMStudio uses dynamic model selection
-    case "qwen-code":
-      return qwenCodeDefaultModelId
     case "poe":
       return poeDefaultModelId
     case "vercel-ai-gateway":
