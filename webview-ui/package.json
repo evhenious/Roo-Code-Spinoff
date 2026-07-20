@@ -79,7 +79,7 @@
     "unist-util-visit": "^5.0.0",
     "use-sound": "^5.0.0",
     "vscode-material-icons": "^0.1.1",
-    "vscrui": "^0.2.2",
+    "vscrui": "^1.0.0",
     "zod": "^3.25.61",
     "zustand": "^5.0.0"
   },
