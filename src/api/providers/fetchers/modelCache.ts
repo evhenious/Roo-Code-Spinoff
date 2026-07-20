@@ -34,17 +34,17 @@ const modelRecordSchema = z.record(z.string(), modelInfoSchema)
 const inFlightRefresh = new Map<RouterName, Promise<ModelRecord>>()
 
 async function writeModels(router: RouterName, data: ModelRecord) {
-	const filename = `${router}_models.json`
-	const cacheDir = await getCacheDirectoryPath(ContextProxy.instance.globalStorageUri.fsPath)
-	await safeWriteJson(path.join(cacheDir, filename), data)
+  const filename = `${router}_models.json`
+  const cacheDir = await getCacheDirectoryPath(ContextProxy.instance.globalStorageUri.fsPath)
+  await safeWriteJson(path.join(cacheDir, filename), data)
 }
 
 async function readModels(router: RouterName): Promise<ModelRecord | undefined> {
-	const filename = `${router}_models.json`
-	const cacheDir = await getCacheDirectoryPath(ContextProxy.instance.globalStorageUri.fsPath)
-	const filePath = path.join(cacheDir, filename)
-	const exists = await fileExistsAtPath(filePath)
-	return exists ? JSON.parse(await fs.readFile(filePath, "utf8")) : undefined
+  const filename = `${router}_models.json`
+  const cacheDir = await getCacheDirectoryPath(ContextProxy.instance.globalStorageUri.fsPath)
+  const filePath = path.join(cacheDir, filename)
+  const exists = await fileExistsAtPath(filePath)
+  return exists ? JSON.parse(await fs.readFile(filePath, "utf8")) : undefined
 }
 
 /**
@@ -55,42 +55,42 @@ async function readModels(router: RouterName): Promise<ModelRecord | undefined> 
  * @returns Fresh models from the provider API
  */
 async function fetchModelsFromProvider(options: GetModelsOptions): Promise<ModelRecord> {
-	const { provider } = options
+  const { provider } = options
 
-	let models: ModelRecord
+  let models: ModelRecord
 
-	switch (provider) {
-		case "openrouter":
-			models = await getOpenRouterModels()
-			break
-		case "requesty":
-			// Requesty models endpoint requires an API key for per-user custom policies.
-			models = await getRequestyModels(options.baseUrl, options.apiKey)
-			break
-		case "litellm":
-			// Type safety ensures apiKey and baseUrl are always provided for LiteLLM.
-			models = await getLiteLLMModels(options.apiKey, options.baseUrl)
-			break
-		case "ollama":
-			models = await getOllamaModels(options.baseUrl, options.apiKey)
-			break
-		case "lmstudio":
-			models = await getLMStudioModels(options.baseUrl)
-			break
-		case "vercel-ai-gateway":
-			models = await getVercelAiGatewayModels()
-			break
-		case "poe":
-			models = await getPoeModels(options.apiKey, options.baseUrl)
-			break
-		default: {
-			// Ensures router is exhaustively checked if RouterName is a strict union.
-			const exhaustiveCheck: never = provider
-			throw new Error(`Unknown provider: ${exhaustiveCheck}`)
-		}
-	}
+  switch (provider) {
+    case "openrouter":
+      models = await getOpenRouterModels()
+      break
+    case "requesty":
+      // Requesty models endpoint requires an API key for per-user custom policies.
+      models = await getRequestyModels(options.baseUrl, options.apiKey)
+      break
+    case "litellm":
+      // Type safety ensures apiKey and baseUrl are always provided for LiteLLM.
+      models = await getLiteLLMModels(options.apiKey, options.baseUrl)
+      break
+    case "ollama":
+      models = await getOllamaModels(options.baseUrl, options.apiKey)
+      break
+    case "lmstudio":
+      models = await getLMStudioModels(options.baseUrl)
+      break
+    case "vercel-ai-gateway":
+      models = await getVercelAiGatewayModels()
+      break
+    case "poe":
+      models = await getPoeModels(options.apiKey, options.baseUrl)
+      break
+    default: {
+      // Ensures router is exhaustively checked if RouterName is a strict union.
+      const exhaustiveCheck: never = provider
+      throw new Error(`Unknown provider: ${exhaustiveCheck}`)
+    }
+  }
 
-	return models
+  return models
 }
 
 /**
@@ -105,35 +105,35 @@ async function fetchModelsFromProvider(options: GetModelsOptions): Promise<Model
  * @returns The models from the cache or the fetched models.
  */
 export const getModels = async (options: GetModelsOptions): Promise<ModelRecord> => {
-	const { provider } = options
+  const { provider } = options
 
-	let models = getModelsFromCache(provider)
+  let models = getModelsFromCache(provider)
 
-	if (models) {
-		return models
-	}
+  if (models) {
+    return models
+  }
 
-	try {
-		models = await fetchModelsFromProvider(options)
-		const modelCount = Object.keys(models).length
+  try {
+    models = await fetchModelsFromProvider(options)
+    const modelCount = Object.keys(models).length
 
-		// Only cache non-empty results to prevent persisting failed API responses
-		// Empty results could indicate API failure rather than "no models exist"
-		if (modelCount > 0) {
-			memoryCache.set(provider, models)
+    // Only cache non-empty results to prevent persisting failed API responses
+    // Empty results could indicate API failure rather than "no models exist"
+    if (modelCount > 0) {
+      memoryCache.set(provider, models)
 
-			await writeModels(provider, models).catch((err) =>
-				console.error(`[MODEL_CACHE] Error writing ${provider} models to file cache:`, err),
-			)
-		}
+      await writeModels(provider, models).catch((err) =>
+        console.error(`[MODEL_CACHE] Error writing ${provider} models to file cache:`, err),
+      )
+    }
 
-		return models
-	} catch (error) {
-		// Log the error and re-throw it so the caller can handle it (e.g., show a UI message).
-		console.error(`[getModels] Failed to fetch models in modelCache for ${provider}:`, error)
+    return models
+  } catch (error) {
+    // Log the error and re-throw it so the caller can handle it (e.g., show a UI message).
+    console.error(`[getModels] Failed to fetch models in modelCache for ${provider}:`, error)
 
-		throw error // Re-throw the original error to be handled by the caller.
-	}
+    throw error // Re-throw the original error to be handled by the caller.
+  }
 }
 
 /**
@@ -146,58 +146,58 @@ export const getModels = async (options: GetModelsOptions): Promise<ModelRecord>
  * @returns Fresh models from API, or existing cache if refresh yields worse data
  */
 export const refreshModels = async (options: GetModelsOptions): Promise<ModelRecord> => {
-	const { provider } = options
+  const { provider } = options
 
-	// Check if there's already an in-flight refresh for this provider
-	// This prevents race conditions where multiple concurrent refreshes might
-	// overwrite each other's results
-	const existingRequest = inFlightRefresh.get(provider)
-	if (existingRequest) {
-		return existingRequest
-	}
+  // Check if there's already an in-flight refresh for this provider
+  // This prevents race conditions where multiple concurrent refreshes might
+  // overwrite each other's results
+  const existingRequest = inFlightRefresh.get(provider)
+  if (existingRequest) {
+    return existingRequest
+  }
 
-	// Create the refresh promise and track it
-	const refreshPromise = (async (): Promise<ModelRecord> => {
-		try {
-			// Force fresh API fetch - skip getModelsFromCache() check
-			const models = await fetchModelsFromProvider(options)
-			const modelCount = Object.keys(models).length
+  // Create the refresh promise and track it
+  const refreshPromise = (async (): Promise<ModelRecord> => {
+    try {
+      // Force fresh API fetch - skip getModelsFromCache() check
+      const models = await fetchModelsFromProvider(options)
+      const modelCount = Object.keys(models).length
 
-			// Get existing cached data for comparison
-			const existingCache = getModelsFromCache(provider)
-			const existingCount = existingCache ? Object.keys(existingCache).length : 0
+      // Get existing cached data for comparison
+      const existingCache = getModelsFromCache(provider)
+      const existingCount = existingCache ? Object.keys(existingCache).length : 0
 
-			if (modelCount === 0) {
-				if (existingCount > 0) {
-					return existingCache!
-				} else {
-					return {}
-				}
-			}
+      if (modelCount === 0) {
+        if (existingCount > 0) {
+          return existingCache!
+        } else {
+          return {}
+        }
+      }
 
-			// Update memory cache first
-			memoryCache.set(provider, models)
+      // Update memory cache first
+      memoryCache.set(provider, models)
 
-			// Atomically write to disk (safeWriteJson handles atomic writes)
-			await writeModels(provider, models).catch((err) =>
-				console.error(`[refreshModels] Error writing ${provider} models to disk:`, err),
-			)
+      // Atomically write to disk (safeWriteJson handles atomic writes)
+      await writeModels(provider, models).catch((err) =>
+        console.error(`[refreshModels] Error writing ${provider} models to disk:`, err),
+      )
 
-			return models
-		} catch (error) {
-			// Log the error for debugging, then return existing cache if available (graceful degradation)
-			console.error(`[refreshModels] Failed to refresh ${provider} models:`, error)
-			return getModelsFromCache(provider) || {}
-		} finally {
-			// Always clean up the in-flight tracking
-			inFlightRefresh.delete(provider)
-		}
-	})()
+      return models
+    } catch (error) {
+      // Log the error for debugging, then return existing cache if available (graceful degradation)
+      console.error(`[refreshModels] Failed to refresh ${provider} models:`, error)
+      return getModelsFromCache(provider) || {}
+    } finally {
+      // Always clean up the in-flight tracking
+      inFlightRefresh.delete(provider)
+    }
+  })()
 
-	// Track the in-flight request
-	inFlightRefresh.set(provider, refreshPromise)
+  // Track the in-flight request
+  inFlightRefresh.set(provider, refreshPromise)
 
-	return refreshPromise
+  return refreshPromise
 }
 
 /**
@@ -206,24 +206,24 @@ export const refreshModels = async (options: GetModelsOptions): Promise<ModelRec
  * Should be called once during extension activation.
  */
 export async function initializeModelCacheRefresh(): Promise<void> {
-	// Wait for extension to fully activate before refreshing
-	setTimeout(async () => {
-		// Providers that work without API keys
-		const publicProviders: Array<{ provider: RouterName; options: GetModelsOptions }> = [
-			{ provider: "openrouter", options: { provider: "openrouter" } },
-			{ provider: "vercel-ai-gateway", options: { provider: "vercel-ai-gateway" } },
-		]
+  // Wait for extension to fully activate before refreshing
+  setTimeout(async () => {
+    // Providers that work without API keys
+    const publicProviders: Array<{ provider: RouterName; options: GetModelsOptions }> = [
+      { provider: "openrouter", options: { provider: "openrouter" } },
+      { provider: "vercel-ai-gateway", options: { provider: "vercel-ai-gateway" } },
+    ]
 
-		// Refresh each provider in background (fire and forget)
-		for (const { options } of publicProviders) {
-			refreshModels(options).catch(() => {
-				// Silent fail - old cache remains available
-			})
+    // Refresh each provider in background (fire and forget)
+    for (const { options } of publicProviders) {
+      refreshModels(options).catch(() => {
+        // Silent fail - old cache remains available
+      })
 
-			// Small delay between refreshes to avoid API rate limits
-			await new Promise((resolve) => setTimeout(resolve, 500))
-		}
-	}, 2000)
+      // Small delay between refreshes to avoid API rate limits
+      await new Promise((resolve) => setTimeout(resolve, 500))
+    }
+  }, 2000)
 }
 
 /**
@@ -233,17 +233,17 @@ export async function initializeModelCacheRefresh(): Promise<void> {
  * @param refresh - If true, immediately fetch fresh data from API
  */
 export const flushModels = async (options: GetModelsOptions, refresh: boolean = false): Promise<void> => {
-	const { provider } = options
-	if (refresh) {
-		// Don't delete memory cache - let refreshModels atomically replace it
-		// This prevents a race condition where getModels() might be called
-		// before refresh completes, avoiding a gap in cache availability
-		// Await the refresh to ensure the cache is updated before returning
-		await refreshModels(options)
-	} else {
-		// Only delete memory cache when not refreshing
-		memoryCache.del(provider)
-	}
+  const { provider } = options
+  if (refresh) {
+    // Don't delete memory cache - let refreshModels atomically replace it
+    // This prevents a race condition where getModels() might be called
+    // before refresh completes, avoiding a gap in cache availability
+    // Await the refresh to ensure the cache is updated before returning
+    await refreshModels(options)
+  } else {
+    // Only delete memory cache when not refreshing
+    memoryCache.del(provider)
+  }
 }
 
 /**
@@ -255,49 +255,46 @@ export const flushModels = async (options: GetModelsOptions, refresh: boolean = 
  * @returns Models from memory cache, disk cache, or undefined if not cached.
  */
 export function getModelsFromCache(provider: ProviderName): ModelRecord | undefined {
-	// Check memory cache first (fast)
-	const memoryModels = memoryCache.get<ModelRecord>(provider)
-	if (memoryModels) {
-		return memoryModels
-	}
+  // Check memory cache first (fast)
+  const memoryModels = memoryCache.get<ModelRecord>(provider)
+  if (memoryModels) {
+    return memoryModels
+  }
 
-	// Memory cache miss - try to load from disk synchronously
-	// This is acceptable because it only happens on cold start or after cache expiry
-	try {
-		const filename = `${provider}_models.json`
-		const cacheDir = getCacheDirectoryPathSync()
-		if (!cacheDir) {
-			return undefined
-		}
+  // Memory cache miss - try to load from disk synchronously
+  // This is acceptable because it only happens on cold start or after cache expiry
+  try {
+    const filename = `${provider}_models.json`
+    const cacheDir = getCacheDirectoryPathSync()
+    if (!cacheDir) {
+      return undefined
+    }
 
-		const filePath = path.join(cacheDir, filename)
+    const filePath = path.join(cacheDir, filename)
 
-		// Use synchronous fs to avoid async complexity in getModel() callers
-		if (fsSync.existsSync(filePath)) {
-			const data = fsSync.readFileSync(filePath, "utf8")
-			const models = JSON.parse(data)
+    // Use synchronous fs to avoid async complexity in getModel() callers
+    if (fsSync.existsSync(filePath)) {
+      const data = fsSync.readFileSync(filePath, "utf8")
+      const models = JSON.parse(data)
 
-			// Validate the disk cache data structure using Zod schema
-			// This ensures the data conforms to ModelRecord = Record<string, ModelInfo>
-			const validation = modelRecordSchema.safeParse(models)
-			if (!validation.success) {
-				console.error(
-					`[MODEL_CACHE] Invalid disk cache data structure for ${provider}:`,
-					validation.error.format(),
-				)
-				return undefined
-			}
+      // Validate the disk cache data structure using Zod schema
+      // This ensures the data conforms to ModelRecord = Record<string, ModelInfo>
+      const validation = modelRecordSchema.safeParse(models)
+      if (!validation.success) {
+        console.error(`[MODEL_CACHE] Invalid disk cache data structure for ${provider}:`, validation.error.format())
+        return undefined
+      }
 
-			// Populate memory cache for future fast access
-			memoryCache.set(provider, validation.data)
+      // Populate memory cache for future fast access
+      memoryCache.set(provider, validation.data)
 
-			return validation.data
-		}
-	} catch (error) {
-		console.error(`[MODEL_CACHE] Error loading ${provider} models from disk:`, error)
-	}
+      return validation.data
+    }
+  } catch (error) {
+    console.error(`[MODEL_CACHE] Error loading ${provider} models from disk:`, error)
+  }
 
-	return undefined
+  return undefined
 }
 
 /**
@@ -305,15 +302,15 @@ export function getModelsFromCache(provider: ProviderName): ModelRecord | undefi
  * Returns the cache directory path without async operations.
  */
 function getCacheDirectoryPathSync(): string | undefined {
-	try {
-		const globalStoragePath = ContextProxy.instance?.globalStorageUri?.fsPath
-		if (!globalStoragePath) {
-			return undefined
-		}
-		const cachePath = path.join(globalStoragePath, "cache")
-		return cachePath
-	} catch (error) {
-		console.error(`[MODEL_CACHE] Error getting cache directory path:`, error)
-		return undefined
-	}
+  try {
+    const globalStoragePath = ContextProxy.instance?.globalStorageUri?.fsPath
+    if (!globalStoragePath) {
+      return undefined
+    }
+    const cachePath = path.join(globalStoragePath, "cache")
+    return cachePath
+  } catch (error) {
+    console.error(`[MODEL_CACHE] Error getting cache directory path:`, error)
+    return undefined
+  }
 }
