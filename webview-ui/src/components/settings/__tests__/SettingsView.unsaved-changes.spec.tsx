@@ -269,8 +269,6 @@ describe("SettingsView - Unsaved Changes Detection", () => {
     maxOpenTabsContext: 10,
     mcpEnabled: false,
     soundEnabled: false,
-    ttsEnabled: false,
-    ttsSpeed: 1.0,
     soundVolume: 0.5,
     telemetrySetting: "unset",
     terminalOutputLineLimit: 500,

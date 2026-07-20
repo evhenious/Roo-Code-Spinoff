@@ -250,8 +250,6 @@ export const useExtensionStateStore = create<IExtensionStoreWithMethods>((set, g
     setAllowedMaxCost: (value: number | undefined) => set((prevState) => ({ ...prevState, allowedMaxCost: value })),
     setSoundEnabled: (value: boolean) => set((prevState) => ({ ...prevState, soundEnabled: value })),
     setSoundVolume: (value: number) => set((prevState) => ({ ...prevState, soundVolume: value })),
-    setTtsEnabled: (value: boolean) => set((prevState) => ({ ...prevState, ttsEnabled: value })),
-    setTtsSpeed: (value: number) => set((prevState) => ({ ...prevState, ttsSpeed: value })),
     setEnableCheckpoints: (value: boolean) => set((prevState) => ({ ...prevState, enableCheckpoints: value })),
     setCheckpointTimeout: (value: number) => set((prevState) => ({ ...prevState, checkpointTimeout: value })),
     setWriteDelayMs: (value: number) => set((prevState) => ({ ...prevState, writeDelayMs: value })),

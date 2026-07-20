@@ -147,8 +147,6 @@ export const globalSettingsSchema = z.object({
     .max(MAX_CHECKPOINT_TIMEOUT_SECONDS)
     .default(DEFAULT_CHECKPOINT_TIMEOUT_SECONDS),
 
-  ttsEnabled: z.boolean().default(false),
-  ttsSpeed: z.number().default(1.0),
   soundEnabled: z.boolean().default(false),
   soundVolume: z.number().default(0.5),
 

@@ -54,7 +54,6 @@ import { SkillsManager } from "../../services/skills/SkillsManager"
 
 import { fileExistsAtPath } from "../../utils/fs"
 import { getWorkspacePath } from "../../utils/path"
-import { setTtsEnabled, setTtsSpeed } from "../../utils/tts"
 
 import { setPanel } from "../../activate/registerCommands"
 
@@ -692,8 +691,6 @@ export class ClineProvider
         terminalZshP10k = false,
         terminalPowershellCounter = false,
         terminalZdotdir = false,
-        ttsEnabled,
-        ttsSpeed,
       }) => {
         Terminal.setShellIntegrationTimeout(terminalShellIntegrationTimeout)
         Terminal.setShellIntegrationDisabled(terminalShellIntegrationDisabled)
@@ -703,8 +700,6 @@ export class ClineProvider
         Terminal.setTerminalZshP10k(terminalZshP10k)
         Terminal.setPowershellCounter(terminalPowershellCounter)
         Terminal.setTerminalZdotdir(terminalZdotdir)
-        setTtsEnabled(ttsEnabled ?? false)
-        setTtsSpeed(ttsSpeed ?? 1)
       },
     )
 

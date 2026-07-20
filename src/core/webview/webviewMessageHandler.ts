@@ -48,7 +48,6 @@ import { selectImages } from "../../integrations/misc/process-images"
 import { getTheme } from "../../integrations/theme/getTheme"
 import { searchWorkspaceFiles } from "../../services/search/file-search"
 import { fileExistsAtPath } from "../../utils/fs"
-import { playTts, setTtsEnabled, setTtsSpeed, stopTts } from "../../utils/tts"
 import { searchCommits } from "../../utils/git"
 import { exportSettings, importSettingsWithFeedback } from "../config/importExport"
 import { getOpenAiModels } from "../../api/providers/openai"
@@ -649,12 +648,6 @@ export const webviewMessageHandler = async (provider: ClineProvider, message: We
             await vscode.workspace
               .getConfiguration(Package.name)
               .update("deniedCommands", newValue, vscode.ConfigurationTarget.Global)
-          } else if (key === "ttsEnabled") {
-            newValue = value ?? true
-            setTtsEnabled(newValue as boolean)
-          } else if (key === "ttsSpeed") {
-            newValue = value ?? 1.0
-            setTtsSpeed(newValue as number)
           } else if (key === "terminalShellIntegrationTimeout") {
             if (value !== undefined) {
               Terminal.setShellIntegrationTimeout(value as number)
@@ -1339,31 +1332,6 @@ export const webviewMessageHandler = async (provider: ClineProvider, message: We
 
       break
     }
-
-    case "ttsEnabled":
-      const ttsEnabled = message.bool ?? true
-      await provider.contextProxy.setValue("ttsEnabled", ttsEnabled)
-      setTtsEnabled(ttsEnabled)
-      await provider.postStateToWebview()
-      break
-    case "ttsSpeed":
-      const ttsSpeed = message.value ?? 1.0
-      await provider.contextProxy.setValue("ttsSpeed", ttsSpeed)
-      setTtsSpeed(ttsSpeed)
-      await provider.postStateToWebview()
-      break
-    case "playTts":
-      if (message.text) {
-        playTts(message.text, {
-          onStart: () => provider.postMessageToWebview({ type: "ttsStart", text: message.text }),
-          onStop: () => provider.postMessageToWebview({ type: "ttsStop", text: message.text }),
-        })
-      }
-
-      break
-    case "stopTts":
-      stopTts()
-      break
 
     case "updateVSCodeSetting": {
       const { setting, value } = message

@@ -1,7 +1,6 @@
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react"
 import { useDeepCompareEffect, useEvent } from "react-use"
 import { Virtuoso, type VirtuosoHandle } from "react-virtuoso"
-import removeMd from "remove-markdown"
 import useSound from "use-sound"
 import { LRUCache } from "lru-cache"
 
@@ -125,8 +124,6 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
   const [expandedRows, setExpandedRows] = useState<Record<number, boolean>>({})
   const prevExpandedRowsRef = useRef<Record<number, boolean>>()
   const scrollContainerRef = useRef<HTMLDivElement>(null)
-  const lastTtsRef = useRef<string>("")
-  const [wasStreaming, setWasStreaming] = useState<boolean>(false)
   const [checkpointWarning, setCheckpointWarning] = useState<
     { type: "WAIT_TIMEOUT" | "INIT_TIMEOUT"; timeout: number } | undefined
   >(undefined)
@@ -214,10 +211,6 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
     },
     [soundEnabled, playNotification, playProgressLoop],
   )
-
-  function playTts(text: string) {
-    vscode.postMessage({ type: "playTts", text })
-  }
 
   useDeepCompareEffect(() => {
     // if last message is an ask, show user ask UI
@@ -1002,39 +995,6 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
     50,
     [isHidden, sendingDisabled, enableButtons],
   )
-
-  useEffect(() => {
-    // This ensures the first message is not read, future user messages are
-    // labeled as `user_feedback`.
-    if (lastMessage && messages.length > 1) {
-      if (
-        typeof lastMessage.text === "string" && // has text (must be string for startsWith)
-        (lastMessage.say === "text" || lastMessage.say === "completion_result") && // is a text message
-        !lastMessage.partial && // not a partial message
-        !lastMessage.text.startsWith("{") // not a json object
-      ) {
-        let text = lastMessage?.text || ""
-        const mermaidRegex = /```mermaid[\s\S]*?```/g
-        // remove mermaid diagrams from text
-        text = text.replace(mermaidRegex, "")
-        // remove markdown from text
-        text = removeMd(text)
-
-        // ensure message is not a duplicate of last read message
-        if (text !== lastTtsRef.current) {
-          try {
-            playTts(text)
-            lastTtsRef.current = text
-          } catch (error) {
-            console.error("Failed to execute text-to-speech:", error)
-          }
-        }
-      }
-    }
-
-    // Update previous value.
-    setWasStreaming(isStreaming)
-  }, [isStreaming, lastMessage, wasStreaming, messages.length])
 
   const groupedMessages = useMemo(() => {
     const filtered: ClineMessage[] = visibleMessages
