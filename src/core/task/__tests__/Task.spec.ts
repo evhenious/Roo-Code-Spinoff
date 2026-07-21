@@ -10,18 +10,16 @@ import type { GlobalState, ProviderSettings, ModelInfo } from "@roo-code/types"
 
 import { Task } from "../Task"
 import { ClineProvider } from "../../webview/ClineProvider"
+import { delay } from "../../../utilities/delay"
 import { ApiStreamChunk } from "../../../api/transform/stream"
 import { ContextProxy } from "../../config/ContextProxy"
 import { processUserContentMentions } from "../../mentions/processUserContentMentions"
 import { MultiSearchReplaceDiffStrategy } from "../../diff/strategies/multi-search-replace"
 
 // Mock delay before any imports that might use it
-vi.mock("delay", () => ({
-  __esModule: true,
-  default: vi.fn().mockResolvedValue(undefined),
+vi.mock("../../../utilities/delay", () => ({
+  delay: vi.fn().mockResolvedValue(undefined),
 }))
-
-import delay from "delay"
 
 vi.mock("uuid", async (importOriginal) => {
   const actual = await importOriginal<typeof import("uuid")>()
@@ -630,7 +628,7 @@ describe("Cline", () => {
 
         // Mock delay to track countdown timing
         const mockDelay = vi.fn().mockResolvedValue(undefined)
-        vi.spyOn(await import("delay"), "default").mockImplementation(mockDelay)
+        vi.spyOn(await import("../../../utilities/delay"), "delay").mockImplementation(mockDelay)
 
         // Mock say to track messages
         const saySpy = vi.spyOn(cline, "renderUIMessage")
@@ -749,7 +747,7 @@ describe("Cline", () => {
 
         // Mock delay to track countdown timing
         const mockDelay = vi.fn().mockResolvedValue(undefined)
-        vi.spyOn(await import("delay"), "default").mockImplementation(mockDelay)
+        vi.spyOn(await import("../../../utilities/delay"), "delay").mockImplementation(mockDelay)
 
         // Mock say to track messages
         const saySpy = vi.spyOn(cline, "renderUIMessage")

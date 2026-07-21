@@ -5,8 +5,9 @@ import * as path from "path"
 
 import { Anthropic } from "@anthropic-ai/sdk"
 import axios from "axios"
-import delay from "delay"
 import pWaitFor from "p-wait-for"
+
+import { delay } from "../../utilities/delay"
 import * as vscode from "vscode"
 
 import {

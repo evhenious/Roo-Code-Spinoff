@@ -8,8 +8,9 @@ import * as vscode from "vscode"
 import { AskIgnoredError } from "./AskIgnoredError"
 
 import { Anthropic } from "@anthropic-ai/sdk"
-import delay from "delay"
 import debounce from "lodash.debounce"
+
+import { delay } from "../../utilities/delay"
 import OpenAI from "openai"
 import pWaitFor from "p-wait-for"
 import { serializeError } from "serialize-error"

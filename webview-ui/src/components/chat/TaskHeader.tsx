@@ -1,7 +1,7 @@
 import { memo, useRef, useState, useMemo, useEffect } from "react"
 import { useTranslation } from "react-i18next"
 import { ChevronUp, ChevronDown, HardDriveDownload, HardDriveUpload, FoldVertical, ArrowLeft } from "lucide-react"
-import prettyBytes from "pretty-bytes"
+import { prettyBytes } from "@roo/pretty-bytes"
 
 import type { ClineMessage } from "@roo-code/types"
 

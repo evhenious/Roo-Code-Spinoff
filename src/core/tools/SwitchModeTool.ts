@@ -1,6 +1,6 @@
-import delay from "delay"
-
 import type { Task } from "../task/Task"
+
+import { delay } from "../../utilities/delay"
 import { formatResponse } from "../prompts/responses"
 import { defaultModeSlug, getModeBySlug } from "../../shared/modes"
 import { BaseTool, ToolCallbacks } from "./BaseTool"
