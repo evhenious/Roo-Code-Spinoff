@@ -1104,6 +1104,9 @@ export const MessageSchemas = {
   insertTextIntoTextarea: insertTextIntoTextareaSchema,
   selectImages: selectImagesSchema,
   openKeyboardShortcuts: openKeyboardShortcutsSchema,
+  // Todo
+  updateTodoList: updateTodoListSchema,
+
   focusPanelRequest: focusPanelRequestSchema,
 
   // Debug
