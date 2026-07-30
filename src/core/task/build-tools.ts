@@ -99,6 +99,7 @@ export async function buildNativeToolsArrayWithRestrictions(options: BuildToolsO
     todoListEnabled: apiConfiguration?.todoListEnabled ?? true,
     disabledTools,
     modelInfo,
+    isSubtask: !!provider.getCurrentTask()?.parentTaskId,
   }
 
   // Check if the model supports images for read_file tool description.
