@@ -74,7 +74,6 @@ interface IExtensionStoreWithMethods extends IExtensionStoreData {
   setDeniedCommands: (value: string[]) => void
   setHasOpenedModeSelector: (value: boolean) => void
   setIncludeTaskHistoryInEnhance: (value: boolean) => void
-  setEnhancementApiConfigId: (value: string) => void
   setMcpEnabled: (value: boolean) => void
   setMode: (value: Mode) => void
   setShowRooIgnoredFiles: (value: boolean) => void
@@ -267,7 +266,6 @@ export const useExtensionStateStore = create<IExtensionStoreWithMethods>((set, g
       set((prevState) => ({ ...prevState, customModePrompts: value })),
     setCustomSupportPrompts: (value: CustomSupportPrompts) =>
       set((prevState) => ({ ...prevState, customSupportPrompts: value })),
-    setEnhancementApiConfigId: (value: string) => set((prevState) => ({ ...prevState, enhancementApiConfigId: value })),
     setAutoApprovalEnabled: (value: boolean) => set((prevState) => ({ ...prevState, autoApprovalEnabled: value })),
     setCustomModes: (value: ModeConfig[]) => set((prevState) => ({ ...prevState, customModes: value })),
     setMaxOpenTabsContext: (value: number) => set((prevState) => ({ ...prevState, maxOpenTabsContext: value })),

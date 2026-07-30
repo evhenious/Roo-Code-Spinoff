@@ -356,7 +356,6 @@ export interface WebviewMessage {
     | "getSystemPrompt"
     | "copySystemPrompt"
     | "systemPrompt"
-    | "enhancementApiConfigId"
     | "autoApprovalEnabled"
     | "updateCustomMode"
     | "deleteCustomMode"

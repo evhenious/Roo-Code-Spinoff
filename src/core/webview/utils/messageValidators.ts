@@ -720,15 +720,6 @@ export const toggleApiConfigPinSchema = z.object({
 })
 
 /**
- * Schema for enhancementApiConfigId messages.
- * Used when setting enhancement API config ID.
- */
-export const enhancementApiConfigIdSchema = z.object({
-  type: z.literal("enhancementApiConfigId"),
-  text: z.string().optional(),
-})
-
-/**
  * Schema for autoApprovalEnabled messages.
  * Used when toggling auto approval.
  */
@@ -991,7 +982,6 @@ export const MessageSchemas = {
   hasOpenedModeSelector: hasOpenedModeSelectorSchema,
   lockApiConfigAcrossModes: lockApiConfigAcrossModesSchema,
   toggleApiConfigPin: toggleApiConfigPinSchema,
-  enhancementApiConfigId: enhancementApiConfigIdSchema,
   autoApprovalEnabled: autoApprovalEnabledSchema,
   resetState: resetStateSchema,
 

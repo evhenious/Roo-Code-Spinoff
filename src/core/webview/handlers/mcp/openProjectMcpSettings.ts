@@ -4,16 +4,16 @@
  * Handles the "openProjectMcpSettings" message type - opens the project-level MCP settings file.
  */
 
-import * as vscode from "vscode"
+import * as fs from "fs/promises"
 import * as path from "path"
-import * as os from "os"
+import * as vscode from "vscode"
 import { t } from "../../../../i18n"
 import { openFile } from "../../../../integrations/misc/open-file"
-import { safeWriteJson } from "../../../../utils/safeWriteJson"
 import { fileExistsAtPath } from "../../../../utils/fs"
-import type { HandlerContext, MessageHandler } from "../../types/handlerTypes"
-import { validateMessage } from "../../utils/messageValidators"
+import { safeWriteJson } from "../../../../utils/safeWriteJson"
+import type { MessageHandler } from "../../types/handlerTypes"
 import { getCurrentCwd } from "../../utils/commonHelpers"
+import { validateMessage } from "../../utils/messageValidators"
 
 /**
  * Handler for openProjectMcpSettings messages.
@@ -44,6 +44,3 @@ export const openProjectMcpSettingsHandler: MessageHandler = async (ctx, message
     vscode.window.showErrorMessage(t("mcp:errors.create_json", { error: `${error}` }))
   }
 }
-
-// Import fs at the top level for this handler
-import * as fs from "fs/promises"
