@@ -953,7 +953,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
           }
           break
         case "text":
-          if ((message.text ?? "") === "" && (message.images?.length ?? 0) === 0) return false
+          if ((message.text?.trim() ?? "") === "" && (message.images?.length ?? 0) === 0) return false
           break
         case "mcp_server_request_started":
           return false
