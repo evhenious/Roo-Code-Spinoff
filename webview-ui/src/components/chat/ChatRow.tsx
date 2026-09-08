@@ -1,16 +1,16 @@
-import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { useSize } from "react-use"
-import { useTranslation, Trans } from "react-i18next"
-import deepEqual from "fast-deep-equal"
 import { VSCodeBadge } from "@vscode/webview-ui-toolkit/react"
+import deepEqual from "fast-deep-equal"
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { Trans, useTranslation } from "react-i18next"
+import { useSize } from "react-use"
 
 import type {
-  ClineMessage,
-  FollowUpData,
-  SuggestionItem,
   ClineApiReqInfo,
   ClineAskUseMcpServer,
+  ClineMessage,
   ClineSayTool,
+  FollowUpData,
+  SuggestionItem,
 } from "@roo-code/types"
 
 import { Mode } from "@roo/modes"
@@ -19,61 +19,60 @@ import { COMMAND_OUTPUT_STRING } from "@roo/combineCommandSequences"
 import { safeJsonParse } from "@roo/core"
 
 import { useExtensionState } from "@src/context/ExtensionStateContext"
+import { formatPathTooltip } from "@src/utils/formatPathTooltip"
 import { findMatchingResourceOrTemplate } from "@src/utils/mcp"
 import { vscode } from "@src/utils/vscode"
-import { formatPathTooltip } from "@src/utils/formatPathTooltip"
 
-import { ToolUseBlock, ToolUseBlockHeader } from "../common/ToolUseBlock"
-import UpdateTodoListToolBlock from "./UpdateTodoListToolBlock"
-import { TodoChangeDisplay } from "./TodoChangeDisplay"
 import CodeAccordion from "../common/CodeAccordion"
-import MarkdownBlock from "../common/MarkdownBlock"
-import { ReasoningBlock } from "./ReasoningBlock"
-import Thumbnails from "../common/Thumbnails"
 import ImageBlock from "../common/ImageBlock"
+import MarkdownBlock from "../common/MarkdownBlock"
+import Thumbnails from "../common/Thumbnails"
+import { ToolUseBlock, ToolUseBlockHeader } from "../common/ToolUseBlock"
 import ErrorRow from "./ErrorRow"
+import { ReasoningBlock } from "./ReasoningBlock"
+import { TodoChangeDisplay } from "./TodoChangeDisplay"
+import UpdateTodoListToolBlock from "./UpdateTodoListToolBlock"
 import WarningRow from "./WarningRow"
 
 import McpResourceRow from "../mcp/McpResourceRow"
 
-import { Mention } from "./Mention"
-import { CheckpointSaved } from "./checkpoints/CheckpointSaved"
-import { FollowUpSuggest } from "./FollowUpSuggest"
-import { BatchFilePermission } from "./BatchFilePermission"
-import { BatchDiffApproval } from "./BatchDiffApproval"
-import { ProgressIndicator } from "./ProgressIndicator"
-import { Markdown } from "./Markdown"
-import { CommandExecution } from "./CommandExecution"
-import { CommandExecutionError } from "./CommandExecutionError"
-import { AutoApprovedRequestLimitWarning } from "./AutoApprovedRequestLimitWarning"
-import { InProgressRow, CondensationResultRow, CondensationErrorRow, TruncationResultRow } from "./context-management"
-import CodebaseSearchResultsDisplay from "./CodebaseSearchResultsDisplay"
+import { cn } from "@/lib/utils"
 import { appendImages } from "@src/utils/imageUtils"
-import { McpExecution } from "./McpExecution"
-import { ChatTextArea } from "./ChatTextArea"
-import { MAX_IMAGES_PER_MESSAGE } from "./ChatView"
-import { useSelectedModel } from "../ui/hooks/useSelectedModel"
 import {
-  Eye,
-  FileDiff,
-  ListTree,
-  Edit,
-  Trash2,
-  MessageCircleQuestionMark,
-  SquareArrowOutUpRight,
-  FileCode2,
-  PocketKnife,
-  FolderTree,
-  TerminalSquare,
-  MessageCircle,
-  Repeat2,
-  Split,
   ArrowRight,
   Check,
+  Edit,
+  Eye,
+  FileCode2,
+  FileDiff,
+  FolderTree,
+  ListTree,
+  MessageCircle,
+  MessageCircleQuestionMark,
+  PocketKnife,
+  Repeat2,
+  Split,
+  SquareArrowOutUpRight,
+  TerminalSquare,
+  Trash2,
 } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { useSelectedModel } from "../ui/hooks/useSelectedModel"
 import { PathTooltip } from "../ui/PathTooltip"
+import { AutoApprovedRequestLimitWarning } from "./AutoApprovedRequestLimitWarning"
+import { BatchDiffApproval } from "./BatchDiffApproval"
+import { BatchFilePermission } from "./BatchFilePermission"
+import { ChatTextArea } from "./ChatTextArea"
+import { MAX_IMAGES_PER_MESSAGE } from "./ChatView"
+import { CheckpointSaved } from "./checkpoints/CheckpointSaved"
+import { CommandExecution } from "./CommandExecution"
+import { CommandExecutionError } from "./CommandExecutionError"
+import { CondensationErrorRow, CondensationResultRow, InProgressRow, TruncationResultRow } from "./context-management"
+import { FollowUpSuggest } from "./FollowUpSuggest"
+import { Markdown } from "./Markdown"
+import { McpExecution } from "./McpExecution"
+import { Mention } from "./Mention"
 import { OpenMarkdownPreviewButton } from "./OpenMarkdownPreviewButton"
+import { ProgressIndicator } from "./ProgressIndicator"
 
 // Helper function to get previous todos before a specific message
 function getPreviousTodos(messages: ClineMessage[], currentMessageTs: number): any[] {
@@ -1151,19 +1150,17 @@ export const ChatRowContent = ({
         case "api_req_finished":
           return null // we should never see this message type
         case "text": {
-          const isEmptyContent = !message.text || message.text.trim().length === 0
+          const trimmedText = message.text && message.text.trim()
           return (
             <div className="group">
               <div style={headerStyle}>
                 <MessageCircle className="w-4 shrink-0" aria-label="Speech bubble icon" />
-                <span style={{ fontWeight: "bold" }}>
-                  {isEmptyContent ? "Roo is thinking..." : t("chat:text.rooSaid")}
-                </span>
+                <span style={{ fontWeight: "bold" }}>{t("chat:text.rooSaid")}</span>
                 <div style={{ flexGrow: 1 }} />
-                {!isEmptyContent && <OpenMarkdownPreviewButton markdown={message.text} />}
+                <OpenMarkdownPreviewButton markdown={trimmedText} />
               </div>
               <div className="pl-6">
-                {!isEmptyContent && <Markdown markdown={message.text} partial={message.partial} />}
+                <Markdown markdown={trimmedText} partial={message.partial} />
                 {message.images && message.images.length > 0 && (
                   <div style={{ marginTop: "10px" }}>
                     {message.images.map((image, index) => (
@@ -1339,36 +1336,6 @@ export const ChatRowContent = ({
             return <TruncationResultRow data={message.contextTruncation} />
           }
           return null
-        case "codebase_search_result":
-          let parsed: {
-            content: {
-              query: string
-              results: Array<{
-                filePath: string
-                score: number
-                startLine: number
-                endLine: number
-                codeChunk: string
-              }>
-            }
-          } | null = null
-
-          try {
-            if (message.text) {
-              parsed = JSON.parse(message.text)
-            }
-          } catch (error) {
-            console.error("Failed to parse codebaseSearch content:", error)
-          }
-
-          if (parsed && !parsed?.content) {
-            console.error("Invalid codebaseSearch content structure:", parsed.content)
-            return <div>Error displaying search results.</div>
-          }
-
-          const { results = [] } = parsed?.content || {}
-
-          return <CodebaseSearchResultsDisplay results={results} />
         case "user_edit_todos":
           return <UpdateTodoListToolBlock userEdited onChange={() => {}} />
         case "tool" as any:

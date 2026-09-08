@@ -2,9 +2,9 @@ import fs from "fs/promises"
 import * as path from "path"
 import * as vscode from "vscode"
 
-import delay from "delay"
-
 import { CommandExecutionStatus, DEFAULT_TERMINAL_OUTPUT_PREVIEW_SIZE, PersistedCommandOutput } from "@roo-code/types"
+
+import { delay } from "../../utilities/delay"
 
 import type { Task } from "../task/Task"
 

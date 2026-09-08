@@ -86,16 +86,6 @@ function validateModelsAndKeysProvided(apiConfiguration: ProviderSettings): stri
         return i18next.t("settings:validation.modelId")
       }
       break
-    case "vscode-lm":
-      if (!apiConfiguration.vsCodeLmModelSelector) {
-        return i18next.t("settings:validation.modelSelector")
-      }
-      break
-    case "qwen-code":
-      if (!apiConfiguration.qwenCodeOauthPath) {
-        return i18next.t("settings:validation.qwenCodeOauthPath")
-      }
-      break
     case "vercel-ai-gateway":
       if (!apiConfiguration.vercelAiGatewayApiKey) {
         return i18next.t("settings:validation.apiKey")
@@ -112,10 +102,6 @@ function validateModelsAndKeysProvided(apiConfiguration: ProviderSettings): stri
 }
 
 function getModelIdForProvider(apiConfiguration: ProviderSettings, provider: ProviderName): string | undefined {
-  if (provider === "vscode-lm") {
-    return apiConfiguration.vsCodeLmModelSelector?.id
-  }
-
   if (isCustomProvider(provider) || isFauxProvider(provider)) {
     return apiConfiguration.apiModelId
   }

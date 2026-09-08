@@ -5,8 +5,9 @@ import * as path from "path"
 
 import { Anthropic } from "@anthropic-ai/sdk"
 import axios from "axios"
-import delay from "delay"
 import pWaitFor from "p-wait-for"
+
+import { delay } from "../../utilities/delay"
 import * as vscode from "vscode"
 
 import {
@@ -35,7 +36,6 @@ import {
 } from "@roo-code/types"
 import { aggregateTaskCostsRecursive, type AggregatedCosts } from "./aggregateTaskCosts"
 
-import { EMBEDDING_MODEL_PROFILES } from "../../shared/embeddingModels"
 import { GlobalFileNames } from "../../shared/globalFileNames"
 import { Mode, defaultModeSlug, getModeBySlug } from "../../shared/modes"
 import { Package } from "../../shared/package"
@@ -49,15 +49,12 @@ import WorkspaceTracker from "../../integrations/workspace/WorkspaceTracker"
 import { resolveDefaultSaveUri, saveLastExportPath } from "../../utils/export"
 
 import { ShadowCheckpointService } from "../../services/checkpoints/ShadowCheckpointService"
-import type { IndexProgressUpdate } from "../../services/code-index/interfaces/manager"
-import { CodeIndexManager } from "../../services/code-index/manager"
 import { McpHub } from "../../services/mcp/McpHub"
 import { McpServerManager } from "../../services/mcp/McpServerManager"
 import { SkillsManager } from "../../services/skills/SkillsManager"
 
 import { fileExistsAtPath } from "../../utils/fs"
 import { getWorkspacePath } from "../../utils/path"
-import { setTtsEnabled, setTtsSpeed } from "../../utils/tts"
 
 import { setPanel } from "../../activate/registerCommands"
 
@@ -112,8 +109,6 @@ export class ClineProvider
   private webviewDisposables: vscode.Disposable[] = []
   private view?: vscode.WebviewView | vscode.WebviewPanel
   private clineStack: Task[] = []
-  private codeIndexStatusSubscription?: vscode.Disposable
-  private codeIndexManager?: CodeIndexManager
   private _workspaceTracker?: WorkspaceTracker // workSpaceTracker read-only for access outside this class
   protected mcpHub?: McpHub // Change from private to protected
   protected skillsManager?: SkillsManager
@@ -150,8 +145,6 @@ export class ClineProvider
     this.currentWorkspacePath = getWorkspacePath()
 
     ClineProvider.activeInstances.add(this)
-
-    this.contextProxy.setValue("codebaseIndexModels", EMBEDDING_MODEL_PROFILES)
 
     // Initialize the per-task file-based history store.
     // The globalState write-through is debounced separately (not on every mutation)
@@ -699,8 +692,6 @@ export class ClineProvider
         terminalZshP10k = false,
         terminalPowershellCounter = false,
         terminalZdotdir = false,
-        ttsEnabled,
-        ttsSpeed,
       }) => {
         Terminal.setShellIntegrationTimeout(terminalShellIntegrationTimeout)
         Terminal.setShellIntegrationDisabled(terminalShellIntegrationDisabled)
@@ -710,8 +701,6 @@ export class ClineProvider
         Terminal.setTerminalZshP10k(terminalZshP10k)
         Terminal.setPowershellCounter(terminalPowershellCounter)
         Terminal.setTerminalZdotdir(terminalZdotdir)
-        setTtsEnabled(ttsEnabled ?? false)
-        setTtsSpeed(ttsSpeed ?? 1)
       },
     )
 
@@ -736,17 +725,6 @@ export class ClineProvider
     // Sets up an event listener to listen for messages passed from the webview view context
     // and executes code based on the message that is received.
     this.setWebviewMessageListener(webviewView.webview)
-
-    // Initialize code index status subscription for the current workspace.
-    this.updateCodeIndexStatusSubscription()
-
-    // Listen for active editor changes to update code index status for the
-    // current workspace.
-    const activeEditorSubscription = vscode.window.onDidChangeActiveTextEditor(() => {
-      // Update subscription when workspace might have changed.
-      this.updateCodeIndexStatusSubscription()
-    })
-    this.webviewDisposables.push(activeEditorSubscription)
 
     // Listen for when the panel becomes visible.
     // https://github.com/microsoft/vscode-discussions/discussions/840
@@ -781,8 +759,6 @@ export class ClineProvider
         } else {
           this.log("Clearing webview resources for sidebar view")
           this.clearWebviewResources()
-          // Reset current workspace manager reference when view is disposed
-          this.codeIndexManager = undefined
         }
       },
       null,
@@ -1903,8 +1879,6 @@ export class ClineProvider
       allowedCommands,
       deniedCommands,
       taskHistory, // ??? why not used ?
-      codebaseIndexConfig,
-      codebaseIndexModels,
       ...state
     } = await this.getState()
 
@@ -1932,21 +1906,6 @@ export class ClineProvider
       renderContext: this.renderContext,
       settingsImportedAt: this.settingsImportedAt,
       cloudAuthSkipModel: this.context.globalState.get<boolean>("roo-auth-skip-model") ?? false,
-      codebaseIndexModels,
-      codebaseIndexConfig: {
-        codebaseIndexEnabled: codebaseIndexConfig?.codebaseIndexEnabled ?? false,
-        codebaseIndexQdrantUrl: codebaseIndexConfig?.codebaseIndexQdrantUrl ?? "http://localhost:6333",
-        codebaseIndexEmbedderProvider: codebaseIndexConfig?.codebaseIndexEmbedderProvider ?? "openai",
-        codebaseIndexEmbedderBaseUrl: codebaseIndexConfig?.codebaseIndexEmbedderBaseUrl ?? "",
-        codebaseIndexEmbedderModelId: codebaseIndexConfig?.codebaseIndexEmbedderModelId ?? "",
-        codebaseIndexEmbedderModelDimension: codebaseIndexConfig?.codebaseIndexEmbedderModelDimension ?? 1536,
-        codebaseIndexOpenAiCompatibleBaseUrl: codebaseIndexConfig?.codebaseIndexOpenAiCompatibleBaseUrl,
-        codebaseIndexSearchMaxResults: codebaseIndexConfig?.codebaseIndexSearchMaxResults,
-        codebaseIndexSearchMinScore: codebaseIndexConfig?.codebaseIndexSearchMinScore,
-        codebaseIndexBedrockRegion: codebaseIndexConfig?.codebaseIndexBedrockRegion,
-        codebaseIndexBedrockProfile: codebaseIndexConfig?.codebaseIndexBedrockProfile,
-        codebaseIndexOpenRouterSpecificProvider: codebaseIndexConfig?.codebaseIndexOpenRouterSpecificProvider,
-      },
       cloudApiUrl: "https://app.roocode.com", // TODO cleanup
       hasOpenedModeSelector: this.contextProxy.getValue("hasOpenedModeSelector") ?? false,
       openAiCodexIsAuthenticated: await (async () => {
@@ -1997,22 +1956,6 @@ export class ClineProvider
       mcpServers: this.mcpHub?.getAllServers() ?? [],
       customModes,
       modeApiConfigs: stateValues.modeApiConfigs ?? ({} as Record<Mode, string>), // TODO sort this out
-      codebaseIndexModels: stateValues.codebaseIndexModels ?? EMBEDDING_MODEL_PROFILES,
-      codebaseIndexConfig: {
-        codebaseIndexEnabled: stateValues.codebaseIndexConfig?.codebaseIndexEnabled ?? false,
-        codebaseIndexQdrantUrl: stateValues.codebaseIndexConfig?.codebaseIndexQdrantUrl ?? "http://localhost:6333",
-        codebaseIndexEmbedderProvider: stateValues.codebaseIndexConfig?.codebaseIndexEmbedderProvider ?? "openai",
-        codebaseIndexEmbedderBaseUrl: stateValues.codebaseIndexConfig?.codebaseIndexEmbedderBaseUrl ?? "",
-        codebaseIndexEmbedderModelId: stateValues.codebaseIndexConfig?.codebaseIndexEmbedderModelId ?? "",
-        codebaseIndexEmbedderModelDimension: stateValues.codebaseIndexConfig?.codebaseIndexEmbedderModelDimension,
-        codebaseIndexOpenAiCompatibleBaseUrl: stateValues.codebaseIndexConfig?.codebaseIndexOpenAiCompatibleBaseUrl,
-        codebaseIndexSearchMaxResults: stateValues.codebaseIndexConfig?.codebaseIndexSearchMaxResults,
-        codebaseIndexSearchMinScore: stateValues.codebaseIndexConfig?.codebaseIndexSearchMinScore,
-        codebaseIndexBedrockRegion: stateValues.codebaseIndexConfig?.codebaseIndexBedrockRegion,
-        codebaseIndexBedrockProfile: stateValues.codebaseIndexConfig?.codebaseIndexBedrockProfile,
-        codebaseIndexOpenRouterSpecificProvider:
-          stateValues.codebaseIndexConfig?.codebaseIndexOpenRouterSpecificProvider,
-      },
       lockApiConfigAcrossModes: this.context.workspaceState.get("lockApiConfigAcrossModes", false),
     }
   }
@@ -2166,61 +2109,6 @@ export class ClineProvider
 
   public getSkillsManager(): SkillsManager | undefined {
     return this.skillsManager
-  }
-
-  /**
-   * Gets the CodeIndexManager for the current active workspace
-   * @returns CodeIndexManager instance for the current workspace or the default one
-   */
-  public getCurrentWorkspaceCodeIndexManager(): CodeIndexManager | undefined {
-    return CodeIndexManager.getInstance(this.context)
-  }
-
-  /**
-   * Updates the code index status subscription to listen to the current workspace manager
-   */
-  private updateCodeIndexStatusSubscription(): void {
-    // Get the current workspace manager
-    const currentManager = this.getCurrentWorkspaceCodeIndexManager()
-
-    // If the manager hasn't changed, no need to update subscription
-    if (currentManager === this.codeIndexManager) {
-      return
-    }
-
-    // Dispose the old subscription if it exists
-    if (this.codeIndexStatusSubscription) {
-      this.codeIndexStatusSubscription.dispose()
-      this.codeIndexStatusSubscription = undefined
-    }
-
-    // Update the current workspace manager reference
-    this.codeIndexManager = currentManager
-
-    // Subscribe to the new manager's progress updates if it exists
-    if (currentManager) {
-      this.codeIndexStatusSubscription = currentManager.onProgressUpdate((update: IndexProgressUpdate) => {
-        // Only send updates if this manager is still the current one
-        if (currentManager === this.getCurrentWorkspaceCodeIndexManager()) {
-          // Get the full status from the manager to ensure we have all fields correctly formatted
-          const fullStatus = currentManager.getCurrentStatus()
-          this.postMessageToWebview({
-            type: "indexingStatusUpdate",
-            values: fullStatus,
-          })
-        }
-      })
-
-      if (this.view) {
-        this.webviewDisposables.push(this.codeIndexStatusSubscription)
-      }
-
-      // Send initial status for the current workspace
-      this.postMessageToWebview({
-        type: "indexingStatusUpdate",
-        values: currentManager.getCurrentStatus(),
-      })
-    }
   }
 
   /**

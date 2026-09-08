@@ -8,7 +8,6 @@ import {
   providerSettingsSchema,
 } from "./provider-settings.js"
 import { historyItemSchema } from "./history.js"
-import { codebaseIndexModelsSchema, codebaseIndexConfigSchema } from "./codebase-index.js"
 import { experimentsSchema } from "./experiment.js"
 import { modeConfigSchema } from "./mode.js"
 import { customModePromptsSchema, customSupportPromptsSchema } from "./mode.js"
@@ -148,8 +147,6 @@ export const globalSettingsSchema = z.object({
     .max(MAX_CHECKPOINT_TIMEOUT_SECONDS)
     .default(DEFAULT_CHECKPOINT_TIMEOUT_SECONDS),
 
-  ttsEnabled: z.boolean().default(false),
-  ttsSpeed: z.number().default(1.0),
   soundEnabled: z.boolean().default(false),
   soundVolume: z.number().default(0.5),
 
@@ -178,9 +175,6 @@ export const globalSettingsSchema = z.object({
     runSlashCommand: false,
   }),
 
-  codebaseIndexModels: codebaseIndexModelsSchema.optional(),
-  codebaseIndexConfig: codebaseIndexConfigSchema.optional(),
-
   language: languagesSchema,
 
   mcpEnabled: z.boolean().default(true),
@@ -190,7 +184,6 @@ export const globalSettingsSchema = z.object({
   customModes: z.array(modeConfigSchema).optional(),
   customModePrompts: customModePromptsSchema.default({}),
   customSupportPrompts: customSupportPromptsSchema.default({}),
-  enhancementApiConfigId: z.string().default(""),
   includeTaskHistoryInEnhance: z.boolean().default(true),
   historyPreviewCollapsed: z.boolean().default(false),
   reasoningBlockCollapsed: z.boolean().default(true),
@@ -259,13 +252,6 @@ export const SECRET_STATE_KEYS = [
   "minimaxApiKey",
   "requestyApiKey",
   "litellmApiKey",
-  "codeIndexOpenAiKey",
-  "codeIndexQdrantApiKey",
-  "codebaseIndexOpenAiCompatibleApiKey",
-  "codebaseIndexGeminiApiKey",
-  "codebaseIndexMistralApiKey",
-  "codebaseIndexVercelAiGatewayApiKey",
-  "codebaseIndexOpenRouterApiKey",
   "vercelAiGatewayApiKey",
   "basetenApiKey",
 ] as const

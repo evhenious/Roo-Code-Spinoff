@@ -35,20 +35,17 @@
     "header": "{{count}} file(s) changed in this conversation"
   },
   "retry": {
-    "title": "Retry",
-    "tooltip": "Try the operation again"
+    "title": "Retry"
   },
   "startNewTask": {
     "title": "Start New Task",
     "tooltip": "Begin a new task"
   },
   "proceedAnyways": {
-    "title": "Proceed Anyways",
-    "tooltip": "Continue while command executes"
+    "title": "Proceed Anyways"
   },
   "save": {
-    "title": "Save",
-    "tooltip": "Save the message changes"
+    "title": "Save"
   },
   "tokenProgress": {
     "availableSpace": "Available space: {{amount}} tokens",
@@ -64,8 +61,7 @@
   },
   "completeSubtaskAndReturn": "Complete subtask and keep going",
   "approve": {
-    "title": "Approve",
-    "tooltip": "Allow this action to happen"
+    "title": "Approve"
   },
   "read-batch": {
     "approve": {
@@ -92,20 +88,17 @@
     }
   },
   "runCommand": {
-    "title": "Run",
-    "tooltip": "Execute this command"
+    "title": "Run Command"
   },
   "proceedWhileRunning": {
-    "title": "Continue While Running",
-    "tooltip": "Keep going despite warnings"
+    "title": "Continue While Running"
   },
   "killCommand": {
     "title": "Kill Command",
     "tooltip": "Kill the current command"
   },
   "resumeTask": {
-    "title": "Continue",
-    "tooltip": "Resume the current task"
+    "title": "Resume the task"
   },
   "terminate": {
     "title": "New task",
@@ -130,12 +123,12 @@
   "onboarding": "What would you like to do?",
   "rooTips": {
     "customizableModes": {
-      "title": "Customizable modes that don't swerve",
-      "description": "Specialized personas that stay on-task and deliver."
+      "title": "Customizable modes",
+      "description": "specialized personas that stay on-task and deliver."
     },
     "modelAgnostic": {
-      "title": "Bring your own model, no markup or lock-in",
-      "description": "Use your own provider key or even run local inference — Roo doesn't charge for it"
+      "title": "Use your own model on your terms",
+      "description": "your own provider key or local inference"
     }
   },
   "selectMode": "Select mode for interaction",
@@ -152,7 +145,6 @@
   "addImages": "Add images to message",
   "sendMessage": "Send message",
   "pressToSend": "Press {{keyCombination}} to send",
-  "stopTts": "Stop text-to-speech",
   "typeMessage": "Type a message...",
   "typeTask": "Type your task here...",
   "addContext": "@ to add context, / for commands",
@@ -396,14 +388,6 @@
       "description": "Roo has reached the auto-approved cost limit of ${{count}}. Would you like to reset the cost and proceed with the task?",
       "button": "Reset and Continue"
     }
-  },
-  "indexingStatus": {
-    "ready": "Index ready",
-    "indexing": "Indexing {{percentage}}%",
-    "indexed": "Indexed",
-    "error": "Index error",
-    "status": "Index status",
-    "stopping": "Stopping indexing..."
   },
   "versionIndicator": {
     "ariaLabel": "Version {{version}}"

@@ -1,6 +1,7 @@
 import path from "path"
-import delay from "delay"
 import fs from "fs/promises"
+
+import { delay } from "../../utilities/delay"
 
 import { type ClineSayTool, DEFAULT_WRITE_DELAY_MS } from "@roo-code/types"
 

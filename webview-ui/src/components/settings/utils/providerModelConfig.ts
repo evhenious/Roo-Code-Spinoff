@@ -7,7 +7,6 @@ import {
   geminiDefaultModelId,
   mistralDefaultModelId,
   openAiNativeDefaultModelId,
-  qwenCodeDefaultModelId,
   vertexDefaultModelId,
   minimaxDefaultModelId,
   basetenDefaultModelId,
@@ -28,16 +27,11 @@ export const PROVIDER_SERVICE_CONFIG: Partial<Record<ProviderName, ProviderServi
   gemini: { serviceName: "Google Gemini", serviceUrl: "https://ai.google.dev" },
   mistral: { serviceName: "Mistral", serviceUrl: "https://console.mistral.ai" },
   "openai-native": { serviceName: "OpenAI", serviceUrl: "https://platform.openai.com" },
-  "qwen-code": { serviceName: "Qwen Code", serviceUrl: "https://dashscope.console.aliyun.com" },
   vertex: { serviceName: "GCP Vertex AI", serviceUrl: "https://console.cloud.google.com/vertex-ai" },
   minimax: { serviceName: "MiniMax", serviceUrl: "https://minimax.chat" },
   baseten: { serviceName: "Baseten", serviceUrl: "https://baseten.co" },
   ollama: { serviceName: "Ollama", serviceUrl: "https://ollama.ai" },
   lmstudio: { serviceName: "LM Studio", serviceUrl: "https://lmstudio.ai/docs" },
-  "vscode-lm": {
-    serviceName: "VS Code LM",
-    serviceUrl: "https://code.visualstudio.com/api/extension-guides/language-model",
-  },
 }
 
 export const PROVIDER_DEFAULT_MODEL_IDS: Partial<Record<ProviderName, string>> = {
@@ -48,7 +42,6 @@ export const PROVIDER_DEFAULT_MODEL_IDS: Partial<Record<ProviderName, string>> =
   gemini: geminiDefaultModelId,
   mistral: mistralDefaultModelId,
   "openai-native": openAiNativeDefaultModelId,
-  "qwen-code": qwenCodeDefaultModelId,
   vertex: vertexDefaultModelId,
   minimax: minimaxDefaultModelId,
   baseten: basetenDefaultModelId,
@@ -105,7 +98,6 @@ export const PROVIDERS_WITH_CUSTOM_MODEL_UI: ProviderName[] = [
   "vercel-ai-gateway",
   "ollama",
   "lmstudio",
-  "vscode-lm",
 ]
 
 /**

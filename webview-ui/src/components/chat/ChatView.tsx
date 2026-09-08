@@ -1,7 +1,6 @@
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react"
 import { useDeepCompareEffect, useEvent } from "react-use"
 import { Virtuoso, type VirtuosoHandle } from "react-virtuoso"
-import removeMd from "remove-markdown"
 import useSound from "use-sound"
 import { LRUCache } from "lru-cache"
 
@@ -125,8 +124,6 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
   const [expandedRows, setExpandedRows] = useState<Record<number, boolean>>({})
   const prevExpandedRowsRef = useRef<Record<number, boolean>>()
   const scrollContainerRef = useRef<HTMLDivElement>(null)
-  const lastTtsRef = useRef<string>("")
-  const [wasStreaming, setWasStreaming] = useState<boolean>(false)
   const [checkpointWarning, setCheckpointWarning] = useState<
     { type: "WAIT_TIMEOUT" | "INIT_TIMEOUT"; timeout: number } | undefined
   >(undefined)
@@ -214,10 +211,6 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
     },
     [soundEnabled, playNotification, playProgressLoop],
   )
-
-  function playTts(text: string) {
-    vscode.postMessage({ type: "playTts", text })
-  }
 
   useDeepCompareEffect(() => {
     // if last message is an ask, show user ask UI
@@ -960,7 +953,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
           }
           break
         case "text":
-          if ((message.text ?? "") === "" && (message.images?.length ?? 0) === 0) return false
+          if ((message.text?.trim() ?? "") === "" && (message.images?.length ?? 0) === 0) return false
           break
         case "mcp_server_request_started":
           return false
@@ -1002,39 +995,6 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
     50,
     [isHidden, sendingDisabled, enableButtons],
   )
-
-  useEffect(() => {
-    // This ensures the first message is not read, future user messages are
-    // labeled as `user_feedback`.
-    if (lastMessage && messages.length > 1) {
-      if (
-        typeof lastMessage.text === "string" && // has text (must be string for startsWith)
-        (lastMessage.say === "text" || lastMessage.say === "completion_result") && // is a text message
-        !lastMessage.partial && // not a partial message
-        !lastMessage.text.startsWith("{") // not a json object
-      ) {
-        let text = lastMessage?.text || ""
-        const mermaidRegex = /```mermaid[\s\S]*?```/g
-        // remove mermaid diagrams from text
-        text = text.replace(mermaidRegex, "")
-        // remove markdown from text
-        text = removeMd(text)
-
-        // ensure message is not a duplicate of last read message
-        if (text !== lastTtsRef.current) {
-          try {
-            playTts(text)
-            lastTtsRef.current = text
-          } catch (error) {
-            console.error("Failed to execute text-to-speech:", error)
-          }
-        }
-      }
-    }
-
-    // Update previous value.
-    setWasStreaming(isStreaming)
-  }, [isStreaming, lastMessage, wasStreaming, messages.length])
 
   const groupedMessages = useMemo(() => {
     const filtered: ClineMessage[] = visibleMessages
@@ -1606,32 +1566,13 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
               ) : (
                 <>
                   {primaryButtonText && primaryButtonText !== "New task" && (
-                    <StandardTooltip
-                      content={
-                        primaryButtonText === t("chat:retry.title")
-                          ? t("chat:retry.tooltip")
-                          : primaryButtonText === t("chat:save.title")
-                            ? t("chat:save.tooltip")
-                            : primaryButtonText === t("chat:approve.title")
-                              ? t("chat:approve.tooltip")
-                              : primaryButtonText === t("chat:runCommand.title")
-                                ? t("chat:runCommand.tooltip")
-                                : primaryButtonText === t("chat:resumeTask.title")
-                                  ? t("chat:resumeTask.tooltip")
-                                  : primaryButtonText === t("chat:proceedAnyways.title")
-                                    ? t("chat:proceedAnyways.tooltip")
-                                    : primaryButtonText === t("chat:proceedWhileRunning.title")
-                                      ? t("chat:proceedWhileRunning.tooltip")
-                                      : undefined
-                      }>
-                      <Button
-                        variant="primary"
-                        disabled={!enableButtons}
-                        className={secondaryButtonText ? "flex-1 mr-[6px]" : "flex-[2] mr-0"}
-                        onClick={() => handlePrimaryButtonClick(inputValue, selectedImages)}>
-                        {primaryButtonText}
-                      </Button>
-                    </StandardTooltip>
+                    <Button
+                      variant="primary"
+                      disabled={!enableButtons}
+                      className={secondaryButtonText ? "flex-1 mr-[6px]" : "flex-[2] mr-0"}
+                      onClick={() => handlePrimaryButtonClick(inputValue, selectedImages)}>
+                      {primaryButtonText}
+                    </Button>
                   )}
                   {secondaryButtonText && secondaryButtonText !== "New task" && (
                     <Button

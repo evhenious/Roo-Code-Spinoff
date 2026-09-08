@@ -15,7 +15,6 @@ import {
   openAiNativeDefaultModelId,
   openAiCodexDefaultModelId,
   anthropicDefaultModelId,
-  qwenCodeDefaultModelId,
   geminiDefaultModelId,
   deepSeekDefaultModelId,
   moonshotDefaultModelId,
@@ -73,10 +72,8 @@ import {
   OpenAICodex,
   OpenRouter,
   Poe,
-  QwenCode,
   Requesty,
   Vertex,
-  VSCodeLM,
   VercelAiGateway,
   MiniMax,
 } from "./providers"
@@ -214,8 +211,6 @@ const ApiOptions = ({
         vscode.postMessage({ type: "requestOllamaModels" })
       } else if (selectedProvider === "lmstudio") {
         vscode.postMessage({ type: "requestLmStudioModels" })
-      } else if (selectedProvider === "vscode-lm") {
-        vscode.postMessage({ type: "requestVsCodeLmModels" })
       } else if (selectedProvider === "litellm" || selectedProvider === "poe") {
         vscode.postMessage({ type: "requestRouterModels" })
       }
@@ -305,7 +300,6 @@ const ApiOptions = ({
         litellm: { field: "litellmModelId", default: litellmDefaultModelId },
         anthropic: { field: "apiModelId", default: anthropicDefaultModelId },
         "openai-codex": { field: "apiModelId", default: openAiCodexDefaultModelId },
-        "qwen-code": { field: "apiModelId", default: qwenCodeDefaultModelId },
         "openai-native": { field: "apiModelId", default: openAiNativeDefaultModelId },
         gemini: { field: "apiModelId", default: geminiDefaultModelId },
         deepseek: { field: "apiModelId", default: deepSeekDefaultModelId },
@@ -542,14 +536,6 @@ const ApiOptions = ({
             />
           )}
 
-          {selectedProvider === "qwen-code" && (
-            <QwenCode
-              apiConfiguration={apiConfiguration}
-              setApiConfigurationField={setApiConfigurationField}
-              simplifySettings={fromWelcomeView}
-            />
-          )}
-
           {selectedProvider === "moonshot" && (
             <Moonshot
               apiConfiguration={apiConfiguration}
@@ -560,10 +546,6 @@ const ApiOptions = ({
 
           {selectedProvider === "minimax" && (
             <MiniMax apiConfiguration={apiConfiguration} setApiConfigurationField={setApiConfigurationField} />
-          )}
-
-          {selectedProvider === "vscode-lm" && (
-            <VSCodeLM apiConfiguration={apiConfiguration} setApiConfigurationField={setApiConfigurationField} />
           )}
 
           {selectedProvider === "ollama" && (

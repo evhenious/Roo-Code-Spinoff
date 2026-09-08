@@ -14,7 +14,6 @@ import {
 
 import { defaultModeSlug } from "../../../shared/modes"
 import { experimentDefault } from "../../../shared/experiments"
-import { setTtsEnabled } from "../../../utils/tts"
 import { ContextProxy } from "../../config/ContextProxy"
 import { Task, TaskOptions } from "../../task/Task"
 import { safeWriteJson } from "../../../utils/safeWriteJson"
@@ -154,11 +153,6 @@ vi.mock("vscode", () => ({
     Test: 3,
   },
   version: "1.85.0",
-}))
-
-vi.mock("../../../utils/tts", () => ({
-  setTtsEnabled: vi.fn(),
-  setTtsSpeed: vi.fn(),
 }))
 
 vi.mock("../../../api", () => ({
@@ -509,19 +503,11 @@ describe("ClineProvider", () => {
       alwaysAllowReadOnly: false,
       alwaysAllowReadOnlyOutsideWorkspace: false,
       alwaysAllowWrite: false,
-      codebaseIndexConfig: {
-        codebaseIndexEnabled: true,
-        codebaseIndexQdrantUrl: "",
-        codebaseIndexEmbedderProvider: "openai",
-        codebaseIndexEmbedderBaseUrl: "",
-        codebaseIndexEmbedderModelId: "",
-      },
       alwaysAllowWriteOutsideWorkspace: false,
       alwaysAllowExecute: false,
       alwaysAllowMcp: false,
       uriScheme: "vscode",
       soundEnabled: false,
-      ttsEnabled: false,
       enableCheckpoints: false,
       writeDelayMs: 1000,
       mcpEnabled: true,
@@ -754,7 +740,6 @@ describe("ClineProvider", () => {
     expect(state).toHaveProperty("alwaysAllowExecute")
     expect(state).toHaveProperty("taskHistory")
     expect(state).toHaveProperty("soundEnabled")
-    expect(state).toHaveProperty("ttsEnabled")
     expect(state).toHaveProperty("writeDelayMs")
   })
 
@@ -802,18 +787,6 @@ describe("ClineProvider", () => {
     // Simulate setting sound to disabled
     await messageHandler({ type: "updateSettings", updatedSettings: { soundEnabled: false } })
     expect(mockContext.globalState.update).toHaveBeenCalledWith("soundEnabled", false)
-    expect(mockPostMessage).toHaveBeenCalled()
-
-    // Simulate setting tts to enabled
-    await messageHandler({ type: "updateSettings", updatedSettings: { ttsEnabled: true } })
-    expect(setTtsEnabled).toHaveBeenCalledWith(true)
-    expect(mockContext.globalState.update).toHaveBeenCalledWith("ttsEnabled", true)
-    expect(mockPostMessage).toHaveBeenCalled()
-
-    // Simulate setting tts to disabled
-    await messageHandler({ type: "updateSettings", updatedSettings: { ttsEnabled: false } })
-    expect(setTtsEnabled).toHaveBeenCalledWith(false)
-    expect(mockContext.globalState.update).toHaveBeenCalledWith("ttsEnabled", false)
     expect(mockPostMessage).toHaveBeenCalled()
   })
 

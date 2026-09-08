@@ -1,7 +1,38 @@
 // npx vitest core/environment/__tests__/getEnvironmentDetails.spec.ts
 
+vi.mock("vscode", () => ({
+  window: {
+    tabGroups: { all: [], onDidChangeTabs: vi.fn() },
+    visibleTextEditors: [],
+  },
+  env: {
+    language: "en-US",
+  },
+}))
+
+vi.mock("p-wait-for", () => ({
+  default: vi.fn(),
+}))
+
+vi.mock("../../../utilities/delay", () => ({
+  delay: vi.fn(),
+}))
+
+vi.mock("execa", () => ({
+  execa: vi.fn(),
+}))
+
+vi.mock("../../../shared/modes")
+vi.mock("../../../shared/getApiMetrics")
+vi.mock("../../../services/glob/list-files")
+vi.mock("../../../integrations/terminal/TerminalRegistry")
+vi.mock("../../../integrations/terminal/Terminal")
+vi.mock("../../../utils/path")
+vi.mock("../../../utils/git")
+vi.mock("../../prompts/responses")
+vi.mock("../../tools/validateToolUse")
+
 import pWaitFor from "p-wait-for"
-import delay from "delay"
 import type { Mock } from "vitest"
 
 import { getEnvironmentDetails } from "../getEnvironmentDetails"
@@ -19,38 +50,7 @@ import { RooIgnoreController } from "../../ignore/RooIgnoreController"
 import { formatResponse } from "../../prompts/responses"
 import { getGitStatus } from "../../../utils/git"
 import { Task } from "../../task/Task"
-
-vi.mock("vscode", () => ({
-  window: {
-    tabGroups: { all: [], onDidChangeTabs: vi.fn() },
-    visibleTextEditors: [],
-  },
-  env: {
-    language: "en-US",
-  },
-}))
-
-vi.mock("p-wait-for", () => ({
-  default: vi.fn(),
-}))
-
-vi.mock("delay", () => ({
-  default: vi.fn(),
-}))
-
-vi.mock("execa", () => ({
-  execa: vi.fn(),
-}))
-
-vi.mock("../../../shared/modes")
-vi.mock("../../../shared/getApiMetrics")
-vi.mock("../../../services/glob/list-files")
-vi.mock("../../../integrations/terminal/TerminalRegistry")
-vi.mock("../../../integrations/terminal/Terminal")
-vi.mock("../../../utils/path")
-vi.mock("../../../utils/git")
-vi.mock("../../prompts/responses")
-vi.mock("../../tools/validateToolUse")
+import { delay } from "../../../utilities/delay"
 
 describe("getEnvironmentDetails", () => {
   const mockCwd = "/test/path"

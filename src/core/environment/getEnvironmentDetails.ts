@@ -1,7 +1,8 @@
 import path from "path"
 
-import delay from "delay"
 import pWaitFor from "p-wait-for"
+
+import { delay } from "../../utilities/delay"
 import * as vscode from "vscode"
 
 import type { ExperimentId } from "@roo-code/types"

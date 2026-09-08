@@ -14,11 +14,8 @@ import {
   openAiModelInfoSaneDefaults,
   openAiNativeModels,
   vertexModels,
-  vscodeLlmModels,
-  vscodeLlmDefaultModelId,
   openAiCodexModels,
   basetenModels,
-  qwenCodeModels,
   litellmDefaultModelInfo,
   lMStudioDefaultModelInfo,
   BEDROCK_1M_CONTEXT_MODEL_IDS,
@@ -269,22 +266,9 @@ function getSelectedModel({
         info: modelInfo ? { ...lMStudioDefaultModelInfo, ...modelInfo } : undefined,
       }
     }
-    case "vscode-lm": {
-      const id = apiConfiguration?.vsCodeLmModelSelector
-        ? `${apiConfiguration.vsCodeLmModelSelector.vendor}/${apiConfiguration.vsCodeLmModelSelector.family}`
-        : vscodeLlmDefaultModelId
-      const modelFamily = apiConfiguration?.vsCodeLmModelSelector?.family ?? vscodeLlmDefaultModelId
-      const info = vscodeLlmModels[modelFamily as keyof typeof vscodeLlmModels]
-      return { id, info: { ...openAiModelInfoSaneDefaults, ...info, supportsImages: false } } // VSCode LM API currently doesn't support images.
-    }
     case "poe": {
       const id = apiConfiguration.apiModelId ?? defaultModelId
       const info = routerModels.poe?.[id]
-      return { id, info }
-    }
-    case "qwen-code": {
-      const id = apiConfiguration.apiModelId ?? defaultModelId
-      const info = qwenCodeModels[id as keyof typeof qwenCodeModels]
       return { id, info }
     }
     case "openai-codex": {

@@ -1,5 +1,4 @@
 export * from "./api.js"
-export * from "./codebase-index.js"
 export * from "./context-management.js"
 export * from "./cookie-consent.js"
 export * from "./custom-tool.js"

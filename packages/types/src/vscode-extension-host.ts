@@ -37,8 +37,6 @@ export interface ExtensionMessage {
     | "openAiModels"
     | "ollamaModels"
     | "lmStudioModels"
-    | "vsCodeLmModels"
-    | "vsCodeLmApiAvailable"
     | "updatePrompt"
     | "systemPrompt"
     | "autoApprovalEnabled"
@@ -62,11 +60,6 @@ export interface ExtensionMessage {
     | "condenseTaskContextStarted"
     | "condenseTaskContextResponse"
     | "singleRouterModelFetchResponse"
-    | "indexingStatusUpdate"
-    | "indexCleared"
-    | "codebaseIndexConfig"
-    | "codeIndexSettingsSaved"
-    | "codeIndexSecretStatus"
     | "showDeleteMessageDialog"
     | "showEditMessageDialog"
     | "commands"
@@ -121,7 +114,6 @@ export interface ExtensionMessage {
   openAiModels?: string[]
   ollamaModels?: ModelRecord
   lmStudioModels?: ModelRecord
-  vsCodeLmModels?: { vendor?: string; family?: string; version?: string; id?: string }[]
   mcpServers?: McpServer[]
   commits?: GitCommit[]
   listApiConfig?: ProviderSettingsEntry[]
@@ -330,7 +322,6 @@ export interface WebviewMessage {
     | "requestOpenAiModels"
     | "requestOllamaModels"
     | "requestLmStudioModels"
-    | "requestVsCodeLmModels"
     | "openImage"
     | "saveImage"
     | "openFile"
@@ -343,10 +334,6 @@ export interface WebviewMessage {
     | "vsCodeSetting"
     | "updateCondensingPrompt"
     | "playSound"
-    | "playTts"
-    | "stopTts"
-    | "ttsEnabled"
-    | "ttsSpeed"
     | "openKeyboardShortcuts"
     | "openMcpSettings"
     | "openProjectMcpSettings"
@@ -369,7 +356,6 @@ export interface WebviewMessage {
     | "getSystemPrompt"
     | "copySystemPrompt"
     | "systemPrompt"
-    | "enhancementApiConfigId"
     | "autoApprovalEnabled"
     | "updateCustomMode"
     | "deleteCustomMode"
@@ -378,7 +364,6 @@ export interface WebviewMessage {
     | "checkpointDiff"
     | "checkpointRestore"
     | "deleteMcpServer"
-    | "codebaseIndexEnabled"
     | "searchFiles"
     | "toggleApiConfigPin"
     | "hasOpenedModeSelector"
@@ -388,12 +373,6 @@ export interface WebviewMessage {
     | "openAiCodexSignOut"
     | "switchOrganization"
     | "condenseTaskContextRequest"
-    | "requestIndexingStatus"
-    | "startIndexing"
-    | "stopIndexing"
-    | "clearIndexData"
-    | "indexingStatusUpdate"
-    | "indexCleared"
     | "toggleWorkspaceIndexing"
     | "setAutoEnableDefault"
     | "focusPanelRequest"
@@ -405,8 +384,6 @@ export interface WebviewMessage {
     | "importModeResult"
     | "checkRulesDirectory"
     | "checkRulesDirectoryResult"
-    | "saveCodeIndexSettingsAtomic"
-    | "requestCodeIndexSecretStatus"
     | "requestCommands"
     | "openCommandFile"
     | "deleteCommand"
@@ -509,38 +486,6 @@ export interface WebviewMessage {
   hasContent?: boolean // For checkRulesDirectoryResult
   checkOnly?: boolean // For deleteCustomMode check
   useProviderSignup?: boolean // For rooCloudSignIn to use provider signup flow
-  codeIndexSettings?: {
-    // Global state settings
-    codebaseIndexEnabled: boolean
-    codebaseIndexQdrantUrl: string
-    codebaseIndexEmbedderProvider:
-      | "openai"
-      | "ollama"
-      | "openai-compatible"
-      | "gemini"
-      | "mistral"
-      | "vercel-ai-gateway"
-      | "bedrock"
-      | "openrouter"
-    codebaseIndexEmbedderBaseUrl?: string
-    codebaseIndexEmbedderModelId: string
-    codebaseIndexEmbedderModelDimension?: number // Generic dimension for all providers
-    codebaseIndexOpenAiCompatibleBaseUrl?: string
-    codebaseIndexBedrockRegion?: string
-    codebaseIndexBedrockProfile?: string
-    codebaseIndexSearchMaxResults?: number
-    codebaseIndexSearchMinScore?: number
-    codebaseIndexOpenRouterSpecificProvider?: string // OpenRouter provider routing
-
-    // Secret settings
-    codeIndexOpenAiKey?: string
-    codeIndexQdrantApiKey?: string
-    codebaseIndexOpenAiCompatibleApiKey?: string
-    codebaseIndexGeminiApiKey?: string
-    codebaseIndexMistralApiKey?: string
-    codebaseIndexVercelAiGatewayApiKey?: string
-    codebaseIndexOpenRouterApiKey?: string
-  }
   updatedSettings?: Partial<RooCodeSettings>
   /** Task configuration applied via `createTask()` when starting a cloud task. */
   taskConfiguration?: Partial<RooCodeSettings>
@@ -575,39 +520,11 @@ export const checkoutRestorePayloadSchema = z.object({
 
 export type CheckpointRestorePayload = z.infer<typeof checkoutRestorePayloadSchema>
 
-export interface IndexingStatusPayload {
-  state: "Standby" | "Indexing" | "Indexed" | "Error" | "Stopping"
-  message: string
-}
-
-export interface IndexClearedPayload {
-  success: boolean
-  error?: string
-}
-
 export type WebViewMessagePayload =
   | CheckpointDiffPayload
   | CheckpointRestorePayload
-  | IndexingStatusPayload
-  | IndexClearedPayload
   | UpdateTodoListPayload
   | EditQueuedMessagePayload
-
-export interface IndexingStatus {
-  systemStatus: string
-  message?: string
-  processedItems: number
-  totalItems: number
-  currentItemUnit?: string
-  workspacePath?: string
-  workspaceEnabled?: boolean
-  autoEnableDefault?: boolean
-}
-
-export interface IndexingStatusUpdateMessage {
-  type: "indexingStatusUpdate"
-  values: IndexingStatus
-}
 
 export interface LanguageModelChatSelector {
   vendor?: string
