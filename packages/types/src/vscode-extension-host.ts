@@ -538,7 +538,6 @@ export interface ClineSayTool {
     | "editedExistingFile"
     | "appliedDiff"
     | "newFileCreated"
-    | "codebaseSearch"
     | "astGrep"
     | "readFile"
     | "readCommandOutput"
