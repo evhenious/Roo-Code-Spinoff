@@ -51,8 +51,8 @@ import {
   MessageCircleQuestionMark,
   PocketKnife,
   Repeat2,
+  SearchIcon,
   Split,
-  SquareArrowOutUpRight,
   TerminalSquare,
   Trash2,
 } from "lucide-react"
@@ -136,7 +136,7 @@ const ChatRow = memo(
     const prevHeightRef = useRef(0)
 
     const [chatrow, { height }] = useSize(
-      <div className="px-[15px] py-[10px] pr-[6px]">
+      <div className="px-[15px] py-[5px] pr-[6px]">
         <ChatRowContent {...props} />
       </div>,
     )
@@ -384,7 +384,7 @@ export const ChatRowContent = ({
     alignItems: "center",
     gap: "10px",
     cursor: "default",
-    marginBottom: "10px",
+    marginBottom: "5px",
     wordBreak: "break-word",
   }
 
@@ -595,11 +595,8 @@ export const ChatRowContent = ({
                       {formatPathTooltip(tool.path, tool.reason)}
                     </span>
                   </PathTooltip>
-                  <div style={{ flexGrow: 1 }}></div>
-                  <SquareArrowOutUpRight
-                    className="w-4 shrink-0 codicon codicon-link-external opacity-0 group-hover:opacity-100 transition-opacity"
-                    style={{ fontSize: 13.5, margin: "1px 0" }}
-                  />
+                  <div className="flex-grow"></div>
+                  <span className="codicon codicon-link-external text-[13.5px] my-[1px]" />
                 </ToolUseBlockHeader>
               </ToolUseBlock>
             </div>
@@ -724,7 +721,7 @@ export const ChatRowContent = ({
         return (
           <>
             <div style={headerStyle}>
-              {toolIcon("search")}
+              <SearchIcon className="w-4 shrink-0" aria-label="Search file icon" />
               <span style={{ fontWeight: "bold" }}>
                 {message.type === "ask" ? (
                   <Trans
@@ -1131,11 +1128,11 @@ export const ChatRowContent = ({
           const trimmedText = message.text && message.text.trim()
           return (
             <div className="group">
-              <div style={headerStyle}>
+              <div style={headerStyle} className="bg-gray-200/50">
                 <MessageCircle className="w-4 shrink-0" aria-label="Speech bubble icon" />
                 <span style={{ fontWeight: "bold" }}>{t("chat:text.rooSaid")}</span>
                 <div style={{ flexGrow: 1 }} />
-                <OpenMarkdownPreviewButton markdown={trimmedText} />
+                <OpenMarkdownPreviewButton markdown={trimmedText} className="pr-2" />
               </div>
               <div className="pl-6">
                 <Markdown markdown={trimmedText} partial={message.partial} />
