@@ -250,13 +250,6 @@
     "wantsToSearchOutsideWorkspace": "Roo wants to search this directory (outside workspace) for <code>{{regex}}</code>",
     "didSearchOutsideWorkspace": "Roo searched this directory (outside workspace) for <code>{{regex}}</code>"
   },
-  "codebaseSearch": {
-    "wantsToSearch": "Roo wants to search the codebase for <code>{{query}}</code>",
-    "wantsToSearchWithPath": "Roo wants to search the codebase for <code>{{query}}</code> in <code>{{path}}</code>",
-    "didSearch_one": "Found 1 result",
-    "didSearch_other": "Found {{count}} results",
-    "resultTooltip": "Similarity score: {{score}} (click to open file)"
-  },
   "astGrep": {
     "wantsToSearch": "Roo wants to use ast-grep search <code>{{query}}</code>",
     "didSearch_one": "Found 1 match",
