@@ -603,8 +603,11 @@ export class TaskWorkflow {
           (block) => block.type === "tool_use" || block.type === "mcp_tool_use",
         )
 
-        //! these 2 guys are allowed to forget a tool.
-        if (!hasToolUses && ["ask", "architect"].includes(currentMode)) {
+        //! it's allowed to forget a tool when NOT in a subtask
+        // Reason: most of times assistant wraps things up pretty good, so enforced "use a tool" ping
+        // leads to nothing but wasted context. Subtasks are bit different as need t be completed properly
+        // to be able to return back to parent with the outcome
+        if (!hasToolUses && !this.deps.parentTaskId) {
           // emulating 'notify tool
           this.deps.assistantMessageContent.push({
             type: "tool_use" as const,

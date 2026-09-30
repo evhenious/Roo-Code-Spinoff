@@ -72,7 +72,7 @@ async function generatePrompt(
 
 ${roleDefinition}
 ${getRulesSection(cwd, shouldIncludeMcp, hasCommandGroup, mode, useDeveloperRole)}
-${getSharedToolUseSection(mode)}
+${getSharedToolUseSection(settings?.isSubtask)}
 ${markdownFormattingSection()}
 ${skillsSection ? `\n${skillsSection}` : ""}
 ${getSystemInfoSection()}

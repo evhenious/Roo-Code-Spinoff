@@ -21,7 +21,7 @@ export const generateSystemPrompt = async (provider: ClineProvider, message: Web
 
   // Create a temporary API handler to check model info for stealth mode.
   // This avoids relying on an active Cline instance which might not exist during preview.
-  let modelInfo: { isStealthModel?: boolean } | undefined
+  let modelInfo: object | undefined
   try {
     const tempApiHandler = buildApiHandler(apiConfiguration)
     modelInfo = tempApiHandler.getModel().info
@@ -44,7 +44,6 @@ export const generateSystemPrompt = async (provider: ClineProvider, message: Web
       useAgentRules: vscode.workspace.getConfiguration(Package.name).get<boolean>("useAgentRules") ?? true,
       enableSubfolderRules: enableSubfolderRules ?? false,
       newTaskRequireTodos: vscode.workspace.getConfiguration(Package.name).get<boolean>("newTaskRequireTodos", false),
-      isStealthModel: modelInfo?.isStealthModel,
     },
     provider.getSkillsManager(),
     apiConfiguration?.useDeveloperRole ?? false,
