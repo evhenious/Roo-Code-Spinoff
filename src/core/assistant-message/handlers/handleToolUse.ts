@@ -12,7 +12,7 @@ import { editTool } from "../../tools/EditTool"
 import { executeCommandTool } from "../../tools/ExecuteCommandTool"
 import { generateImageTool } from "../../tools/GenerateImageTool"
 import { listFilesTool } from "../../tools/ListFilesTool"
-import { newTaskTool } from "../../tools/NewTaskTool"
+import { spawnSubTaskTool } from "../../tools/SpawnSubtaskTool"
 import { readCommandOutputTool } from "../../tools/ReadCommandOutputTool"
 import { readFileTool } from "../../tools/ReadFileTool"
 import { runSlashCommandTool } from "../../tools/RunSlashCommandTool"
@@ -37,8 +37,8 @@ import { formatResponse } from "../../prompts/responses"
 import { AskIgnoredError } from "../../task/AskIgnoredError"
 import { BaseTool, ToolCallbacks } from "../../tools/BaseTool"
 
-type StandardTool = Exclude<ToolName, "custom_tool" | "attempt_completion" | "new_task">
-type StdSpecialTool = Extract<ToolName, "attempt_completion" | "new_task">
+type StandardTool = Exclude<ToolName, "custom_tool" | "attempt_completion" | "spawn_subtask">
+type StdSpecialTool = Extract<ToolName, "attempt_completion" | "spawn_subtask">
 
 type StdToolDefinition = {
   tool: BaseTool<any>
@@ -196,7 +196,7 @@ const toolDescription = (block: any, customModes: ModeConfig[] | undefined): str
       return `[${block.name} for '${block.params.artifact_id}']`
     case "update_todo_list":
       return `[${block.name}]`
-    case "new_task": {
+    case "spawn_subtask": {
       const mode = block.params.mode ?? defaultModeSlug
       const message = block.params.message ?? "(no message)"
       const modeName = getModeBySlug(mode, customModes)?.name ?? mode
@@ -504,8 +504,8 @@ export async function handleToolUse(taskInstance: Task, block: any) {
 
   //! 3. some tools require special care, but we don't initiate this map until we sure we need it (not std tool!)
   const specialToolMap = {
-    new_task: {
-      tool: newTaskTool,
+    spawn_subtask: {
+      tool: spawnSubTaskTool,
       needsCheckpoint: true,
       params: { toolCallId: block.id },
     },

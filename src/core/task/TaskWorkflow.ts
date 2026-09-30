@@ -689,9 +689,9 @@ export class TaskWorkflow {
             }
           }
 
-          // Enforce new_task isolation
+          // Enforce spawn_subtask isolation
           const newTaskIndex = assistantContent.findIndex(
-            (block) => block.type === "tool_use" && block.name === "new_task",
+            (block) => block.type === "tool_use" && block.name === "spawn_subtask",
           )
 
           if (newTaskIndex !== -1 && newTaskIndex < assistantContent.length - 1) {
@@ -699,7 +699,7 @@ export class TaskWorkflow {
             assistantContent.length = newTaskIndex + 1
 
             const executionNewTaskIndex = this.deps.assistantMessageContent.findIndex(
-              (block) => block.type === "tool_use" && block.name === "new_task",
+              (block) => block.type === "tool_use" && block.name === "spawn_subtask",
             )
             if (executionNewTaskIndex !== -1) {
               this.deps.assistantMessageContent.length = executionNewTaskIndex + 1
@@ -711,7 +711,7 @@ export class TaskWorkflow {
                   type: "tool_result",
                   tool_use_id: (tool as Anthropic.ToolUseBlockParam).id,
                   content:
-                    "This tool was not executed because new_task was called in the same message turn. The new_task tool must be the last tool in a message.",
+                    "This tool was not executed because spawn_subtask was called in the same message turn. The spawn_subtask tool must be the last tool in a message.",
                   is_error: true,
                 })
               }

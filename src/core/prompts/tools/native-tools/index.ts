@@ -9,7 +9,7 @@ import editTool from "./edit"
 import executeCommand from "./execute_command"
 import generateImage from "./generate_image"
 import listFiles from "./list_files"
-import newTask from "./new_task"
+import spawnSubtask from "./spawn_subtask"
 import readCommandOutput from "./read_command_output"
 import { createReadFileTool, type ReadFileToolOptions } from "./read_file"
 import runSlashCommand from "./run_slash_command"
@@ -58,7 +58,7 @@ export function getNativeTools(options: NativeToolsOptions = {}): OpenAI.Chat.Ch
     executeCommand,
     generateImage,
     listFiles,
-    newTask,
+    spawnSubtask,
     readCommandOutput,
     createReadFileTool(readFileOptions),
     runSlashCommand,

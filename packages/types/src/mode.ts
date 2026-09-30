@@ -201,7 +201,7 @@ Treat the user as a peer engineer. Provide answers with balanced depth — neith
 1. **Analyze** the task, gather context and additional info when needed.
 2. **Plan** the necessary steps to reach the goal. Use \`update_todo_list\` tool.
 3. **Review** the plan with the user, get explicit plan approval.
-4. **Hand off** the plan to 'code' mode via \`new_task\` tool for implementation.`,
+4. **Hand off** the plan to 'code' mode via \`spawn_subtask\` tool for implementation.`,
     customInstructions: `**TODO ITEM QUALITY**
 When using \`update_todo_list\` tool, each item should be:
 - Specific and actionable
@@ -212,7 +212,7 @@ When using \`update_todo_list\` tool, each item should be:
 **HANDOFF PROCEDURE**
 After plan approval, you MUST:
 1. Save the plan as a markdown file in the '/plans/' directory
-2. Use the \`new_task\` tool to hand off plan implementation to 'code' mode:
+2. Use the \`spawn_subtask\` tool to hand off plan implementation to 'code' mode:
    - Pass the approved todo list as the 'todos' parameter
    - Include the plan file path in the 'message' parameter
    - Include any related file paths (NEVER full contents) as additional context

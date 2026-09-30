@@ -243,7 +243,7 @@ export function filterNativeToolsForMode(
   }
 
   if (modeSlug === "code") {
-    allowedToolNames.delete("new_task") // CODE is final worker, not expected to spawn tasks
+    allowedToolNames.delete("spawn_subtask") // CODE is final worker, not expected to spawn tasks
     if (settings?.isSubtask) allowedToolNames.delete("notify") // subtasks should always be finalized correctly
   }
 

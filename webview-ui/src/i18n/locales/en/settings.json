@@ -704,7 +704,7 @@
     },
     "NEW_TASK_REQUIRE_TODOS": {
       "name": "Require 'todos' list for new tasks",
-      "description": "When enabled, the new_task tool will require a todos parameter to be provided. This ensures all new tasks start with a clear list of objectives. When disabled (default), the todos parameter remains optional for backward compatibility."
+      "description": "When enabled, the spawn_subtask tool will require a todos parameter to be provided. This ensures all new tasks start with a clear list of objectives. When disabled (default), the todos parameter remains optional for backward compatibility."
     },
     "IMAGE_GENERATION": {
       "name": "Enable AI image generation",

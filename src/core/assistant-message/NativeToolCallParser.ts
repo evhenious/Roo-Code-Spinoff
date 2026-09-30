@@ -629,7 +629,7 @@ export class NativeToolCallParser {
         }
         break
 
-      case "new_task":
+      case "spawn_subtask":
         if (partialArgs.mode !== undefined || partialArgs.message !== undefined) {
           nativeArgs = {
             mode: partialArgs.mode,
@@ -971,7 +971,7 @@ export class NativeToolCallParser {
           }
           break
 
-        case "new_task":
+        case "spawn_subtask":
           if (args.mode !== undefined && args.message !== undefined) {
             nativeArgs = {
               mode: args.mode,

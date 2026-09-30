@@ -104,7 +104,7 @@ export type NativeToolArgs = {
   edit_file: { file_path: string; old_string: string; new_string: string; expected_replacements?: number }
   apply_patch: { patch: string }
   list_files: { path: string; recursive?: boolean }
-  new_task: { mode: string; message: string; todos?: string }
+  spawn_subtask: { mode: string; message: string; todos?: string }
   ask_followup_question: {
     question: string
     follow_up: Array<{ text: string; mode?: string }>
@@ -235,8 +235,8 @@ export interface SwitchModeToolUse extends ToolUse<"switch_mode"> {
   params: Partial<Pick<Record<ToolParamName, string>, "mode_slug" | "reason">>
 }
 
-export interface NewTaskToolUse extends ToolUse<"new_task"> {
-  name: "new_task"
+export interface SpawnSubTaskToolUse extends ToolUse<"spawn_subtask"> {
+  name: "spawn_subtask"
   params: Partial<Pick<Record<ToolParamName, string>, "mode" | "message" | "todos">>
 }
 
@@ -278,7 +278,7 @@ export const TOOL_GROUPS: Record<ToolGroup, ToolGroupConfig> = {
     tools: ["use_mcp_tool", "access_mcp_resource"],
   },
   modes: {
-    tools: ["switch_mode", "new_task"],
+    tools: ["switch_mode", "spawn_subtask"],
     alwaysAvailable: true,
   },
 }
@@ -289,7 +289,7 @@ export const ALWAYS_AVAILABLE_TOOLS: ToolName[] = [
   "attempt_completion",
   "notify",
   "switch_mode",
-  "new_task",
+  "spawn_subtask",
   "update_todo_list",
   "run_slash_command",
   "skill",

@@ -2169,7 +2169,7 @@ export class ClineProvider
   }
 
   // When initializing a new task, (not from history but from a tool command
-  // new_task) there is no need to remove the previous task since the new
+  // spawn_subtask) there is no need to remove the previous task since the new
   // task is a subtask of the previous one, and when it finishes it is removed
   // from the stack and the caller is resumed in this way we can have a chain
   // of tasks, each one being a sub task of the previous one until the main
@@ -2431,7 +2431,7 @@ export class ClineProvider
       )
     }
     // 2) Flush pending tool results to API history BEFORE disposing the parent.
-    //    This is critical: when tools are called before new_task,
+    //    This is critical: when tools are called before spawn_subtask,
     //    their tool_result blocks are in userMessageContent but not yet saved to API history.
     //    If we don't flush them, the parent's API conversation will be incomplete and
     //    cause 400 errors when resumed (missing tool_result for tool_use blocks).
@@ -2592,13 +2592,13 @@ export class ClineProvider
     parentClineMessages.push(subtaskUiMessage)
     await saveTaskMessages({ messages: parentClineMessages, taskId: parentTaskId, globalStoragePath })
 
-    // Find the tool_use_id from the last assistant message's new_task tool_use
+    // Find the tool_use_id from the last assistant message's spawn_subtask tool_use
     let toolUseId: string | undefined
     for (let i = parentApiMessages.length - 1; i >= 0; i--) {
       const msg = parentApiMessages[i]
       if (msg.role === "assistant" && Array.isArray(msg.content)) {
         for (const block of msg.content) {
-          if (block.type === "tool_use" && block.name === "new_task") {
+          if (block.type === "tool_use" && block.name === "spawn_subtask") {
             toolUseId = block.id
             break
           }
@@ -2607,7 +2607,7 @@ export class ClineProvider
       }
     }
 
-    // Preferred: if the parent history contains the native tool_use for new_task,
+    // Preferred: if the parent history contains the native tool_use for spawn_subtask,
     // inject a matching tool_result for the Anthropic message contract:
     // user → assistant (tool_use) → user (tool_result)
     if (toolUseId) {
