@@ -2,14 +2,13 @@ import * as vscode from "vscode"
 
 import { TodoItem } from "@roo-code/types"
 
-import type { Task } from "../task/Task"
 import { getModeBySlug } from "../../shared/modes"
-import { formatResponse } from "../prompts/responses"
-import { t } from "../../i18n"
-import { parseMarkdownChecklist } from "./UpdateTodoListTool"
 import { Package } from "../../shared/package"
-import { BaseTool, ToolCallbacks } from "./BaseTool"
 import type { ToolUse } from "../../shared/tools"
+import { formatResponse } from "../prompts/responses"
+import type { Task } from "../task/Task"
+import { BaseTool, ToolCallbacks } from "./BaseTool"
+import { parseMarkdownChecklist } from "./UpdateTodoListTool"
 
 interface NewTaskParams {
   mode: string
@@ -17,8 +16,8 @@ interface NewTaskParams {
   todos?: string
 }
 
-export class NewTaskTool extends BaseTool<"new_task"> {
-  readonly name = "new_task" as const
+export class SpawnSubtaskTool extends BaseTool<"spawn_subtask"> {
+  readonly name = "spawn_subtask" as const
 
   async execute(params: NewTaskParams, task: Task, callbacks: ToolCallbacks): Promise<void> {
     const { mode, message, todos } = params
@@ -28,17 +27,17 @@ export class NewTaskTool extends BaseTool<"new_task"> {
       // Validate required parameters.
       if (!mode) {
         task.consecutiveMistakeCount++
-        task.recordToolError("new_task")
+        task.recordToolError("spawn_subtask")
         task.didToolFailInCurrentTurn = true
-        pushToolResult(await task.sayAndCreateMissingParamError("new_task", "mode"))
+        pushToolResult(await task.sayAndCreateMissingParamError("spawn_subtask", "mode"))
         return
       }
 
       if (!message) {
         task.consecutiveMistakeCount++
-        task.recordToolError("new_task")
+        task.recordToolError("spawn_subtask")
         task.didToolFailInCurrentTurn = true
-        pushToolResult(await task.sayAndCreateMissingParamError("new_task", "message"))
+        pushToolResult(await task.sayAndCreateMissingParamError("spawn_subtask", "message"))
         return
       }
 
@@ -60,9 +59,9 @@ export class NewTaskTool extends BaseTool<"new_task"> {
       // Note: `undefined` means not provided, empty string is valid.
       if (requireTodos && todos === undefined) {
         task.consecutiveMistakeCount++
-        task.recordToolError("new_task")
+        task.recordToolError("spawn_subtask")
         task.didToolFailInCurrentTurn = true
-        pushToolResult(await task.sayAndCreateMissingParamError("new_task", "todos"))
+        pushToolResult(await task.sayAndCreateMissingParamError("spawn_subtask", "todos"))
         return
       }
 
@@ -73,7 +72,7 @@ export class NewTaskTool extends BaseTool<"new_task"> {
           todoItems = parseMarkdownChecklist(todos)
         } catch (error) {
           task.consecutiveMistakeCount++
-          task.recordToolError("new_task")
+          task.recordToolError("spawn_subtask")
           task.didToolFailInCurrentTurn = true
           pushToolResult(formatResponse.toolError("Invalid todos format: must be a markdown checklist"))
           return
@@ -124,7 +123,7 @@ export class NewTaskTool extends BaseTool<"new_task"> {
     }
   }
 
-  override async handlePartial(task: Task, block: ToolUse<"new_task">): Promise<void> {
+  override async handlePartial(task: Task, block: ToolUse<"spawn_subtask">): Promise<void> {
     const mode: string | undefined = block.params.mode
     const message: string | undefined = block.params.message
     const todos: string | undefined = block.params.todos
@@ -140,4 +139,4 @@ export class NewTaskTool extends BaseTool<"new_task"> {
   }
 }
 
-export const newTaskTool = new NewTaskTool()
+export const spawnSubTaskTool = new SpawnSubtaskTool()

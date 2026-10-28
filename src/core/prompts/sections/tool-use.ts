@@ -1,14 +1,11 @@
-export function getSharedToolUseSection(mode: string): string {
-  const toolRestricted = mode === "code"
-
+export function getSharedToolUseSection(isSubtask?: boolean): string {
   return `
 # TOOL USE RULES
 ${
-  toolRestricted
+  isSubtask
     ? `
 **CRITICALLY IMPORTANT**: you MUST call at least one tool per response. 
-If the task is complete, use \`attempt_completion\` tool.
-If you want to notify user that your turn in a conversation is finished, use \`notify\` tool.
+If the task is fully complete, use \`attempt_completion\` tool.
 
 ## Guidelines
 `

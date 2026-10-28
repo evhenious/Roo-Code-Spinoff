@@ -12,6 +12,7 @@ export function createWorkflowDependencies(task: Task): TaskWorkflowDependencies
     // ─── Task identity ───────────────────────────────────────────────────────────
     taskId: task.taskId,
     instanceId: task.instanceId,
+    parentTaskId: task.parentTaskId,
 
     // ─── Abort / lifecycle flags ────────────────────────────────────────────────
     get abort() {

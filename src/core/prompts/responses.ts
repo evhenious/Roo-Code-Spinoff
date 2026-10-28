@@ -40,21 +40,14 @@ export const formatResponse = {
     }),
 
   // these messages should be in 'user' role block, sending them as 'developer' role allows model to ignore it
-  noToolsUsed: (mode: string) => {
-    if (mode === "ask") {
-      return `[SYSTEM ERROR]: Tool Use Rules violation detected.
-**Reason:** 0 tools called in your last response.
-**Suggested action:** if you want to properly close your turn in the conversation, use \`notify\` tool.
-**Note:** this is automated message, do not discuss it or answer conversationally.`
-    }
-
+  // it is possible only in subtask (in root task 'notify' tool would be autoinserted),
+  // so should be 'attemt_completion' always
+  noToolsUsed: (_mode: string) => {
     return `[SYSTEM ERROR]: Tool Use Rules violation.
 **Reason:** 0 tools called in your last response.
 ### Next steps:
-1. **If you have completed the user's task:** use \`attempt_completion\` ${mode === "code" ? "" : "or `notify` "}tool.
-2. **If you need additional info from the user:** use relevant tool. Options:
-   - use \`ask_followup_question\` tool
-   - ask the question naturally and use \`notify\` tool to properly end your turn
+1. **If you have completed the user's task:** use \`attempt_completion\` tool.
+2. **If you need additional info from the user to proceed with the task:** use \`ask_followup_question\` tool.
 3. **Otherwise:** proceed with the most appropriate tool to continue your current task.
 **Note:** this is automated message, do not discuss it or answer conversationally.`
   },

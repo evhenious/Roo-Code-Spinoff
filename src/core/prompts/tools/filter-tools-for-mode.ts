@@ -229,22 +229,21 @@ export function filterNativeToolsForMode(
     }
   }
 
+  if (settings?.isSubtask) {
+    // subtasks should always be finalized correctly. 'notify' could be autoinserted tool also
+    allowedToolNames.delete("notify")
+  } else {
+    // subtask needs it to wrap up properly and return results to parent
+    allowedToolNames.delete("attempt_completion")
+  }
+
   // Conditionally exclude access_mcp_resource if MCP is not enabled or there are no resources
   if (!mcpHub || !hasAnyMcpResources(mcpHub)) {
     allowedToolNames.delete("access_mcp_resource")
   }
 
-  if (modeSlug === "ask") {
-    allowedToolNames.delete("attempt_completion") // ASK should use 'notify'
-  }
-
   if (modeSlug !== "ask") {
-    allowedToolNames.delete("switch_mode") // only ASK could initiate swithc mode now
-  }
-
-  if (modeSlug === "code") {
-    allowedToolNames.delete("new_task") // CODE is final worker, not expected to spawn tasks
-    if (settings?.isSubtask) allowedToolNames.delete("notify") // subtasks should always be finalized correctly
+    allowedToolNames.delete("switch_mode") // only ASK could initiate switch mode now
   }
 
   // Filter native tools based on allowed tool names and apply alias renames

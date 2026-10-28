@@ -4,20 +4,20 @@
  * Code fences are stripped before matching to avoid false positives.
  */
 export function countMarkdownHeadings(text: string | undefined): number {
-	if (!text) return 0
+  if (!text) return 0
 
-	// Remove fenced code blocks to avoid counting headings inside code
-	const withoutCodeBlocks = text.replace(/```[\s\S]*?```/g, "")
+  // Remove fenced code blocks to avoid counting headings inside code
+  const withoutCodeBlocks = text.replace(/```[\s\S]*?```/g, "")
 
-	// Up to 3 leading spaces are allowed before the hashes per the markdown spec
-	const headingRegex = /^\s{0,3}#{1,6}\s+.+$/gm
-	const matches = withoutCodeBlocks.match(headingRegex)
-	return matches ? matches.length : 0
+  // Up to 3 leading spaces are allowed before the hashes per the markdown spec
+  const headingRegex = /^\s{0,3}#{1,6}\s+.+$/gm
+  const matches = withoutCodeBlocks.match(headingRegex)
+  return matches ? matches.length : 0
 }
 
 /**
  * Returns true if the markdown contains at least two headings.
  */
 export function hasComplexMarkdown(text: string | undefined): boolean {
-	return countMarkdownHeadings(text) >= 2
+  return countMarkdownHeadings(text) >= 2
 }

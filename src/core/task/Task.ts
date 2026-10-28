@@ -350,7 +350,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
    * has been saved to API conversation history.
    *
    * This is critical for parallel tool calling: tools should NOT execute until
-   * the assistant message is saved. Otherwise, if a tool like `new_task` triggers
+   * the assistant message is saved. Otherwise, if a tool like `spawn_subtask` triggers
    * `flushPendingToolResultsToHistory()`, the user message with tool_results would
    * appear BEFORE the assistant message with tool_uses, causing API errors.
    *
@@ -1058,8 +1058,8 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
    * Flush any pending tool results to the API conversation history.
    *
    * This is critical when the task is about to be
-   * delegated (e.g., via new_task). Before delegation, if other tools were
-   * called in the same turn before new_task, their tool_result blocks are
+   * delegated (e.g., via spawn_subtask). Before delegation, if other tools were
+   * called in the same turn before spawn_subtask, their tool_result blocks are
    * accumulated in `userMessageContent` but haven't been saved to the API
    * history yet. If we don't flush them before the parent is disposed,
    * the API conversation will be incomplete and cause 400 errors when
@@ -1080,9 +1080,9 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
     // conversation history, causing API errors like:
     // "unexpected `tool_use_id` found in `tool_result` blocks"
     //
-    // This can happen when parallel tools are called (e.g., update_todo_list + new_task).
+    // This can happen when parallel tools are called (e.g., update_todo_list + spawn_subtask).
     // Tools execute during streaming via presentAssistantMessage, BEFORE the assistant
-    // message is saved. When new_task triggers delegation, it calls this method to
+    // message is saved. When spawn_subtask triggers delegation, it calls this method to
     // flush pending results - but the assistant message hasn't been saved yet.
     //
     // The assistantMessageSavedToHistory flag is:
@@ -2555,7 +2555,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
           newTaskRequireTodos: vscode.workspace
             .getConfiguration(Package.name)
             .get<boolean>("newTaskRequireTodos", false),
-          isStealthModel: modelInfo?.isStealthModel,
+          isSubtask: !!this.parentTaskId,
         },
         provider.getSkillsManager(),
         apiConfiguration?.useDeveloperRole ?? false,
